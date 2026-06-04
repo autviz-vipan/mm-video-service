@@ -1,0 +1,26 @@
+# Ignore dependencies
+node_modules/
+
+# Ignore local environment files containing credentials (pass them at runtime instead)
+.env
+.env.local
+.env.development
+.env.production
+
+# Ignore temporary rendering files and logs
+output_*.mp4
+*.log
+npm-debug.log*
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore Docker configurations
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Ignore operating system files
+.DS_Store
+Thumbs.db
