@@ -4,15 +4,14 @@ import React from 'react';
 // Teal SVG Logo Component
 const AppLogo = ({ size = 120 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Outer circle mirror */}
-    <circle cx="50" cy="42" r="24" stroke="#00A2C1" strokeWidth="5.5" />
-    {/* Side wings */}
-    <path d="M18 42C18 57 32 66 50 66C68 66 82 57 82 42" stroke="#00A2C1" strokeWidth="5.5" strokeLinecap="round" />
-    <path d="M12 42H18" stroke="#00A2C1" strokeWidth="5.5" strokeLinecap="round" />
-    <path d="M82 42H88" stroke="#00A2C1" strokeWidth="5.5" strokeLinecap="round" />
-    {/* Mirror base stand */}
-    <path d="M50 66V82" stroke="#00A2C1" strokeWidth="5.5" strokeLinecap="round" />
-    <path d="M42 82H58" stroke="#00A2C1" strokeWidth="6" strokeLinecap="round" />
+    {/* Central circle mirror */}
+    <circle cx="50" cy="45" r="21" stroke="#10AFCC" strokeWidth="5.5" />
+    {/* Crescent with side wings / hooks */}
+    <path d="M25 53 L25 49 L30 49 C30 65 39 74 50 74 C61 74 70 65 70 49 L75 49 L75 53" stroke="#10AFCC" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
+    {/* Stand stem */}
+    <path d="M50 74 V82" stroke="#10AFCC" strokeWidth="5.5" strokeLinecap="round" />
+    {/* Pill base */}
+    <path d="M50 82 V88" stroke="#10AFCC" strokeWidth="9" strokeLinecap="round" />
   </svg>
 );
 
@@ -55,8 +54,8 @@ const PigmentationIcon = ({ size = 32 }) => (
 
 const DefaultConcernIcon = ({ size = 32 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 3V21M3 12H21" stroke="#00A2C1" strokeWidth="2.5" strokeLinecap="round" />
-    <circle cx="12" cy="12" r="5" fill="#00A2C1" />
+    <path d="M12 3V21M3 12H21" stroke="#10AFCC" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx="12" cy="12" r="5" fill="#10AFCC" />
   </svg>
 );
 
@@ -275,7 +274,7 @@ export const ProgressVideo = ({
   const introFadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#e2ebedff', color: '#1A202C', fontFamily: 'Inter, sans-serif', opacity: introFadeIn }}>
+    <AbsoluteFill style={{ backgroundColor: '#ffffff', color: '#1A202C', fontFamily: 'Inter, sans-serif', opacity: introFadeIn }}>
 
       {/* ── SCENE 1: PREMIUM PRODUCT INTRO SCREEN ── */}
       {frame < 160 && (() => {
@@ -302,7 +301,7 @@ export const ProgressVideo = ({
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
+            background: '#ffffff',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -320,7 +319,7 @@ export const ProgressVideo = ({
               left: '50%',
               transform: `translate(-50%, -50%) scale(${interpolate(frame, [0, 160], [1, 1.15])})`,
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0, 162, 193, 0.10) 0%, rgba(0, 0, 0, 0) 70%)',
+              background: 'radial-gradient(circle, rgba(16, 175, 204, 0.10) 0%, rgba(0, 0, 0, 0) 70%)',
               zIndex: 0,
               pointerEvents: 'none'
             }} />
@@ -344,7 +343,7 @@ export const ProgressVideo = ({
               <h1 style={{
                 fontSize: 48,
                 fontWeight: '600',
-                color: '#00A2C1',
+                color: '#10AFCC',
                 letterSpacing: 2,
                 margin: '0 0 28px 0',
                 fontStyle: 'italic',
@@ -359,7 +358,7 @@ export const ProgressVideo = ({
                 <h2 style={{
                   fontSize: 48,
                   fontWeight: '800',
-                  color: '#00A2C1',
+                  color: '#10AFCC',
                   fontStyle: 'italic',
                   margin: 0,
                   letterSpacing: 3,
@@ -385,7 +384,7 @@ export const ProgressVideo = ({
                 border: '1px solid rgba(0, 0, 0, 0.06)',
                 padding: '80px 55px 55px 55px',
                 borderRadius: 56,
-                boxShadow: '0 20px 50px rgba(0, 162, 193, 0.12)',
+                boxShadow: '0 20px 50px rgba(16, 175, 204, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -510,7 +509,7 @@ export const ProgressVideo = ({
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
+            background: '#ffffff',
             padding: '50px 60px 60px 60px',
             display: 'flex',
             flexDirection: 'column',
@@ -581,7 +580,7 @@ export const ProgressVideo = ({
               margin: '0 auto',
               borderRadius: 48,
               overflow: 'hidden',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(0, 162, 193, 0.1)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(16, 175, 204, 0.1)',
               border: '3px solid rgba(0, 0, 0, 0.05)',
               backgroundColor: '#FFFFFF',
               boxSizing: 'border-box'
@@ -656,8 +655,8 @@ export const ProgressVideo = ({
                   const scoreVal = getMetricScore(firstScan.metrics, concernKey);
                   let label = concernKey.charAt(0).toUpperCase() + concernKey.slice(1);
                   let IconComponent = DefaultConcernIcon;
-                  let underlineColor = 'linear-gradient(90deg, #00A2C1 0%, rgba(0, 162, 193, 0.1) 100%)';
-                  let iconBg = 'rgba(0, 162, 193, 0.15)';
+                  let underlineColor = 'linear-gradient(90deg, #10AFCC 0%, rgba(16, 175, 204, 0.1) 100%)';
+                  let iconBg = 'rgba(16, 175, 204, 0.15)';
 
                   const lowerKey = concernKey.toLowerCase();
                   if (lowerKey.includes('red')) {
@@ -765,7 +764,7 @@ export const ProgressVideo = ({
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
+            background: '#ffffff',
             padding: '50px 60px 60px 60px',
             display: 'flex',
             flexDirection: 'column',
@@ -836,8 +835,8 @@ export const ProgressVideo = ({
               margin: '0 auto',
               borderRadius: 48,
               overflow: 'hidden',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(0, 162, 193, 0.1)',
-              border: '3px solid #00A2C1',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(16, 175, 204, 0.1)',
+              border: '3px solid #10AFCC',
               backgroundColor: '#FFFFFF',
               boxSizing: 'border-box'
             }}>
@@ -1020,7 +1019,7 @@ export const ProgressVideo = ({
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
+            background: '#ffffff',
             padding: '50px 60px 60px 60px',
             display: 'flex',
             flexDirection: 'column',
@@ -1038,7 +1037,7 @@ export const ProgressVideo = ({
               boxSizing: 'border-box',
               textAlign: 'center'
             }}>
-              <span style={{ fontSize: 38, fontWeight: '900', color: '#00A2C1', textTransform: 'uppercase', letterSpacing: 3, display: 'block', marginBottom: 4 }}>
+              <span style={{ fontSize: 38, fontWeight: '900', color: '#10AFCC', textTransform: 'uppercase', letterSpacing: 3, display: 'block', marginBottom: 4 }}>
                 {metricLabel}
               </span>
               <span style={{ fontSize: 26, fontWeight: '700', color: '#718096', letterSpacing: 1.5 }}>
@@ -1054,7 +1053,7 @@ export const ProgressVideo = ({
               margin: '0 auto',
               borderRadius: 48,
               overflow: 'hidden',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(0, 162, 193, 0.1)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(16, 175, 204, 0.1)',
               border: '3px solid rgba(0, 0, 0, 0.05)',
               backgroundColor: '#FFFFFF',
               boxSizing: 'border-box'
@@ -1208,11 +1207,9 @@ export const ProgressVideo = ({
                     {afterWidth > 0.1 && (
                       <div style={{
                         position: 'relative',
-                        width: `${afterWidth}%`,
-                        height: '100%',
-                        borderRadius: 32,
+                           borderRadius: 32,
                         overflow: 'hidden',
-                        border: '3px solid #00A2C1',
+                        border: '3px solid #10AFCC',
                         backgroundColor: 'transparent',
                         boxSizing: 'border-box'
                       }}>
@@ -1235,11 +1232,11 @@ export const ProgressVideo = ({
                           position: 'absolute',
                           bottom: 24,
                           left: 24,
-                          background: '#00A2C1',
+                          background: '#10AFCC',
                           padding: '10px 24px',
                           borderRadius: 20,
                           zIndex: 10,
-                          boxShadow: '0 4px 12px rgba(0, 162, 193, 0.3)'
+                          boxShadow: '0 4px 12px rgba(16, 175, 204, 0.3)'
                         }}>
                           <span style={{ fontSize: 18, fontWeight: '700', color: '#FFFFFF', letterSpacing: 1.5, textTransform: 'uppercase' }}>
                             AFTER
@@ -1326,15 +1323,15 @@ export const ProgressVideo = ({
                     alignItems: 'center',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
                     transform: 'translate(-50%, -50%)',
-                    color: '#00A2C1',
+                    color: '#10AFCC',
                     fontSize: 34,
                     fontWeight: '900',
                     zIndex: 6
                   }}>
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 17L3 12L8 7" stroke="#00A2C1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M16 7L21 12L16 17" stroke="#00A2C1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="12" cy="12" r="2.5" fill="#00A2C1" />
+                      <path d="M8 17L3 12L8 7" stroke="#10AFCC" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M16 7L21 12L16 17" stroke="#10AFCC" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle cx="12" cy="12" r="2.5" fill="#10AFCC" />
                     </svg>
                   </div>
                 </>
@@ -1358,7 +1355,7 @@ export const ProgressVideo = ({
 
                 const isScoreDown = scoreDiffVal < 0;
                 const isScoreUp = scoreDiffVal > 0;
-                const statColor = isScoreDown ? '#FF453A' : isScoreUp ? '#34C759' : '#00A2C1';
+                const statColor = isScoreDown ? '#FF453A' : isScoreUp ? '#34C759' : '#10AFCC';
                 const arrowSymbol = isScoreDown ? '↓' : isScoreUp ? '↑' : '';
                 const diffText = scoreDiffVal !== 0 ? `${arrowSymbol}${Math.abs(scoreDiffVal)}` : '0';
 
@@ -1673,11 +1670,11 @@ export const ProgressVideo = ({
                     width={(svgWidth - marginLeft - marginRight) / 2 - 10}
                     height={72}
                     rx={18}
-                    fill="rgba(0, 162, 193, 0.08)"
-                    stroke="rgba(0, 162, 193, 0.25)"
+                    fill="rgba(16, 175, 204, 0.08)"
+                    stroke="rgba(16, 175, 204, 0.25)"
                     strokeWidth={2}
                   />
-                  <text x={marginLeft + (svgWidth - marginLeft - marginRight) / 4 - 5} y={43} textAnchor="middle" fill="#00A2C1" fontSize={17} fontWeight="800" letterSpacing={1.2}>BEFORE TEST</text>
+                  <text x={marginLeft + (svgWidth - marginLeft - marginRight) / 4 - 5} y={43} textAnchor="middle" fill="#10AFCC" fontSize={17} fontWeight="800" letterSpacing={1.2}>BEFORE TEST</text>
                 </g>
               )}
 
@@ -1715,7 +1712,7 @@ export const ProgressVideo = ({
                   <path
                     d={getBeforeLinePath()}
                     fill="none"
-                    stroke="#00A2C1"
+                    stroke="#10AFCC"
                     strokeWidth={5}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1768,7 +1765,7 @@ export const ProgressVideo = ({
                     y1={getY(avBT)}
                     x2={svgWidth - marginRight}
                     y2={getY(avBT)}
-                    stroke="#00A2C1"
+                    stroke="#10AFCC"
                     strokeWidth={3}
                     strokeDasharray="8 6"
                     opacity={0.8}
@@ -1779,7 +1776,7 @@ export const ProgressVideo = ({
                     width={110}
                     height={36}
                     rx={8}
-                    fill="rgba(0, 162, 193, 0.9)"
+                    fill="rgba(16, 175, 204, 0.9)"
                   />
                   <text
                     x={marginLeft + 70}
@@ -1834,7 +1831,7 @@ export const ProgressVideo = ({
         return (
           <AbsoluteFill style={{
             transform: `translateY(${chartRiseProgress}px)`,
-            backgroundColor: '#e2ebedff',
+            backgroundColor: '#ffffff',
             backdropFilter: 'blur(20px)',
             padding: '80px 70px 180px',
             display: 'flex',
@@ -1886,8 +1883,8 @@ export const ProgressVideo = ({
                     transform: 'translateX(-50%)',
                     opacity: stage1ElementsOpacity,
                     background: '#FFFFFF',
-                    border: '1px solid rgba(0, 162, 193, 0.25)',
-                    boxShadow: '0 8px 32px rgba(0, 162, 193, 0.08)',
+                    border: '1px solid rgba(16, 175, 204, 0.25)',
+                    boxShadow: '0 8px 32px rgba(16, 175, 204, 0.08)',
                     backdropFilter: 'blur(16px)',
                     borderRadius: 24,
                     padding: '24px 48px',
@@ -1897,7 +1894,7 @@ export const ProgressVideo = ({
                     <span style={{ fontSize: 20, color: '#718096', fontWeight: '700', letterSpacing: 2, display: 'block', marginBottom: 6 }}>
                       BEFORE AVERAGE SCORE
                     </span>
-                    <span style={{ fontSize: 72, fontWeight: '900', color: '#00A2C1', textShadow: '0 0 15px rgba(0, 162, 193, 0.15)' }}>
+                    <span style={{ fontSize: 72, fontWeight: '900', color: '#10AFCC', textShadow: '0 0 15px rgba(16, 175, 204, 0.15)' }}>
                       {avBT}
                     </span>
                   </div>
@@ -2059,7 +2056,7 @@ export const ProgressVideo = ({
         <AbsoluteFill style={{
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#e2ebedff',
+          backgroundColor: '#ffffff',
           opacity: outroOpacity,
           transform: `scale(${outroScale})`
         }}>
@@ -2072,7 +2069,7 @@ export const ProgressVideo = ({
           <h1 style={{ fontSize: 68, fontWeight: '900', letterSpacing: 8, color: '#1A202C', marginTop: 15 }}>
             MAGIC MIRROR
           </h1>
-          <p style={{ fontSize: 24, color: '#00A2C1', letterSpacing: 2, marginTop: 70, fontWeight: '600' }}>
+          <p style={{ fontSize: 24, color: '#10AFCC', letterSpacing: 2, marginTop: 70, fontWeight: '600' }}>
             OWN YOUR SKIN HEALTH
           </p>
         </AbsoluteFill>
