@@ -33,7 +33,8 @@ jobs:
             AWS_REGION=$AWS_REGION
             FASTAPI_CALLBACK_URL=$FASTAPI_CALLBACK_URL
             EOF
-      
+            
+            docker-compose down
             docker-compose up -d --build
             
             # Remove old unused images
