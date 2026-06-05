@@ -4,49 +4,58 @@ import React from 'react';
 // Teal SVG Logo Component
 const AppLogo = ({ size = 120 }) => (
   <svg width={size} height={size} viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="appLogoShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="4" stdDeviation="10" floodOpacity="0.15" />
+      </filter>
+    </defs>
+
+    {/* White Circle Background with Shadow */}
+    <circle cx="150" cy="150" r="115" fill="white" filter="url(#appLogoShadow)" />
+
     {/* Main Circle */}
     <circle cx="150" cy="130" r="55"
-            fill="none"
-            stroke="#10AFCC"
-            strokeWidth="8"/>
+      fill="none"
+      stroke="#10AFCC"
+      strokeWidth="8" />
 
     {/* Outer Arc */}
     <path d="M 80 130 A 70 70 0 0 0 220 130"
-          fill="none"
-          stroke="#10AFCC"
-          strokeWidth="8"
-          strokeLinecap="round"/>
+      fill="none"
+      stroke="#10AFCC"
+      strokeWidth="8"
+      strokeLinecap="round" />
 
     {/* Inner Arc */}
     <path d="M 95 130 A 55 55 0 0 0 205 130"
-          fill="none"
-          stroke="#10AFCC"
-          strokeWidth="5"
-          strokeLinecap="round"/>
+      fill="none"
+      stroke="#10AFCC"
+      strokeWidth="5"
+      strokeLinecap="round" />
 
     {/* Side Extensions */}
     <line x1="80" y1="130" x2="95" y2="130"
-          stroke="#10AFCC"
-          strokeWidth="8"
-          strokeLinecap="round"/>
+      stroke="#10AFCC"
+      strokeWidth="8"
+      strokeLinecap="round" />
 
     <line x1="205" y1="130" x2="220" y2="130"
-          stroke="#10AFCC"
-          strokeWidth="8"
-          strokeLinecap="round"/>
+      stroke="#10AFCC"
+      strokeWidth="8"
+      strokeLinecap="round" />
 
     {/* Stem */}
     <line x1="150" y1="200" x2="150" y2="235"
-          stroke="#10AFCC"
-          strokeWidth="8"
-          strokeLinecap="round"/>
+      stroke="#10AFCC"
+      strokeWidth="8"
+      strokeLinecap="round" />
 
     {/* Bottom Rounded Shape */}
     <rect x="142" y="235"
-          width="16"
-          height="35"
-          rx="8"
-          fill="#10AFCC"/>
+      width="16"
+      height="35"
+      rx="8"
+      fill="#10AFCC" />
   </svg>
 );
 
@@ -302,9 +311,9 @@ export const ProgressVideo = ({
   // Scene 4: Chart slide-up driver (starts at 340)
   const chartRiseProgress = spring({ frame: frame - 500, fps, from: 1920, to: 0, config: { damping: 16, mass: 1.1 } });
 
-  // Scene 5: Outro scale driver (starts at 481, runs to 541 = 2s)
-  const outroScale = spring({ frame: frame - 700, fps, from: 0.6, to: 1, config: { damping: 10 } });
-  const outroOpacity = interpolate(frame, [700, 730], [0, 1], { extrapolateLeft: 'clamp' });
+  // Scene 5: Outro scale driver (starts at 950)
+  const outroScale = spring({ frame: frame - 950, fps, from: 0.6, to: 1, config: { damping: 10 } });
+  const outroOpacity = interpolate(frame, [950, 980], [0, 1], { extrapolateLeft: 'clamp' });
 
   const introFadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
@@ -430,7 +439,7 @@ export const ProgressVideo = ({
                 {product_image_url ? (
                   <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Brand Logo" />
                 ) : (
-                  <AppLogo size={260} />
+                  <AppLogo size={320} />
                 )}
               </div>
             </div>
@@ -1455,8 +1464,8 @@ export const ProgressVideo = ({
       })()}
 
 
-      {/* ── SCENE 4: THE EFFECTIVENESS CHART (Frames 340 - 481 = 4.7s) ── */}
-      {frame >= 500 && frame < 700 && (() => {
+      {/* ── SCENE 4: THE EFFECTIVENESS CHART (Frames 500 - 950 = 15s) ── */}
+      {frame >= 500 && frame < 950 && (() => {
         const localFrame = frame - 500;
 
         // 1. Identify if we are in dynamic actual scans mode vs simulated mode
@@ -1580,24 +1589,24 @@ export const ProgressVideo = ({
           }).join(' ');
         };
 
-        // Staged transitions for our slowed down chart animation
+        // Staged transitions for our slowed down chart animation (5s per stage = 150 frames each)
         const beforeDotsScale = spring({ frame: localFrame - 10, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
-        const beforeLineProgress = interpolate(localFrame, [25, 55], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const beforeLineProgress = interpolate(localFrame, [50, 110], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const stage1TextY = interpolate(localFrame, [12, 30], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage1TextOpacity = interpolate(localFrame, [0, 10, 60, 68], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage1TextScale = interpolate(localFrame, [12, 30], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage1ElementsOpacity = interpolate(localFrame, [15, 32], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1TextY = interpolate(localFrame, [25, 60], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1TextOpacity = interpolate(localFrame, [0, 20, 130, 145], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1TextScale = interpolate(localFrame, [25, 60], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1ElementsOpacity = interpolate(localFrame, [30, 65], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const duringDotsScale = spring({ frame: localFrame - 80, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
-        const duringLineProgress = interpolate(localFrame, [90, 120], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const duringDotsScale = spring({ frame: localFrame - 160, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
+        const duringLineProgress = interpolate(localFrame, [200, 260], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const stage2TextY = interpolate(localFrame, [78, 95], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage2TextOpacity = interpolate(localFrame, [70, 80, 120, 128], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage2TextScale = interpolate(localFrame, [78, 95], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage2ElementsOpacity = interpolate(localFrame, [80, 98], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2TextY = interpolate(localFrame, [162, 190], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2TextOpacity = interpolate(localFrame, [150, 170, 280, 295], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2TextScale = interpolate(localFrame, [162, 190], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2ElementsOpacity = interpolate(localFrame, [170, 200], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const stage3Opacity = interpolate(localFrame, [130, 150], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage3Opacity = interpolate(localFrame, [300, 340], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
         const renderChartSVG = (
           showBlue,
@@ -1879,7 +1888,7 @@ export const ProgressVideo = ({
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
 
               {/* STAGE 1: Oh my skin before using the product */}
-              {localFrame < 70 && (
+              {localFrame < 150 && (
                 <>
                   <div style={{
                     position: 'absolute',
@@ -1939,7 +1948,7 @@ export const ProgressVideo = ({
               )}
 
               {/* STAGE 2: My skin health after using the product */}
-              {localFrame >= 70 && localFrame < 130 && (
+              {localFrame >= 150 && localFrame < 300 && (
                 <>
                   <div style={{
                     position: 'absolute',
@@ -1996,7 +2005,7 @@ export const ProgressVideo = ({
               )}
 
               {/* STAGE 3: Final Combined effectiveness recap review */}
-              {localFrame >= 130 && (
+              {localFrame >= 300 && (
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -2088,8 +2097,8 @@ export const ProgressVideo = ({
         );
       })()}
 
-      {/* ── SCENE 5: BRAND OUTRO & VERIFICATION (Frames 481 - 541 = 2s) ── */}
-      {frame >= 700 && (
+      {/* ── SCENE 5: BRAND OUTRO & VERIFICATION (Frames 950 - 1010 = 2s) ── */}
+      {frame >= 950 && (
         <AbsoluteFill style={{
           justifyContent: 'center',
           alignItems: 'center',
@@ -2098,7 +2107,7 @@ export const ProgressVideo = ({
           transform: `scale(${outroScale})`
         }}>
           <div style={{ marginBottom: 50 }}>
-            <AppLogo size={280} />
+            <AppLogo size={360} />
           </div>
           <h2 style={{ fontSize: 28, letterSpacing: 5, color: '#718096', fontWeight: '600' }}>
             VERIFIED BY
@@ -2106,7 +2115,7 @@ export const ProgressVideo = ({
           <h1 style={{ fontSize: 68, fontWeight: '900', letterSpacing: 8, color: '#1A202C', marginTop: 15 }}>
             MAGIC MIRROR
           </h1>
-          <p style={{ fontSize: 24, color: '#10AFCC', letterSpacing: 2, marginTop: 70, fontWeight: '600' }}>
+          <p style={{ fontSize: 34, color: '#10AFCC', letterSpacing: 2, marginTop: 70, fontWeight: '600' }}>
             OWN YOUR SKIN HEALTH
           </p>
         </AbsoluteFill>
