@@ -115,6 +115,9 @@ export const ProgressVideo = ({
   concerns = [],
   creator_name = "",
   tester_by = "",
+  // Mask overlay URLs — passed only when mask_enabled="on"
+  before_mask_url = "",
+  after_mask_url = "",
   // Optional fine-grained visual alignment variables
   before_image_offset_x = 0,
   before_image_offset_y = 0,
@@ -193,21 +196,21 @@ export const ProgressVideo = ({
 
   // Slider sweep position driver - starts at 100 (fully Before), sweeps to 0 (fully After), then settles at 50 (50/50 split)
   const sliderPosition = interpolate(frame,
-    [180, 220, 240, 280],
+    [240, 290, 310, 370],
     [100, 0, 50, 50],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
 
   // Score fading drivers - Before score fades in after Intro screen (at frame 90)
-  const beforeScoreOpacity = interpolate(frame, [90, 110], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const beforeScoreOpacity = interpolate(frame, [120, 150], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
   // The after score starts completely hidden and lights up once the slider scene starts at 180
-  const afterScoreOpacity = interpolate(frame, [180, 210], [0, 1], { extrapolateLeft: 'clamp' });
-  const afterScoreScale = spring({ frame: frame - 210, fps, from: 0.8, to: 1, config: { damping: 12 } });
+  const afterScoreOpacity = interpolate(frame, [240, 280], [0, 1], { extrapolateLeft: 'clamp' });
+  const afterScoreScale = spring({ frame: frame - 280, fps, from: 0.8, to: 1, config: { damping: 12 } });
 
   // Side-by-side transition spring drivers - starts at 180
   const afterRevealProgress = spring({
-    frame: frame - 210,
+    frame: frame - 280,
     fps,
     from: 0,
     to: 1,
@@ -215,7 +218,7 @@ export const ProgressVideo = ({
   });
 
   const splitProgress = spring({
-    frame: frame - 250,
+    frame: frame - 340,
     fps,
     from: 0,
     to: 1,
@@ -224,7 +227,7 @@ export const ProgressVideo = ({
 
   // Flipbook 3D spring driver - starts at 180
   const flipRotation = spring({
-    frame: frame - 210,
+    frame: frame - 280,
     fps,
     from: 0,
     to: 180,
@@ -232,9 +235,9 @@ export const ProgressVideo = ({
   });
 
   // Cinematic zooms & 3D scale drivers for flipbook style
-  const beforeZoom = interpolate(frame, [120, 210], [1.15, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const beforeZoom = interpolate(frame, [160, 280], [1.15, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const afterZoom = spring({
-    frame: frame - 210,
+    frame: frame - 280,
     fps,
     from: 0.88,
     to: 1.0,
@@ -245,9 +248,9 @@ export const ProgressVideo = ({
   // Calculate dynamic before score opacity based on style staging (declared after splitProgress and flipRotation to avoid TDZ error)
   let currentBeforeScoreOpacity = beforeScoreOpacity;
   if (style === "side_by_side") {
-    if (frame >= 210 && frame < 250) {
+    if (frame >= 280 && frame < 340) {
       currentBeforeScoreOpacity = 0; // completely hide during Stage 2
-    } else if (frame >= 250) {
+    } else if (frame >= 340) {
       currentBeforeScoreOpacity = splitProgress; // fade back in Stage 3
     }
   } else if (style === "flipbook") {
@@ -263,43 +266,43 @@ export const ProgressVideo = ({
   }
 
   // Scene 4: Chart slide-up driver (starts at 340)
-  const chartRiseProgress = spring({ frame: frame - 370, fps, from: 1920, to: 0, config: { damping: 16, mass: 1.1 } });
+  const chartRiseProgress = spring({ frame: frame - 500, fps, from: 1920, to: 0, config: { damping: 16, mass: 1.1 } });
 
   // Scene 5: Outro scale driver (starts at 481, runs to 541 = 2s)
-  const outroScale = spring({ frame: frame - 511, fps, from: 0.6, to: 1, config: { damping: 10 } });
-  const outroOpacity = interpolate(frame, [511, 531], [0, 1], { extrapolateLeft: 'clamp' });
+  const outroScale = spring({ frame: frame - 700, fps, from: 0.6, to: 1, config: { damping: 10 } });
+  const outroOpacity = interpolate(frame, [700, 730], [0, 1], { extrapolateLeft: 'clamp' });
 
   const introFadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#000000', color: '#FFFFFF', fontFamily: 'Inter, sans-serif', opacity: introFadeIn }}>
+    <AbsoluteFill style={{ backgroundColor: '#e2ebedff', color: '#1A202C', fontFamily: 'Inter, sans-serif', opacity: introFadeIn }}>
 
       {/* ── SCENE 1: PREMIUM PRODUCT INTRO SCREEN ── */}
-      {frame < 120 && (() => {
+      {frame < 160 && (() => {
         // Simple intro — product logo fades in directly, no gift box
         const logoScale = spring({ frame, fps, from: 0, to: 1, config: { damping: 10, mass: 0.9, stiffness: 100 } });
 
         // Text fades in line by line
-        const line1Opacity = interpolate(frame, [5, 20], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const line1Y = interpolate(frame, [5, 20], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const line1Opacity = interpolate(frame, [10, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const line1Y = interpolate(frame, [10, 30], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const line2Opacity = interpolate(frame, [15, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const line2Y = interpolate(frame, [15, 30], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const line2Opacity = interpolate(frame, [25, 45], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const line2Y = interpolate(frame, [25, 45], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const line3Opacity = interpolate(frame, [25, 42], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const line3Y = interpolate(frame, [25, 42], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const line3Opacity = interpolate(frame, [40, 60], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const line3Y = interpolate(frame, [40, 60], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const panelOpacity = interpolate(frame, [35, 55], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const panelY = interpolate(frame, [35, 55], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const panelOpacity = interpolate(frame, [55, 80], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const panelY = interpolate(frame, [55, 80], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
         // Entire scene fades out at end
-        const sceneOpacity = interpolate(frame, [105, 120], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const sceneOpacity = interpolate(frame, [145, 160], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
         const testerName = tester_by || creator_name || '';
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #1A293E 0%, #0B1320 100%)',
+            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -315,7 +318,7 @@ export const ProgressVideo = ({
               height: 1400,
               top: '50%',
               left: '50%',
-              transform: `translate(-50%, -50%) scale(${interpolate(frame, [0, 120], [1, 1.15])})`,
+              transform: `translate(-50%, -50%) scale(${interpolate(frame, [0, 160], [1, 1.15])})`,
               borderRadius: '50%',
               background: 'radial-gradient(circle, rgba(0, 162, 193, 0.10) 0%, rgba(0, 0, 0, 0) 70%)',
               zIndex: 0,
@@ -327,7 +330,7 @@ export const ProgressVideo = ({
               <span style={{
                 fontSize: 50,
                 fontWeight: '900',
-                color: '#e7e1e1ff',
+                color: '#4A5568',
                 letterSpacing: 6,
                 fontStyle: 'italic',
                 display: 'block',
@@ -378,11 +381,11 @@ export const ProgressVideo = ({
               transform: `scale(${logoScale})`,
             }}>
               <div style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid rgba(0, 0, 0, 0.06)',
                 padding: '80px 55px 55px 55px',
                 borderRadius: 56,
-                boxShadow: '0 30px 80px rgba(0,0,0,0.6)',
+                boxShadow: '0 20px 50px rgba(0, 162, 193, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -411,23 +414,24 @@ export const ProgressVideo = ({
 
               {/* TESTING FOR */}
               <div style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#FFFFFF',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
                 borderRadius: 24,
                 padding: '28px 40px',
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 40
+                gap: 40,
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)'
               }}>
-                <span style={{ fontSize: 25, fontWeight: '700', color: '#a9a9adff', letterSpacing: 3, flexShrink: 0, width: 220 }}>
+                <span style={{ fontSize: 25, fontWeight: '700', color: '#718096', letterSpacing: 3, flexShrink: 0, width: 220 }}>
                   TESTING FOR
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '10px 36px', alignItems: 'center' }}>
                   {(concerns.length > 0 ? concerns : ['—']).map((c, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#00A2C1', flexShrink: 0 }} />
-                      <span style={{ fontSize: 35, color: '#FFFFFF', fontWeight: '500' }}>
+                      <span style={{ fontSize: 35, color: '#1A202C', fontWeight: '500' }}>
                         {c.charAt(0).toUpperCase() + c.slice(1)}
                       </span>
                     </div>
@@ -437,43 +441,45 @@ export const ProgressVideo = ({
 
               {/* TESTING PERIOD */}
               <div style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#FFFFFF',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
                 borderRadius: 24,
                 padding: '28px 40px',
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 40
+                gap: 40,
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)'
               }}>
-                <span style={{ fontSize: 25, fontWeight: '700', color: '#a9a9adff', letterSpacing: 3, flexShrink: 0, width: 220 }}>
+                <span style={{ fontSize: 25, fontWeight: '700', color: '#718096', letterSpacing: 3, flexShrink: 0, width: 220 }}>
                   TESTING PERIOD
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
                   {before_date && (
-                    <span style={{ fontSize: 30, color: '#FFFFFF', fontWeight: '600' }}>{before_date}</span>
+                    <span style={{ fontSize: 30, color: '#1A202C', fontWeight: '600' }}>{before_date}</span>
                   )}
                   {before_date && after_date && (
-                    <span style={{ fontSize: 24, color: '#8E8E93', fontWeight: '400' }}>→</span>
+                    <span style={{ fontSize: 24, color: '#718096', fontWeight: '400' }}>→</span>
                   )}
                   {after_date && (
-                    <span style={{ fontSize: 30, color: '#FFFFFF', fontWeight: '600' }}>{after_date}</span>
+                    <span style={{ fontSize: 30, color: '#1A202C', fontWeight: '600' }}>{after_date}</span>
                   )}
                 </div>
               </div>
 
               {/* TESTED BY */}
               <div style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#FFFFFF',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
                 borderRadius: 24,
                 padding: '28px 40px',
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 40
+                gap: 40,
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)'
               }}>
-                <span style={{ fontSize: 25, fontWeight: '700', color: '#a9a9adff', letterSpacing: 3, flexShrink: 0, width: 220 }}>
+                <span style={{ fontSize: 25, fontWeight: '700', color: '#718096', letterSpacing: 3, flexShrink: 0, width: 220 }}>
                   TESTED BY
                 </span>
                 {testerName ? (
@@ -483,13 +489,13 @@ export const ProgressVideo = ({
                       <circle cx="40" cy="31" r="11" stroke="#00A2C1" strokeWidth="3.5" />
                       <path d="M16 65c0-13.255 10.745-24 24-24s24 10.745 24 24" stroke="#00A2C1" strokeWidth="3.5" strokeLinecap="round" />
                     </svg>
-                    <div style={{ width: 2, height: 60, backgroundColor: 'rgba(255,255,255,0.18)', margin: '0 28px', flexShrink: 0 }} />
-                    <span style={{ fontSize: 34, color: '#FFFFFF', fontWeight: '700' }}>
+                    <div style={{ width: 2, height: 60, backgroundColor: 'rgba(0,0,0,0.1)', margin: '0 28px', flexShrink: 0 }} />
+                    <span style={{ fontSize: 34, color: '#1A202C', fontWeight: '700' }}>
                       {testerName.startsWith('@') ? testerName : `@${testerName}`}
                     </span>
                   </div>
                 ) : (
-                  <span style={{ fontSize: 28, color: '#8E8E93', fontWeight: '500' }}>—</span>
+                  <span style={{ fontSize: 28, color: '#718096', fontWeight: '500' }}>—</span>
                 )}
               </div>
 
@@ -499,12 +505,12 @@ export const ProgressVideo = ({
       })()}
 
       {/* ── SCENE 2: BEFORE SCAN BASELINE VIEW (Frames 120 to 180) ── */}
-      {frame >= 120 && frame < 180 && (() => {
+      {frame >= 160 && frame < 240 && (() => {
         const concernsList = concerns && concerns.length > 0 ? concerns : Object.keys(firstScan.metrics || {});
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #1A293E 0%, #0B1320 100%)',
+            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
             padding: '50px 60px 60px 60px',
             display: 'flex',
             flexDirection: 'column',
@@ -525,7 +531,7 @@ export const ProgressVideo = ({
                 <span style={{
                   fontSize: 22,
                   fontWeight: '700',
-                  color: '#8E8E93',
+                  color: '#718096',
                   letterSpacing: 2,
                   textTransform: 'uppercase',
                   marginBottom: 6
@@ -533,11 +539,11 @@ export const ProgressVideo = ({
                   DATE
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <CalendarIcon size={30} color="#FFFFFF" />
+                  <CalendarIcon size={30} color="#1A202C" />
                   <span style={{
                     fontSize: 34,
                     fontWeight: '700',
-                    color: '#FFFFFF'
+                    color: '#1A202C'
                   }}>
                     {firstScan.date.toUpperCase()}
                   </span>
@@ -549,17 +555,17 @@ export const ProgressVideo = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                background: '#FFFFFF',
                 padding: '12px 28px',
                 borderRadius: 30,
-                boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
               }}>
-                <CalendarIcon size={30} color="#FFFFFF" />
+                <CalendarIcon size={30} color="#1A202C" />
                 <span style={{
                   fontSize: 34,
                   fontWeight: '700',
-                  color: '#FFFFFF',
+                  color: '#1A202C',
                   letterSpacing: 1
                 }}>
                   BEFORE
@@ -575,9 +581,9 @@ export const ProgressVideo = ({
               margin: '0 auto',
               borderRadius: 48,
               overflow: 'hidden',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0, 162, 193, 0.15)',
-              border: '3px solid rgba(255, 255, 255, 0.1)',
-              backgroundColor: '#1C1C1E',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(0, 162, 193, 0.1)',
+              border: '3px solid rgba(0, 0, 0, 0.05)',
+              backgroundColor: '#FFFFFF',
               boxSizing: 'border-box'
             }}>
               <div style={{
@@ -603,8 +609,8 @@ export const ProgressVideo = ({
                   }}
                   alt="Before Scan"
                 />
-                {mask_enabled === 'on' && (
-                  <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                {mask_enabled === 'on' && before_mask_url && (
+                  <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
                 )}
               </div>
             </div>
@@ -622,15 +628,15 @@ export const ProgressVideo = ({
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                  border: '1px solid rgba(0, 0, 0, 0.06)',
                   padding: '10px 24px',
                   borderRadius: 20
                 }}>
                   <span style={{
                     fontSize: 20,
                     fontWeight: '700',
-                    color: '#8E8E93',
+                    color: '#718096',
                     letterSpacing: 1.5,
                     textTransform: 'uppercase'
                   }}>
@@ -687,11 +693,11 @@ export const ProgressVideo = ({
                       key={concernKey}
                       style={{
                         width: cardWidth,
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        background: '#FFFFFF',
+                        border: '1px solid rgba(0, 0, 0, 0.05)',
                         borderRadius: 32,
                         padding: '32px',
-                        boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
@@ -715,21 +721,21 @@ export const ProgressVideo = ({
                           }}>
                             <IconComponent size={32} />
                           </div>
-                          <span style={{ fontSize: 28, fontWeight: '700', color: '#FFFFFF' }}>
+                          <span style={{ fontSize: 28, fontWeight: '700', color: '#1A202C' }}>
                             {label}
                           </span>
                         </div>
 
                         {/* Score Row */}
                         <div>
-                          <span style={{ fontSize: 20, fontWeight: '600', color: '#8E8E93', display: 'block', marginBottom: 8 }}>
+                          <span style={{ fontSize: 20, fontWeight: '600', color: '#718096', display: 'block', marginBottom: 8 }}>
                             Score
                           </span>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                            <span style={{ fontSize: 84, fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>
+                            <span style={{ fontSize: 84, fontWeight: '800', color: '#1A202C', lineHeight: 1 }}>
                               {scoreVal}
                             </span>
-                            <span style={{ fontSize: 24, fontWeight: '600', color: '#8E8E93' }}>
+                            <span style={{ fontSize: 24, fontWeight: '600', color: '#718096' }}>
                               /100
                             </span>
                           </div>
@@ -754,12 +760,12 @@ export const ProgressVideo = ({
       })()}
 
       {/* ── SCENE 3: AFTER SCAN BASELINE VIEW (Frames 180 to 250) ── */}
-      {frame >= 180 && frame < 250 && (() => {
+      {frame >= 240 && frame < 340 && (() => {
         const concernsList = concerns && concerns.length > 0 ? concerns : Object.keys(lastScan.metrics || {});
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #1A293E 0%, #0B1320 100%)',
+            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
             padding: '50px 60px 60px 60px',
             display: 'flex',
             flexDirection: 'column',
@@ -780,7 +786,7 @@ export const ProgressVideo = ({
                 <span style={{
                   fontSize: 22,
                   fontWeight: '700',
-                  color: '#8E8E93',
+                  color: '#718096',
                   letterSpacing: 2,
                   textTransform: 'uppercase',
                   marginBottom: 6
@@ -788,11 +794,11 @@ export const ProgressVideo = ({
                   DATE
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <CalendarIcon size={30} color="#FFFFFF" />
+                  <CalendarIcon size={30} color="#1A202C" />
                   <span style={{
                     fontSize: 34,
                     fontWeight: '700',
-                    color: '#FFFFFF'
+                    color: '#1A202C'
                   }}>
                     {lastScan.date.toUpperCase()}
                   </span>
@@ -804,17 +810,17 @@ export const ProgressVideo = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                background: '#FFFFFF',
                 padding: '12px 28px',
                 borderRadius: 30,
-                boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
               }}>
-                <CalendarIcon size={30} color="#FFFFFF" />
+                <CalendarIcon size={30} color="#1A202C" />
                 <span style={{
                   fontSize: 34,
                   fontWeight: '700',
-                  color: '#FFFFFF',
+                  color: '#1A202C',
                   letterSpacing: 1
                 }}>
                   AFTER
@@ -830,9 +836,9 @@ export const ProgressVideo = ({
               margin: '0 auto',
               borderRadius: 48,
               overflow: 'hidden',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0, 162, 193, 0.15)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(0, 162, 193, 0.1)',
               border: '3px solid #00A2C1',
-              backgroundColor: '#1C1C1E',
+              backgroundColor: '#FFFFFF',
               boxSizing: 'border-box'
             }}>
               <div style={{
@@ -858,8 +864,8 @@ export const ProgressVideo = ({
                   }}
                   alt="After Scan"
                 />
-                {mask_enabled === 'on' && (
-                  <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                {mask_enabled === 'on' && after_mask_url && (
+                  <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
                 )}
               </div>
             </div>
@@ -877,15 +883,15 @@ export const ProgressVideo = ({
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                  border: '1px solid rgba(0, 0, 0, 0.06)',
                   padding: '10px 24px',
                   borderRadius: 20
                 }}>
                   <span style={{
                     fontSize: 20,
                     fontWeight: '700',
-                    color: '#8E8E93',
+                    color: '#718096',
                     letterSpacing: 1.5,
                     textTransform: 'uppercase'
                   }}>
@@ -942,11 +948,11 @@ export const ProgressVideo = ({
                       key={concernKey}
                       style={{
                         width: cardWidth,
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        background: '#FFFFFF',
+                        border: '1px solid rgba(0, 0, 0, 0.05)',
                         borderRadius: 32,
                         padding: '32px',
-                        boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
@@ -970,21 +976,21 @@ export const ProgressVideo = ({
                           }}>
                             <IconComponent size={32} />
                           </div>
-                          <span style={{ fontSize: 28, fontWeight: '700', color: '#FFFFFF' }}>
+                          <span style={{ fontSize: 28, fontWeight: '700', color: '#1A202C' }}>
                             {label}
                           </span>
                         </div>
 
                         {/* Score Row */}
                         <div>
-                          <span style={{ fontSize: 20, fontWeight: '600', color: '#8E8E93', display: 'block', marginBottom: 8 }}>
+                          <span style={{ fontSize: 20, fontWeight: '600', color: '#718096', display: 'block', marginBottom: 8 }}>
                             Score
                           </span>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                            <span style={{ fontSize: 84, fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>
+                            <span style={{ fontSize: 84, fontWeight: '800', color: '#1A202C', lineHeight: 1 }}>
                               {scoreVal}
                             </span>
-                            <span style={{ fontSize: 24, fontWeight: '600', color: '#8E8E93' }}>
+                            <span style={{ fontSize: 24, fontWeight: '600', color: '#718096' }}>
                               /100
                             </span>
                           </div>
@@ -1009,12 +1015,12 @@ export const ProgressVideo = ({
       })()}
 
       {/* ── SCENE 3b: COMPARISON SLIDE SCREEN (Frames 250 to 370) ── */}
-      {frame >= 250 && frame < 370 && (() => {
+      {frame >= 340 && frame < 500 && (() => {
         const concernsList = concerns && concerns.length > 0 ? concerns : Object.keys(firstScan.metrics || {});
 
         return (
           <AbsoluteFill style={{
-            background: 'radial-gradient(ellipse at 50% 40%, #1A293E 0%, #0B1320 100%)',
+            background: 'radial-gradient(ellipse at 50% 40%, #f0f4f6 0%, #e2ebedff 100%)',
             padding: '50px 60px 60px 60px',
             display: 'flex',
             flexDirection: 'column',
@@ -1035,7 +1041,7 @@ export const ProgressVideo = ({
               <span style={{ fontSize: 38, fontWeight: '900', color: '#00A2C1', textTransform: 'uppercase', letterSpacing: 3, display: 'block', marginBottom: 4 }}>
                 {metricLabel}
               </span>
-              <span style={{ fontSize: 26, fontWeight: '700', color: '#8E8E93', letterSpacing: 1.5 }}>
+              <span style={{ fontSize: 26, fontWeight: '700', color: '#718096', letterSpacing: 1.5 }}>
                 / {daysDiff} DAYS
               </span>
             </div>
@@ -1048,9 +1054,9 @@ export const ProgressVideo = ({
               margin: '0 auto',
               borderRadius: 48,
               overflow: 'hidden',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0, 162, 193, 0.15)',
-              border: '3px solid rgba(255, 255, 255, 0.1)',
-              backgroundColor: '#1C1C1E',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(0, 162, 193, 0.1)',
+              border: '3px solid rgba(0, 0, 0, 0.05)',
+              backgroundColor: '#FFFFFF',
               boxSizing: 'border-box'
             }}>
               {style === "flipbook" ? (
@@ -1099,8 +1105,8 @@ export const ProgressVideo = ({
                         }}
                         alt="Before Scan"
                       />
-                      {mask_enabled === 'on' && (
-                        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                      {mask_enabled === 'on' && before_mask_url && (
+                        <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
                       )}
                     </div>
 
@@ -1125,8 +1131,8 @@ export const ProgressVideo = ({
                         }}
                         alt="After Scan"
                       />
-                      {mask_enabled === 'on' && (
-                        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                      {mask_enabled === 'on' && after_mask_url && (
+                        <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
                       )}
                     </div>
                   </div>
@@ -1159,7 +1165,7 @@ export const ProgressVideo = ({
                         height: '100%',
                         borderRadius: 32,
                         overflow: 'hidden',
-                        border: '3px solid rgba(255, 255, 255, 0.1)',
+                        border: '3px solid rgba(0, 0, 0, 0.05)',
                         backgroundColor: 'transparent',
                         boxSizing: 'border-box'
                       }}>
@@ -1192,8 +1198,8 @@ export const ProgressVideo = ({
                             BEFORE
                           </span>
                         </div>
-                        {mask_enabled === 'on' && (
-                          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                        {mask_enabled === 'on' && before_mask_url && (
+                          <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
                         )}
                       </div>
                     )}
@@ -1239,8 +1245,8 @@ export const ProgressVideo = ({
                             AFTER
                           </span>
                         </div>
-                        {mask_enabled === 'on' && (
-                          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                        {mask_enabled === 'on' && after_mask_url && (
+                          <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
                         )}
                       </div>
                     )}
@@ -1263,8 +1269,8 @@ export const ProgressVideo = ({
                     }}
                     alt="Before Scan"
                   />
-                  {mask_enabled === 'on' && (
-                    <div style={{ position: 'absolute', width: 960, height: 1100, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                  {mask_enabled === 'on' && before_mask_url && (
+                    <Img src={before_mask_url} style={{ position: 'absolute', top: 0, left: 0, width: 960, height: 1100, objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
                   )}
 
                   <div style={{
@@ -1290,8 +1296,8 @@ export const ProgressVideo = ({
                       }}
                       alt="After Scan"
                     />
-                    {mask_enabled === 'on' && (
-                      <div style={{ position: 'absolute', width: 960, height: 1100, backgroundColor: 'rgba(0, 162, 193, 0.15)', mixBlendMode: 'multiply' }} />
+                    {mask_enabled === 'on' && after_mask_url && (
+                      <Img src={after_mask_url} style={{ position: 'absolute', top: 0, left: 0, width: 960, height: 1100, objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
                     )}
                   </div>
 
@@ -1367,11 +1373,11 @@ export const ProgressVideo = ({
                     key={concernKey}
                     style={{
                       width: cardWidth,
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      background: '#FFFFFF',
+                      border: '1px solid rgba(0, 0, 0, 0.05)',
                       borderRadius: 36,
                       padding: '40px 48px',
-                      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
                       display: 'flex',
                       flexDirection: 'column',
                       boxSizing: 'border-box'
@@ -1381,27 +1387,27 @@ export const ProgressVideo = ({
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginBottom: 30 }}>
                       {/* BEFORE column */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: 24, fontWeight: '700', color: '#8E8E93', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                        <span style={{ fontSize: 24, fontWeight: '700', color: '#718096', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
                           {firstScan.date}
                         </span>
-                        <span style={{ fontSize: 96, fontWeight: '900', color: '#FFFFFF', lineHeight: 1 }}>
+                        <span style={{ fontSize: 96, fontWeight: '900', color: '#1A202C', lineHeight: 1 }}>
                           {beforeScoreVal}
                         </span>
                       </div>
 
                       {/* AFTER column */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                        <span style={{ fontSize: 24, fontWeight: '700', color: '#8E8E93', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                        <span style={{ fontSize: 24, fontWeight: '700', color: '#718096', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
                           {lastScan.date}
                         </span>
-                        <span style={{ fontSize: 96, fontWeight: '900', color: '#FFFFFF', lineHeight: 1 }}>
+                        <span style={{ fontSize: 96, fontWeight: '900', color: '#1A202C', lineHeight: 1 }}>
                           {afterScoreVal}
                         </span>
                       </div>
                     </div>
 
                     {/* Centered Arrow Difference */}
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', borderTop: '2px solid rgba(255, 255, 255, 0.08)', paddingTop: 28 }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', borderTop: '2px solid rgba(0, 0, 0, 0.06)', paddingTop: 28 }}>
                       <span style={{ fontSize: 80, fontWeight: '900', color: statColor, textShadow: `0 0 30px ${statColor}40`, display: 'flex', alignItems: 'center', gap: 10 }}>
                         {diffText}
                       </span>
@@ -1416,8 +1422,8 @@ export const ProgressVideo = ({
 
 
       {/* ── SCENE 4: THE EFFECTIVENESS CHART (Frames 340 - 481 = 4.7s) ── */}
-      {frame >= 370 && frame < 511 && (() => {
-        const localFrame = frame - 370;
+      {frame >= 500 && frame < 700 && (() => {
+        const localFrame = frame - 500;
 
         // 1. Identify if we are in dynamic actual scans mode vs simulated mode
         const hasPeriodData = timeline && timeline.some(s => s.period);
@@ -1541,23 +1547,23 @@ export const ProgressVideo = ({
         };
 
         // Staged transitions for our slowed down chart animation
-        const beforeDotsScale = spring({ frame: localFrame - 8, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
-        const beforeLineProgress = interpolate(localFrame, [18, 38], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const beforeDotsScale = spring({ frame: localFrame - 10, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
+        const beforeLineProgress = interpolate(localFrame, [25, 55], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const stage1TextY = interpolate(localFrame, [10, 22], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage1TextOpacity = interpolate(localFrame, [0, 8, 44, 49], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage1TextScale = interpolate(localFrame, [10, 22], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage1ElementsOpacity = interpolate(localFrame, [12, 24], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1TextY = interpolate(localFrame, [12, 30], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1TextOpacity = interpolate(localFrame, [0, 10, 60, 68], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1TextScale = interpolate(localFrame, [12, 30], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage1ElementsOpacity = interpolate(localFrame, [15, 32], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const duringDotsScale = spring({ frame: localFrame - 58, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
-        const duringLineProgress = interpolate(localFrame, [64, 84], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const duringDotsScale = spring({ frame: localFrame - 80, fps, from: 0, to: 1, config: { damping: 12, mass: 0.8 } });
+        const duringLineProgress = interpolate(localFrame, [90, 120], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const stage2TextY = interpolate(localFrame, [56, 68], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage2TextOpacity = interpolate(localFrame, [50, 58, 84, 89], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage2TextScale = interpolate(localFrame, [56, 68], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const stage2ElementsOpacity = interpolate(localFrame, [58, 70], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2TextY = interpolate(localFrame, [78, 95], [750, 60], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2TextOpacity = interpolate(localFrame, [70, 80, 120, 128], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2TextScale = interpolate(localFrame, [78, 95], [0.85, 1.0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage2ElementsOpacity = interpolate(localFrame, [80, 98], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-        const stage3Opacity = interpolate(localFrame, [90, 105], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        const stage3Opacity = interpolate(localFrame, [130, 150], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
         const renderChartSVG = (
           showBlue,
@@ -1585,7 +1591,7 @@ export const ProgressVideo = ({
                       y1={lineY}
                       x2={svgWidth - marginRight}
                       y2={lineY}
-                      stroke="rgba(255, 255, 255, 0.06)"
+                      stroke="rgba(0, 0, 0, 0.08)"
                       strokeWidth={2}
                       strokeDasharray="6 6"
                     />
@@ -1593,7 +1599,7 @@ export const ProgressVideo = ({
                       x={marginLeft - 20}
                       y={lineY + 6}
                       textAnchor="end"
-                      fill="#8E8E93"
+                      fill="#718096"
                       fontSize={18}
                       fontWeight="600"
                     >
@@ -1608,7 +1614,7 @@ export const ProgressVideo = ({
                 x={marginLeft}
                 y={marginTop - 45}
                 textAnchor="middle"
-                fill="#FFFFFF"
+                fill="#1A202C"
                 fontSize={20}
                 fontWeight="700"
               >
@@ -1627,14 +1633,14 @@ export const ProgressVideo = ({
                       y1={tickY}
                       x2={tickX}
                       y2={tickY + 10}
-                      stroke="#48484A"
+                      stroke="#718096"
                       strokeWidth={2}
                     />
                     <text
                       x={tickX}
                       y={tickY + 36}
                       textAnchor="middle"
-                      fill="#8E8E93"
+                      fill="#718096"
                       fontSize={18}
                       fontWeight="600"
                     >
@@ -1649,7 +1655,7 @@ export const ProgressVideo = ({
                 x={(marginLeft + svgWidth - marginRight) / 2}
                 y={svgHeight - 15}
                 textAnchor="middle"
-                fill="#FFFFFF"
+                fill="#1A202C"
                 fontSize={22}
                 fontWeight="700"
                 letterSpacing={2}
@@ -1695,12 +1701,12 @@ export const ProgressVideo = ({
               {/* 5. Main Axes lines */}
               <g>
                 {/* Y Axis */}
-                <line x1={marginLeft} y1={marginTop - 15} x2={marginLeft} y2={svgHeight - marginBottom} stroke="#48484A" strokeWidth={3} />
-                <path d={`M ${marginLeft - 6} ${marginTop - 5} L ${marginLeft} ${marginTop - 17} L ${marginLeft + 6} ${marginTop - 5}`} stroke="#48484A" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <line x1={marginLeft} y1={marginTop - 15} x2={marginLeft} y2={svgHeight - marginBottom} stroke="#718096" strokeWidth={3} />
+                <path d={`M ${marginLeft - 6} ${marginTop - 5} L ${marginLeft} ${marginTop - 17} L ${marginLeft + 6} ${marginTop - 5}`} stroke="#718096" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
                 {/* X Axis */}
-                <line x1={marginLeft} y1={svgHeight - marginBottom} x2={svgWidth - marginRight + 15} y2={svgHeight - marginBottom} stroke="#48484A" strokeWidth={3} />
-                <path d={`M ${svgWidth - marginRight + 5} ${svgHeight - marginBottom - 6} L ${svgWidth - marginRight + 17} ${svgHeight - marginBottom} L ${svgWidth - marginRight + 5} ${svgHeight - marginBottom + 6}`} stroke="#48484A" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <line x1={marginLeft} y1={svgHeight - marginBottom} x2={svgWidth - marginRight + 15} y2={svgHeight - marginBottom} stroke="#718096" strokeWidth={3} />
+                <path d={`M ${svgWidth - marginRight + 5} ${svgHeight - marginBottom - 6} L ${svgWidth - marginRight + 17} ${svgHeight - marginBottom} L ${svgWidth - marginRight + 5} ${svgHeight - marginBottom + 6}`} stroke="#718096" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </g>
 
               {/* 6. BEFORE TEST Data Dots & Path */}
@@ -1828,7 +1834,7 @@ export const ProgressVideo = ({
         return (
           <AbsoluteFill style={{
             transform: `translateY(${chartRiseProgress}px)`,
-            backgroundColor: 'rgba(10, 12, 22, 0.95)',
+            backgroundColor: '#e2ebedff',
             backdropFilter: 'blur(20px)',
             padding: '80px 70px 180px',
             display: 'flex',
@@ -1839,7 +1845,7 @@ export const ProgressVideo = ({
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
 
               {/* STAGE 1: Oh my skin before using the product */}
-              {localFrame < 50 && (
+              {localFrame < 70 && (
                 <>
                   <div style={{
                     position: 'absolute',
@@ -1854,10 +1860,10 @@ export const ProgressVideo = ({
                     padding: '0 40px',
                     boxSizing: 'border-box'
                   }}>
-                    <h1 style={{ fontSize: 44, fontWeight: '800', color: '#FFFFFF', letterSpacing: 1.5, margin: 0, lineHeight: '1.3' }}>
+                    <h1 style={{ fontSize: 44, fontWeight: '800', color: '#1A202C', letterSpacing: 1.5, margin: 0, lineHeight: '1.3' }}>
                       My {concernLower} status before I started using {product_name}
                     </h1>
-                    <p style={{ fontSize: 26, color: '#8E8E93', marginTop: 16, fontWeight: '600', letterSpacing: 1.2 }}>
+                    <p style={{ fontSize: 26, color: '#718096', marginTop: 16, fontWeight: '600', letterSpacing: 1.2 }}>
                       My average {concernLower} score was {avBT}
                     </p>
                   </div>
@@ -1870,7 +1876,7 @@ export const ProgressVideo = ({
                     height: 750,
                     opacity: stage1ElementsOpacity
                   }}>
-                    {renderChartSVG(true, false, true, false, false, beforeLineProgress, 0, beforeDotsScale, 0, true, false)}
+                    {renderChartSVG(false, false, true, false, false, beforeLineProgress, 0, beforeDotsScale, 0, true, false)}
                   </div>
 
                   <div style={{
@@ -1879,19 +1885,19 @@ export const ProgressVideo = ({
                     left: '50%',
                     transform: 'translateX(-50%)',
                     opacity: stage1ElementsOpacity,
-                    background: 'linear-gradient(135deg, rgba(0, 162, 193, 0.15) 0%, rgba(0, 162, 193, 0.05) 100%)',
-                    border: '1px solid rgba(0, 162, 193, 0.3)',
-                    boxShadow: '0 8px 32px rgba(0, 162, 193, 0.25)',
+                    background: '#FFFFFF',
+                    border: '1px solid rgba(0, 162, 193, 0.25)',
+                    boxShadow: '0 8px 32px rgba(0, 162, 193, 0.08)',
                     backdropFilter: 'blur(16px)',
                     borderRadius: 24,
                     padding: '24px 48px',
                     textAlign: 'center',
                     minWidth: 400
                   }}>
-                    <span style={{ fontSize: 20, color: '#8E8E93', fontWeight: '700', letterSpacing: 2, display: 'block', marginBottom: 6 }}>
+                    <span style={{ fontSize: 20, color: '#718096', fontWeight: '700', letterSpacing: 2, display: 'block', marginBottom: 6 }}>
                       BEFORE AVERAGE SCORE
                     </span>
-                    <span style={{ fontSize: 72, fontWeight: '900', color: '#00A2C1', textShadow: '0 0 15px rgba(0, 162, 193, 0.5)' }}>
+                    <span style={{ fontSize: 72, fontWeight: '900', color: '#00A2C1', textShadow: '0 0 15px rgba(0, 162, 193, 0.15)' }}>
                       {avBT}
                     </span>
                   </div>
@@ -1899,7 +1905,7 @@ export const ProgressVideo = ({
               )}
 
               {/* STAGE 2: My skin health after using the product */}
-              {localFrame >= 50 && localFrame < 90 && (
+              {localFrame >= 70 && localFrame < 130 && (
                 <>
                   <div style={{
                     position: 'absolute',
@@ -1914,7 +1920,7 @@ export const ProgressVideo = ({
                     padding: '0 40px',
                     boxSizing: 'border-box'
                   }}>
-                    <h1 style={{ fontSize: 44, fontWeight: '800', color: '#FFFFFF', letterSpacing: 1.5, margin: 0, lineHeight: '1.3' }}>
+                    <h1 style={{ fontSize: 44, fontWeight: '800', color: '#1A202C', letterSpacing: 1.5, margin: 0, lineHeight: '1.3' }}>
                       My {concernLower} score average for the {daysDiff} days of this testing period {avPT >= avBT ? 'increased' : 'decreased'} to {avPT}
                     </h1>
                   </div>
@@ -1936,19 +1942,19 @@ export const ProgressVideo = ({
                     left: '50%',
                     transform: 'translateX(-50%)',
                     opacity: stage2ElementsOpacity,
-                    background: 'linear-gradient(135deg, rgba(255, 69, 58, 0.15) 0%, rgba(255, 69, 58, 0.05) 100%)',
-                    border: '1px solid rgba(255, 69, 58, 0.3)',
-                    boxShadow: '0 8px 32px rgba(255, 69, 58, 0.25)',
+                    background: '#FFFFFF',
+                    border: '1px solid rgba(255, 69, 58, 0.25)',
+                    boxShadow: '0 8px 32px rgba(255, 69, 58, 0.08)',
                     backdropFilter: 'blur(16px)',
                     borderRadius: 24,
                     padding: '24px 48px',
                     textAlign: 'center',
                     minWidth: 400
                   }}>
-                    <span style={{ fontSize: 20, color: '#8E8E93', fontWeight: '700', letterSpacing: 2, display: 'block', marginBottom: 6 }}>
+                    <span style={{ fontSize: 20, color: '#718096', fontWeight: '700', letterSpacing: 2, display: 'block', marginBottom: 6 }}>
                       AFTER AVERAGE SCORE
                     </span>
-                    <span style={{ fontSize: 72, fontWeight: '900', color: '#FF453A', textShadow: '0 0 15px rgba(255, 69, 58, 0.5)' }}>
+                    <span style={{ fontSize: 72, fontWeight: '900', color: '#FF453A', textShadow: '0 0 15px rgba(255, 69, 58, 0.15)' }}>
                       {avPT}
                     </span>
                   </div>
@@ -1956,7 +1962,7 @@ export const ProgressVideo = ({
               )}
 
               {/* STAGE 3: Final Combined effectiveness recap review */}
-              {localFrame >= 90 && (
+              {localFrame >= 130 && (
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1964,25 +1970,21 @@ export const ProgressVideo = ({
                   opacity: stage3Opacity
                 }}>
                   <div>
-                    <h1 style={{ fontSize: 48, fontWeight: '800', color: '#FFFFFF', letterSpacing: 1.5, margin: 0 }}>
+                    <h1 style={{ fontSize: 48, fontWeight: '800', color: '#1A202C', letterSpacing: 1.5, margin: 0 }}>
                       Effectiveness Review
                     </h1>
-                    <p style={{ fontSize: 22, color: '#8E8E93', marginTop: 10, marginBottom: 0 }}>
+                    <p style={{ fontSize: 22, color: '#718096', marginTop: 10, marginBottom: 0 }}>
                       Comparing average scores before and during the product usage period.
                     </p>
                   </div>
 
                   {/* Feedback Card — positioned ABOVE the chart */}
                   <div style={{
-                    background: avPT >= avBT
-                      ? 'linear-gradient(135deg, rgba(52, 199, 89, 0.12) 0%, rgba(52, 199, 89, 0.03) 100%)'
-                      : 'linear-gradient(135deg, rgba(255, 69, 58, 0.12) 0%, rgba(255, 69, 58, 0.03) 100%)',
+                    background: '#FFFFFF',
                     border: avPT >= avBT
-                      ? '1px solid rgba(52, 199, 89, 0.3)'
-                      : '1px solid rgba(255, 69, 58, 0.3)',
-                    boxShadow: avPT >= avBT
-                      ? '0 8px 32px rgba(52, 199, 89, 0.2)'
-                      : '0 8px 32px rgba(255, 69, 58, 0.2)',
+                      ? '2px solid rgba(52, 199, 89, 0.4)'
+                      : '2px solid rgba(255, 69, 58, 0.4)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
                     backdropFilter: 'blur(16px)',
                     borderRadius: 24,
                     padding: '30px 40px',
@@ -2020,19 +2022,19 @@ export const ProgressVideo = ({
                     <div>
                       {avPT >= avBT ? (
                         <>
-                          <h2 style={{ fontSize: 42, fontWeight: '800', color: '#FFFFFF', margin: '0 0 8px 0' }}>
+                          <h2 style={{ fontSize: 42, fontWeight: '800', color: '#1A202C', margin: '0 0 8px 0' }}>
                             Wow, Amazing Results ✨
                           </h2>
-                          <p style={{ fontSize: 34, color: '#8E8E93', margin: 0, fontWeight: '500' }}>
+                          <p style={{ fontSize: 34, color: '#718096', margin: 0, fontWeight: '500' }}>
                             Your skin score improved a lot , keep following the routine 🌿
                           </p>
                         </>
                       ) : (
                         <>
-                          <h2 style={{ fontSize: 42, fontWeight: '800', color: '#FFFFFF', margin: '0 0 8px 0' }}>
+                          <h2 style={{ fontSize: 42, fontWeight: '800', color: '#1A202C', margin: '0 0 8px 0' }}>
                             Opps 📉 your skin score went a little down, but don't worry ✨
                           </h2>
-                          <p style={{ fontSize: 34, color: '#8E8E93', margin: 0, fontWeight: '500' }}>
+                          <p style={{ fontSize: 34, color: '#718096', margin: 0, fontWeight: '500' }}>
                             Looks like it's time to switch the products a bit 🌿
                           </p>
                         </>
@@ -2042,7 +2044,7 @@ export const ProgressVideo = ({
 
                   {/* Chart — below the feedback card, fills remaining space */}
                   <div style={{ position: 'relative', width: '100%', flex: 1, marginTop: 65 }}>
-                    {renderChartSVG(true, true, true, true, false, 1, 1, 1, 1, true, true)}
+                    {renderChartSVG(false, true, true, true, false, 1, 1, 1, 1, true, true)}
                   </div>
                 </div>
               )}
@@ -2053,21 +2055,21 @@ export const ProgressVideo = ({
       })()}
 
       {/* ── SCENE 5: BRAND OUTRO & VERIFICATION (Frames 481 - 541 = 2s) ── */}
-      {frame >= 511 && (
+      {frame >= 700 && (
         <AbsoluteFill style={{
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#000000',
+          backgroundColor: '#e2ebedff',
           opacity: outroOpacity,
           transform: `scale(${outroScale})`
         }}>
           <div style={{ marginBottom: 50 }}>
             <AppLogo size={280} />
           </div>
-          <h2 style={{ fontSize: 28, letterSpacing: 5, color: '#8E8E93', fontWeight: '600' }}>
+          <h2 style={{ fontSize: 28, letterSpacing: 5, color: '#718096', fontWeight: '600' }}>
             VERIFIED BY
           </h2>
-          <h1 style={{ fontSize: 68, fontWeight: '900', letterSpacing: 8, color: '#FFFFFF', marginTop: 15 }}>
+          <h1 style={{ fontSize: 68, fontWeight: '900', letterSpacing: 8, color: '#1A202C', marginTop: 15 }}>
             MAGIC MIRROR
           </h1>
           <p style={{ fontSize: 24, color: '#00A2C1', letterSpacing: 2, marginTop: 70, fontWeight: '600' }}>

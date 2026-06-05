@@ -112,7 +112,7 @@ app.post('/render-video', (req, res) => {
         outputLocation: outputFilePath,
         codec: 'h264',
         inputProps: payload,
-        concurrency: 4, // Run parallel render threads for speed
+        concurrency: Math.min(4, require('os').cpus().length), // Run parallel render threads based on available cores (max 4)
         onStart: ({ frameCount, resolvedConcurrency }) => {
           renderStartTime = Date.now();
           console.log(`[Job ID: ${jobId}] [Render Start] Commencing rendering of ${frameCount} frames using concurrency ${resolvedConcurrency} threads.`);
