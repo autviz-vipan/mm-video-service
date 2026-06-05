@@ -610,7 +610,7 @@ export const ProgressVideo = ({
                   alt="Before Scan"
                 />
                 {mask_enabled === 'on' && before_mask_url && (
-                  <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
+                  <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
                 )}
               </div>
             </div>
@@ -865,7 +865,7 @@ export const ProgressVideo = ({
                   alt="After Scan"
                 />
                 {mask_enabled === 'on' && after_mask_url && (
-                  <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
+                  <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
                 )}
               </div>
             </div>
@@ -1106,7 +1106,7 @@ export const ProgressVideo = ({
                         alt="Before Scan"
                       />
                       {mask_enabled === 'on' && before_mask_url && (
-                        <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
+                        <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', transform: `scale(${before_image_scale * beforeZoom}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
                       )}
                     </div>
 
@@ -1132,7 +1132,7 @@ export const ProgressVideo = ({
                         alt="After Scan"
                       />
                       {mask_enabled === 'on' && after_mask_url && (
-                        <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
+                        <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', transform: `scale(${after_image_scale * afterZoom}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
                       )}
                     </div>
                   </div>
@@ -1199,7 +1199,7 @@ export const ProgressVideo = ({
                           </span>
                         </div>
                         {mask_enabled === 'on' && before_mask_url && (
-                          <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
+                          <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
                         )}
                       </div>
                     )}
@@ -1246,7 +1246,7 @@ export const ProgressVideo = ({
                           </span>
                         </div>
                         {mask_enabled === 'on' && after_mask_url && (
-                          <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
+                          <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
                         )}
                       </div>
                     )}
@@ -1270,7 +1270,7 @@ export const ProgressVideo = ({
                     alt="Before Scan"
                   />
                   {mask_enabled === 'on' && before_mask_url && (
-                    <Img src={before_mask_url} style={{ position: 'absolute', top: 0, left: 0, width: 960, height: 1100, objectFit: 'contain', pointerEvents: 'none' }} alt="Before Mask" />
+                    <Img src={before_mask_url} style={{ position: 'absolute', top: 0, left: 0, width: 960, height: 1100, objectFit: 'cover', pointerEvents: 'none', transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
                   )}
 
                   <div style={{
@@ -1297,7 +1297,7 @@ export const ProgressVideo = ({
                       alt="After Scan"
                     />
                     {mask_enabled === 'on' && after_mask_url && (
-                      <Img src={after_mask_url} style={{ position: 'absolute', top: 0, left: 0, width: 960, height: 1100, objectFit: 'contain', pointerEvents: 'none' }} alt="After Mask" />
+                      <Img src={after_mask_url} style={{ position: 'absolute', top: 0, right: 0, width: 960, height: 1100, objectFit: 'cover', maxWidth: 'none', pointerEvents: 'none', transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
                     )}
                   </div>
 
