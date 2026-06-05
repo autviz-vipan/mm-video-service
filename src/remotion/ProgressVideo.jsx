@@ -3,15 +3,50 @@ import React from 'react';
 
 // Teal SVG Logo Component
 const AppLogo = ({ size = 120 }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Central circle mirror */}
-    <circle cx="50" cy="45" r="21" stroke="#10AFCC" strokeWidth="5.5" />
-    {/* Crescent with side wings / hooks */}
-    <path d="M25 53 L25 49 L30 49 C30 65 39 74 50 74 C61 74 70 65 70 49 L75 49 L75 53" stroke="#10AFCC" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
-    {/* Stand stem */}
-    <path d="M50 74 V82" stroke="#10AFCC" strokeWidth="5.5" strokeLinecap="round" />
-    {/* Pill base */}
-    <path d="M50 82 V88" stroke="#10AFCC" strokeWidth="9" strokeLinecap="round" />
+  <svg width={size} height={size} viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Main Circle */}
+    <circle cx="150" cy="130" r="55"
+            fill="none"
+            stroke="#10AFCC"
+            strokeWidth="8"/>
+
+    {/* Outer Arc */}
+    <path d="M 80 130 A 70 70 0 0 0 220 130"
+          fill="none"
+          stroke="#10AFCC"
+          strokeWidth="8"
+          strokeLinecap="round"/>
+
+    {/* Inner Arc */}
+    <path d="M 95 130 A 55 55 0 0 0 205 130"
+          fill="none"
+          stroke="#10AFCC"
+          strokeWidth="5"
+          strokeLinecap="round"/>
+
+    {/* Side Extensions */}
+    <line x1="80" y1="130" x2="95" y2="130"
+          stroke="#10AFCC"
+          strokeWidth="8"
+          strokeLinecap="round"/>
+
+    <line x1="205" y1="130" x2="220" y2="130"
+          stroke="#10AFCC"
+          strokeWidth="8"
+          strokeLinecap="round"/>
+
+    {/* Stem */}
+    <line x1="150" y1="200" x2="150" y2="235"
+          stroke="#10AFCC"
+          strokeWidth="8"
+          strokeLinecap="round"/>
+
+    {/* Bottom Rounded Shape */}
+    <rect x="142" y="235"
+          width="16"
+          height="35"
+          rx="8"
+          fill="#10AFCC"/>
   </svg>
 );
 
@@ -1207,7 +1242,9 @@ export const ProgressVideo = ({
                     {afterWidth > 0.1 && (
                       <div style={{
                         position: 'relative',
-                           borderRadius: 32,
+                        width: `${afterWidth}%`,
+                        height: '100%',
+                        borderRadius: 32,
                         overflow: 'hidden',
                         border: '3px solid #10AFCC',
                         backgroundColor: 'transparent',
