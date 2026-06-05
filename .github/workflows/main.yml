@@ -34,7 +34,7 @@ jobs:
             FASTAPI_CALLBACK_URL=$FASTAPI_CALLBACK_URL
             EOF
       
-            docker compose up -d --build
+            docker-compose up -d --build
             
             # Remove old unused images
             docker image prune -af
