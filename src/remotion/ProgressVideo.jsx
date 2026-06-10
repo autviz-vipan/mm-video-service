@@ -1,5 +1,6 @@
 import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig, interpolate, Img } from 'remotion';
 import React from 'react';
+import mmLogo from './MM logo.jpg';
 
 // Teal SVG Logo Component
 const AppLogo = ({ size = 120 }) => (
@@ -102,6 +103,68 @@ const DefaultConcernIcon = ({ size = 32 }) => (
     <circle cx="12" cy="12" r="5" fill="#10AFCC" />
   </svg>
 );
+
+const Watermark = ({ opacity = 1 }) => {
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: 80,
+      left: 60,
+      zIndex: 999,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 20,
+      pointerEvents: 'none',
+      opacity: opacity,
+    }}>
+      <div style={{
+        width: 100,
+        height: 100,
+        borderRadius: '50%',
+        backgroundColor: '#FFFFFF',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        flexShrink: 0
+      }}>
+        <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Magic Mirror Logo" />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <span style={{
+          fontSize: 34,
+          lineHeight: 1.0,
+          fontWeight: 800,
+          color: '#1A202C',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          MAGIC
+        </span>
+        <span style={{
+          fontSize: 34,
+          lineHeight: 1.0,
+          fontWeight: 800,
+          color: '#10AFCC',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          MIRROR
+        </span>
+        {/* <span style={{
+          marginTop: 6,
+          fontSize: 12,
+          letterSpacing: '2px',
+          color: '#718096',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          SEE YOUR BEST.
+        </span> */}
+      </div>
+    </div>
+  );
+};
 
 // Robust case-insensitive metrics score lookup helper
 const getMetricScore = (metrics, key) => {
@@ -318,7 +381,11 @@ export const ProgressVideo = ({
   const introFadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#ffffff', color: '#1A202C', fontFamily: 'Inter, sans-serif', opacity: introFadeIn }}>
+    <AbsoluteFill style={{ background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)', color: '#1A202C', fontFamily: 'Inter, sans-serif', opacity: introFadeIn }}>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+      `}} />
 
       {/* ── SCENE 2: BEFORE SCAN BASELINE VIEW (Frames 0 to 80) ── */}
       {frame < 80 && (() => {
@@ -337,7 +404,10 @@ export const ProgressVideo = ({
         const panelY = interpolate(frame, [40, 56], [100, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
         return (
-          <AbsoluteFill style={{ background: '#ffffff', overflow: 'hidden' }}>
+          <AbsoluteFill style={{
+            background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
+            overflow: 'hidden'
+          }}>
 
             {/* Card box with gaps from all directions (80px margin equivalent to 2 inches) */}
             <div style={{
@@ -349,7 +419,8 @@ export const ProgressVideo = ({
               borderRadius: 32,
               overflow: 'hidden',
               backgroundColor: '#ffffff',
-              border: '3px solid rgba(0, 0, 0, 0.05)',
+              border: '3px solid #10AFCC',
+              boxShadow: '0 20px 50px rgba(16, 175, 204, 0.15)',
               boxSizing: 'border-box',
               display: 'flex',
               alignItems: 'center',
@@ -360,7 +431,7 @@ export const ProgressVideo = ({
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
                   transform: `scale(${combinedScale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`,
                   transformOrigin: 'center center',
                 }}
@@ -374,7 +445,7 @@ export const ProgressVideo = ({
                     inset: 0,
                     width: '100%',
                     height: '100%',
-                    objectFit: 'contain',
+                    objectFit: 'cover',
                     pointerEvents: 'none',
                     transform: `scale(${combinedScale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`,
                     transformOrigin: 'center center'
@@ -384,80 +455,109 @@ export const ProgressVideo = ({
               )}
             </div>
 
-            {/* BEFORE badge — top right, fades in with date */}
+            {/* BEFORE badge — top right of Photo Card */}
             <div style={{
               position: 'absolute',
-              top: 112,
+              top: 150,
               right: 80,
               opacity: dateOpacity,
+              zIndex: 10,
             }}>
               <div style={{
-                background: 'rgba(0, 0, 0, 0.05)',
-                border: '2px solid rgba(0, 0, 0, 0.08)',
-                backdropFilter: 'blur(10px)',
-                padding: '12px 34px',
-                borderRadius: 50,
+                background: 'rgba(0, 0, 0, 0.45)',
+                padding: '6px 14px',
+                borderRadius: 6,
               }}>
-                <span style={{ fontSize: 32, fontWeight: '800', color: '#4A5568', letterSpacing: 3 }}>BEFORE</span>
+                <span style={{
+                  fontSize: 34,
+                  fontWeight: 'bold',
+                  color: '#FFFFFF',
+                  letterSpacing: 1,
+                  fontFamily: 'Montserrat, sans-serif'
+                }}>
+                  BEFORE
+                </span>
               </div>
             </div>
 
-            {/* Date — top left, slides down */}
+            {/* Date — top left of Photo Card */}
             <div style={{
               position: 'absolute',
-              top: 100,
+              top: 150,
               left: 80,
               opacity: dateOpacity,
               transform: `translateY(${dateY}px)`,
-            }}>
-              <span style={{ fontSize: 22, fontWeight: '700', color: '#718096', letterSpacing: 5, textTransform: 'uppercase', display: 'block', marginBottom: 10 }}>DATE</span>
-              <span style={{ fontSize: 56, fontWeight: '900', color: '#1A202C', letterSpacing: 1, lineHeight: 1.05, display: 'block' }}>{firstScan.date.toUpperCase()}</span>
-            </div>
-
-            {/* Bottom score panel — slides up */}
-            <div style={{
-              position: 'absolute',
-              bottom: 120,
-              left: 80,
-              right: 80,
-              opacity: panelOpacity,
-              transform: `translateY(${panelY}px)`,
+              backgroundColor: 'rgba(0,0,0,0.45)',
+              borderRadius: 6,
+              padding: '6px 14px',
+              display: 'inline-flex',
+              alignItems: 'center',
               boxSizing: 'border-box',
+              zIndex: 10,
             }}>
-              {concernsList.map((concernKey, idx) => {
-                const scoreVal = getMetricScore(firstScan.metrics, concernKey);
-                let label = concernKey.charAt(0).toUpperCase() + concernKey.slice(1);
-                const lowerKey = concernKey.toLowerCase();
-                if (lowerKey.includes('red')) label = 'Redness';
-                else if (lowerKey.includes('text')) label = 'Texture';
-                else if (lowerKey.includes('pigm')) label = 'Pigmentation';
-                else if (lowerKey.includes('break')) label = 'Breakouts';
-                return (
-                  <div key={concernKey} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-end',
-                    paddingLeft: 28,
-                    borderLeft: '5px solid #10AFCC',
-                    marginBottom: idx < concernsList.length - 1 ? 32 : 0,
-                    transform: 'translateY(-80px)',
-
-                  }}>
-                    <div>
-                      <span style={{ fontSize: 20, fontWeight: '700', color: '#718096', letterSpacing: 4, textTransform: 'uppercase', display: 'block', marginBottom: 10 }}>CONCERN</span>
-                      <span style={{ fontSize: 54, fontWeight: '900', color: '#1A202C', letterSpacing: 1, lineHeight: 1 }}>{label.toUpperCase()}</span>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: 20, fontWeight: '700', color: '#718096', letterSpacing: 4, textTransform: 'uppercase', display: 'block', marginBottom: 10 }}>SCORE</span>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, justifyContent: 'flex-end' }}>
-                        <span style={{ fontSize: 72, fontWeight: '900', color: '#1A202C', lineHeight: 1 }}>{scoreVal}</span>
-                        <span style={{ fontSize: 28, fontWeight: '600', color: '#718096' }}>/100</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              <span style={{
+                fontSize: 34,
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                textTransform: 'uppercase',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {firstScan.date.toUpperCase()}
+              </span>
             </div>
+
+            {/* Concern & Score Overlay — Bottom Left of Photo Card */}
+            {(() => {
+              let concernName = highlightMetric.charAt(0).toUpperCase() + highlightMetric.slice(1);
+              const lowerKey = highlightMetric.toLowerCase();
+              if (lowerKey.includes('red')) concernName = 'Redness';
+              else if (lowerKey.includes('text')) concernName = 'Texture';
+              else if (lowerKey.includes('pigm')) concernName = 'Pigmentation';
+              else if (lowerKey.includes('break')) concernName = 'Breakouts';
+
+              return (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 240,
+                  left: 80,
+                  opacity: panelOpacity,
+                  transform: `translateY(${panelY}px)`,
+                  backgroundColor: 'rgba(0,0,0,0.45)',
+                  borderRadius: 6,
+                  padding: '6px 14px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  boxSizing: 'border-box',
+                  zIndex: 10,
+                }}>
+                  <span style={{
+                    fontSize: 28,
+                    color: '#FFFFFF',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 'normal',
+                  }}>
+                    {concernName}
+                  </span>
+                  <span style={{
+                    fontSize: 28,
+                    color: '#FFFFFF',
+                    fontFamily: 'Montserrat, sans-serif',
+                    margin: '0 10px',
+                    fontWeight: 'normal',
+                  }}>
+                    ·
+                  </span>
+                  <span style={{
+                    fontSize: 28,
+                    color: '#FFFFFF',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 'bold',
+                  }}>
+                    {firstScore}
+                  </span>
+                </div>
+              );
+            })()}
 
           </AbsoluteFill>
         );
@@ -481,7 +581,10 @@ export const ProgressVideo = ({
         const panelY = interpolate(f, [40, 56], [100, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
         return (
-          <AbsoluteFill style={{ background: '#ffffff', overflow: 'hidden' }}>
+          <AbsoluteFill style={{
+            background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
+            overflow: 'hidden'
+          }}>
 
             {/* Card box with gaps from all directions (80px margin equivalent to 2 inches) */}
             <div style={{
@@ -493,7 +596,8 @@ export const ProgressVideo = ({
               borderRadius: 32,
               overflow: 'hidden',
               backgroundColor: '#ffffff',
-              border: '3px solid rgba(0, 0, 0, 0.05)',
+              border: '3px solid #10AFCC',
+              boxShadow: '0 20px 50px rgba(16, 175, 204, 0.15)',
               boxSizing: 'border-box',
               display: 'flex',
               alignItems: 'center',
@@ -504,7 +608,7 @@ export const ProgressVideo = ({
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
                   transform: `scale(${combinedScale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`,
                   transformOrigin: 'center center',
                 }}
@@ -518,7 +622,7 @@ export const ProgressVideo = ({
                     inset: 0,
                     width: '100%',
                     height: '100%',
-                    objectFit: 'contain',
+                    objectFit: 'cover',
                     pointerEvents: 'none',
                     transform: `scale(${combinedScale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`,
                     transformOrigin: 'center center'
@@ -528,80 +632,109 @@ export const ProgressVideo = ({
               )}
             </div>
 
-            {/* AFTER badge — top right, fades in with date */}
+            {/* AFTER badge — top right of Photo Card */}
             <div style={{
               position: 'absolute',
-              top: 112,
+              top: 150,
               right: 80,
               opacity: dateOpacity,
+              zIndex: 10,
             }}>
               <div style={{
-                background: '#10AFCC',
-                border: '2px solid #10AFCC',
-                backdropFilter: 'blur(10px)',
-                padding: '12px 34px',
-                borderRadius: 50,
+                background: 'rgba(0, 0, 0, 0.45)',
+                padding: '6px 14px',
+                borderRadius: 6,
               }}>
-                <span style={{ fontSize: 32, fontWeight: '800', color: '#FFFFFF', letterSpacing: 3 }}>AFTER</span>
+                <span style={{
+                  fontSize: 34,
+                  fontWeight: 'bold',
+                  color: '#FFFFFF',
+                  letterSpacing: 1,
+                  fontFamily: 'Montserrat, sans-serif'
+                }}>
+                  AFTER
+                </span>
               </div>
             </div>
 
-            {/* Date — top left, slides down */}
+            {/* Date — top left of Photo Card */}
             <div style={{
               position: 'absolute',
-              top: 100,
+              top: 150,
               left: 80,
               opacity: dateOpacity,
               transform: `translateY(${dateY}px)`,
-            }}>
-              <span style={{ fontSize: 22, fontWeight: '700', color: '#718096', letterSpacing: 5, textTransform: 'uppercase', display: 'block', marginBottom: 10 }}>DATE</span>
-              <span style={{ fontSize: 56, fontWeight: '900', color: '#1A202C', letterSpacing: 1, lineHeight: 1.05, display: 'block' }}>{lastScan.date.toUpperCase()}</span>
-            </div>
-
-            {/* Bottom score panel — slides up */}
-            <div style={{
-              position: 'absolute',
-              bottom: 120,
-              left: 80,
-              right: 80,
-              opacity: panelOpacity,
-              transform: `translateY(${panelY}px)`,
+              backgroundColor: 'rgba(0,0,0,0.45)',
+              borderRadius: 6,
+              padding: '6px 14px',
+              display: 'inline-flex',
+              alignItems: 'center',
               boxSizing: 'border-box',
+              zIndex: 10,
             }}>
-              {concernsList.map((concernKey, idx) => {
-                const scoreVal = getMetricScore(lastScan.metrics, concernKey);
-                let label = concernKey.charAt(0).toUpperCase() + concernKey.slice(1);
-                const lowerKey = concernKey.toLowerCase();
-                if (lowerKey.includes('red')) label = 'Redness';
-                else if (lowerKey.includes('text')) label = 'Texture';
-                else if (lowerKey.includes('pigm')) label = 'Pigmentation';
-                else if (lowerKey.includes('break')) label = 'Breakouts';
-                return (
-                  <div key={concernKey} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-end',
-                    paddingLeft: 28,
-                    borderLeft: '5px solid #10AFCC',
-                    marginBottom: idx < concernsList.length - 1 ? 32 : 0,
-                    transform: 'translateY(-80px)',
-
-                  }}>
-                    <div>
-                      <span style={{ fontSize: 20, fontWeight: '700', color: '#718096', letterSpacing: 4, textTransform: 'uppercase', display: 'block', marginBottom: 10 }}>CONCERN</span>
-                      <span style={{ fontSize: 54, fontWeight: '900', color: '#1A202C', letterSpacing: 1, lineHeight: 1 }}>{label.toUpperCase()}</span>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: 20, fontWeight: '700', color: '#718096', letterSpacing: 4, textTransform: 'uppercase', display: 'block', marginBottom: 10 }}>SCORE</span>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, justifyContent: 'flex-end' }}>
-                        <span style={{ fontSize: 72, fontWeight: '900', color: '#1A202C', lineHeight: 1 }}>{scoreVal}</span>
-                        <span style={{ fontSize: 28, fontWeight: '600', color: '#718096' }}>/100</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              <span style={{
+                fontSize: 34,
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                textTransform: 'uppercase',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {lastScan.date.toUpperCase()}
+              </span>
             </div>
+
+            {/* Concern & Score Overlay — Bottom Left of Photo Card */}
+            {(() => {
+              let concernName = highlightMetric.charAt(0).toUpperCase() + highlightMetric.slice(1);
+              const lowerKey = highlightMetric.toLowerCase();
+              if (lowerKey.includes('red')) concernName = 'Redness';
+              else if (lowerKey.includes('text')) concernName = 'Texture';
+              else if (lowerKey.includes('pigm')) concernName = 'Pigmentation';
+              else if (lowerKey.includes('break')) concernName = 'Breakouts';
+
+              return (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 240,
+                  left: 80,
+                  opacity: panelOpacity,
+                  transform: `translateY(${panelY}px)`,
+                  backgroundColor: 'rgba(0,0,0,0.45)',
+                  borderRadius: 6,
+                  padding: '6px 14px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  boxSizing: 'border-box',
+                  zIndex: 10,
+                }}>
+                  <span style={{
+                    fontSize: 28,
+                    color: '#FFFFFF',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 'normal',
+                  }}>
+                    {concernName}
+                  </span>
+                  <span style={{
+                    fontSize: 28,
+                    color: '#FFFFFF',
+                    fontFamily: 'Montserrat, sans-serif',
+                    margin: '0 10px',
+                    fontWeight: 'normal',
+                  }}>
+                    ·
+                  </span>
+                  <span style={{
+                    fontSize: 28,
+                    color: '#FFFFFF',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 'bold',
+                  }}>
+                    {lastScore}
+                  </span>
+                </div>
+              );
+            })()}
 
           </AbsoluteFill>
         );
@@ -609,255 +742,103 @@ export const ProgressVideo = ({
 
 
 
-      {/* ── SCENE 3b: COMPARISON SLIDE SCREEN (Frames 250 to 370) ── */}
+      {/* ── SCENE 3b: COMPARISON SLIDE SCREEN (Frames 180 to 340) ── */}
       {frame >= 180 && frame < 340 && (() => {
-        const concernsList = concerns && concerns.length > 0 ? concerns : Object.keys(firstScan.metrics || {});
+        let concernName = highlightMetric.charAt(0).toUpperCase() + highlightMetric.slice(1);
+        const lowerKey = highlightMetric.toLowerCase();
+        if (lowerKey.includes('red')) concernName = 'Redness';
+        else if (lowerKey.includes('text')) concernName = 'Texture';
+        else if (lowerKey.includes('pigm')) concernName = 'Pigmentation';
+        else if (lowerKey.includes('break')) concernName = 'Breakouts';
+
+        const scoreDiffVal = lastScore - firstScore;
+        const isPositive = scoreDiffVal > 0;
+        const deltaArrow = scoreDiffVal > 0 ? '↑' : scoreDiffVal < 0 ? '↓' : '';
+        const deltaText = scoreDiffVal !== 0 ? `${deltaArrow} ${Math.abs(scoreDiffVal)}` : '0';
+        const deltaColor = isPositive ? '#1D9E75' : '#718096';
+
+        const nDays = daysDiff || 28;
 
         return (
           <AbsoluteFill style={{
-            background: '#ffffff',
-            padding: '50px 60px 60px 60px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxSizing: 'border-box'
+            background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
+            overflow: 'hidden'
           }}>
-            {/* Header containing centered title */}
+
+            {/* Header: concernName and daysDiff */}
             <div style={{
+              position: 'absolute',
+              top: 120,
+              left: '50%',
+              transform: 'translateX(-50%)',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'center',
               alignItems: 'center',
-              height: 120,
-              width: '100%',
-              boxSizing: 'border-box',
-              textAlign: 'center'
+              zIndex: 20,
+              pointerEvents: 'none',
             }}>
-              <span style={{ fontSize: 38, fontWeight: '900', color: '#10AFCC', textTransform: 'uppercase', letterSpacing: 3, display: 'block', marginBottom: 4 }}>
-                {metricLabel}
+              <span style={{
+                fontSize: 46,
+                fontWeight: '800',
+                color: '#10AFCC',
+                letterSpacing: '3px',
+                textTransform: 'uppercase',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {concernName}
               </span>
-              <span style={{ fontSize: 26, fontWeight: '700', color: '#718096', letterSpacing: 1.5 }}>
-                / {daysDiff} DAYS
+              <span style={{
+                fontSize: 24,
+                fontWeight: '700',
+                color: '#10AFCC',
+                letterSpacing: '2px',
+                marginTop: 10,
+                textTransform: 'uppercase',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                / {nDays} DAYS
               </span>
             </div>
 
-            {/* Centered Image Card Container */}
+            {/* Side-by-side Photo area */}
             <div style={{
-              position: 'relative',
-              width: 960,
-              height: 1100,
-              margin: '0 auto',
-              borderRadius: 48,
-              overflow: 'hidden',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px rgba(16, 175, 204, 0.1)',
-              border: '3px solid rgba(0, 0, 0, 0.05)',
-              backgroundColor: '#FFFFFF',
-              boxSizing: 'border-box'
+              position: 'absolute',
+              top: 280,
+              bottom: 420,
+              left: 80,
+              right: 80,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'stretch',
+              justifyContent: 'space-between',
+              gap: 24,
             }}>
-              {style === "flipbook" ? (
+              {/* BEFORE Photo Column Wrapper */}
+              <div style={{
+                width: 'calc(50% - 12px)',
+                height: '100%',
+                border: '3px solid rgba(0, 0, 0, 0.45)',
+                borderRadius: 32,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '40px 20px',
+                boxSizing: 'border-box',
+              }}>
+                {/* Image Box */}
                 <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
                   width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#000000',
-                  perspective: 2000,
-                  boxSizing: 'border-box'
+                  height: 680,
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                  position: 'relative',
                 }}>
-                  <div style={{
-                    position: 'relative',
-                    width: 820,
-                    height: 1000,
-                    transform: `scale(${card3DScale}) rotateY(${flipRotation}deg)`,
-                    transformStyle: 'preserve-3d',
-                    borderRadius: 48,
-                    boxShadow: '0 25px 60px rgba(0,0,0,0.8)',
-                    border: '24px solid #1C1C1E',
-                    backgroundColor: '#1C1C1E',
-                    boxSizing: 'border-box'
-                  }}>
-                    {/* FRONT FACE (BEFORE Image) */}
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      backfaceVisibility: 'hidden',
-                      borderRadius: 24,
-                      overflow: 'hidden',
-                      backgroundColor: '#000000'
-                    }}>
-                      <Img
-                        src={firstScan.imageUrl}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          transform: `scale(${before_image_scale * beforeZoom}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`,
-                          transformOrigin: 'center center'
-                        }}
-                        alt="Before Scan"
-                      />
-                      {mask_enabled === 'on' && before_mask_url && (
-                        <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', transform: `scale(${before_image_scale * beforeZoom}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
-                      )}
-                    </div>
-
-                    {/* BACK FACE (AFTER Image) */}
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      backfaceVisibility: 'hidden',
-                      transform: 'rotateY(180deg)',
-                      borderRadius: 24,
-                      overflow: 'hidden',
-                      backgroundColor: '#000000'
-                    }}>
-                      <Img
-                        src={lastScan.imageUrl}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          transform: `scale(${after_image_scale * afterZoom}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`,
-                          transformOrigin: 'center center'
-                        }}
-                        alt="After Scan"
-                      />
-                      {mask_enabled === 'on' && after_mask_url && (
-                        <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', transform: `scale(${after_image_scale * afterZoom}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : style === "side_by_side" ? (() => {
-                const beforeWidth = interpolate(splitProgress, [0, 1], [0, 50]);
-                const afterWidth = interpolate(splitProgress, [0, 1], [100, 50]);
-
-                const currentGap = interpolate(splitProgress, [0, 1], [0, 40]);
-                const currentPadding = interpolate(splitProgress, [0, 1], [0, 40]);
-
-                return (
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    padding: `${currentPadding}px`,
-                    gap: `${currentGap}px`,
-                    backgroundColor: 'transparent',
-                    boxSizing: 'border-box'
-                  }}>
-                    {/* BEFORE Column */}
-                    {beforeWidth > 0.1 && (
-                      <div style={{
-                        position: 'relative',
-                        width: `${beforeWidth}%`,
-                        height: '100%',
-                        borderRadius: 32,
-                        overflow: 'hidden',
-                        border: '3px solid rgba(0, 0, 0, 0.05)',
-                        backgroundColor: 'transparent',
-                        boxSizing: 'border-box'
-                      }}>
-                        <Img
-                          src={firstScan.imageUrl}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                            transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`,
-                            transformOrigin: 'center center'
-                          }}
-                          alt="Before Scan"
-                        />
-                        {/* BEFORE Badge */}
-                        <div style={{
-                          position: 'absolute',
-                          bottom: 24,
-                          left: 24,
-                          background: 'rgba(0, 0, 0, 0.6)',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          padding: '10px 24px',
-                          borderRadius: 20,
-                          zIndex: 10
-                        }}>
-                          <span style={{ fontSize: 18, fontWeight: '700', color: '#FFFFFF', letterSpacing: 1.5, textTransform: 'uppercase' }}>
-                            BEFORE
-                          </span>
-                        </div>
-                        {mask_enabled === 'on' && before_mask_url && (
-                          <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
-                        )}
-                      </div>
-                    )}
-
-                    {/* AFTER Column */}
-                    {afterWidth > 0.1 && (
-                      <div style={{
-                        position: 'relative',
-                        width: `${afterWidth}%`,
-                        height: '100%',
-                        borderRadius: 32,
-                        overflow: 'hidden',
-                        border: '3px solid #10AFCC',
-                        backgroundColor: 'transparent',
-                        boxSizing: 'border-box'
-                      }}>
-                        <Img
-                          src={lastScan.imageUrl}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                            transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`,
-                            transformOrigin: 'center center'
-                          }}
-                          alt="After Scan"
-                        />
-                        {/* AFTER Badge */}
-                        <div style={{
-                          position: 'absolute',
-                          bottom: 24,
-                          left: 24,
-                          background: '#10AFCC',
-                          padding: '10px 24px',
-                          borderRadius: 20,
-                          zIndex: 10,
-                          boxShadow: '0 4px 12px rgba(16, 175, 204, 0.3)'
-                        }}>
-                          <span style={{ fontSize: 18, fontWeight: '700', color: '#FFFFFF', letterSpacing: 1.5, textTransform: 'uppercase' }}>
-                            AFTER
-                          </span>
-                        </div>
-                        {mask_enabled === 'on' && after_mask_url && (
-                          <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })() : (
-                // CURRENT SLIDER WIPE LAYOUT
-                <>
                   <Img
                     src={firstScan.imageUrl}
                     style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: 960,
-                      height: 1100,
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover',
                       transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`,
                       transformOrigin: 'center center'
@@ -865,152 +846,189 @@ export const ProgressVideo = ({
                     alt="Before Scan"
                   />
                   {mask_enabled === 'on' && before_mask_url && (
-                    <Img src={before_mask_url} style={{ position: 'absolute', top: 0, left: 0, width: 960, height: 1100, objectFit: 'cover', pointerEvents: 'none', transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
+                    <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', transform: `scale(${before_image_scale}) translate(${before_image_offset_x}px, ${before_image_offset_y}px)`, transformOrigin: 'center center' }} alt="Before Mask" />
                   )}
+                </div>
 
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    width: `${100 - sliderPosition}%`,
-                    height: 1100,
-                    overflow: 'hidden'
+                {/* BEFORE badge below image */}
+                <div style={{
+                  marginTop: 40,
+                  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                  borderRadius: 16,
+                  padding: '10px 30px',
+                  display: 'inline-block',
+                }}>
+                  <span style={{
+                    fontSize: 22,
+                    fontWeight: 'bold',
+                    color: '#FFFFFF',
+                    letterSpacing: '1px',
+                    fontFamily: 'Montserrat, sans-serif'
                   }}>
-                    <Img
-                      src={lastScan.imageUrl}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        width: 960,
-                        height: 1100,
-                        objectFit: 'cover',
-                        maxWidth: 'none',
-                        transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`,
-                        transformOrigin: 'center center'
-                      }}
-                      alt="After Scan"
-                    />
-                    {mask_enabled === 'on' && after_mask_url && (
-                      <Img src={after_mask_url} style={{ position: 'absolute', top: 0, right: 0, width: 960, height: 1100, objectFit: 'cover', maxWidth: 'none', pointerEvents: 'none', transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
-                    )}
-                  </div>
+                    BEFORE
+                  </span>
+                </div>
+              </div>
 
-                  <div style={{
-                    position: 'absolute',
-                    left: `${sliderPosition}%`,
-                    top: 0,
-                    bottom: 0,
-                    width: 6,
-                    backgroundColor: '#FFFFFF',
-                    boxShadow: '0 0 16px rgba(0,0,0,0.5)',
-                    transform: 'translateX(-50%)',
-                    zIndex: 5
-                  }} />
-
-                  <div style={{
-                    position: 'absolute',
-                    left: `${sliderPosition}%`,
-                    top: '50%',
-                    width: 80,
-                    height: 80,
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-                    transform: 'translate(-50%, -50%)',
-                    color: '#10AFCC',
-                    fontSize: 34,
-                    fontWeight: '900',
-                    zIndex: 6
-                  }}>
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 17L3 12L8 7" stroke="#10AFCC" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M16 7L21 12L16 17" stroke="#10AFCC" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="12" cy="12" r="2.5" fill="#10AFCC" />
-                    </svg>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Footer containing COMPARISON results */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 24,
-              justifyContent: 'space-between',
-              width: '100%',
-              padding: '0 10px',
-              boxSizing: 'border-box'
-            }}>
-              {concernsList.map((concernKey) => {
-                const beforeScoreVal = getMetricScore(firstScan.metrics, concernKey);
-                const afterScoreVal = getMetricScore(lastScan.metrics, concernKey);
-                const scoreDiffVal = afterScoreVal - beforeScoreVal;
-
-                const isScoreDown = scoreDiffVal < 0;
-                const isScoreUp = scoreDiffVal > 0;
-                const statColor = isScoreDown ? '#FF453A' : isScoreUp ? '#34C759' : '#10AFCC';
-                const arrowSymbol = isScoreDown ? '↓' : isScoreUp ? '↑' : '';
-                const diffText = scoreDiffVal !== 0 ? `${arrowSymbol}${Math.abs(scoreDiffVal)}` : '0';
-
-                const cardWidth = concernsList.length === 1
-                  ? '100%'
-                  : concernsList.length === 2
-                    ? 'calc(50% - 12px)'
-                    : 'calc(33.33% - 16px)';
-
-                return (
-                  <div
-                    key={concernKey}
+              {/* AFTER Photo Column Wrapper (Cyan Border Card) */}
+              <div style={{
+                width: 'calc(50% - 12px)',
+                height: '100%',
+                border: '3px solid #10AFCC',
+                borderRadius: 32,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '40px 20px',
+                boxSizing: 'border-box',
+              }}>
+                {/* Image Box */}
+                <div style={{
+                  width: '100%',
+                  height: 680,
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}>
+                  <Img
+                    src={lastScan.imageUrl}
                     style={{
-                      width: cardWidth,
-                      background: '#FFFFFF',
-                      border: '1px solid rgba(0, 0, 0, 0.05)',
-                      borderRadius: 36,
-                      padding: '40px 48px',
-                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      boxSizing: 'border-box'
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`,
+                      transformOrigin: 'center center'
                     }}
-                  >
-                    {/* Dates & Scores Row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginBottom: 30 }}>
-                      {/* BEFORE column */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: 24, fontWeight: '700', color: '#718096', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
-                          {firstScan.date}
-                        </span>
-                        <span style={{ fontSize: 96, fontWeight: '900', color: '#1A202C', lineHeight: 1 }}>
-                          {beforeScoreVal}
-                        </span>
-                      </div>
+                    alt="After Scan"
+                  />
+                  {mask_enabled === 'on' && after_mask_url && (
+                    <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', transform: `scale(${after_image_scale}) translate(${after_image_offset_x}px, ${after_image_offset_y}px)`, transformOrigin: 'center center' }} alt="After Mask" />
+                  )}
+                </div>
 
-                      {/* AFTER column */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                        <span style={{ fontSize: 24, fontWeight: '700', color: '#718096', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
-                          {lastScan.date}
-                        </span>
-                        <span style={{ fontSize: 96, fontWeight: '900', color: '#1A202C', lineHeight: 1 }}>
-                          {afterScoreVal}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Centered Arrow Difference */}
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', borderTop: '2px solid rgba(0, 0, 0, 0.06)', paddingTop: 28 }}>
-                      <span style={{ fontSize: 80, fontWeight: '900', color: statColor, textShadow: `0 0 30px ${statColor}40`, display: 'flex', alignItems: 'center', gap: 10 }}>
-                        {diffText}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+                {/* AFTER badge below image */}
+                <div style={{
+                  marginTop: 40,
+                  backgroundColor: '#10AFCC',
+                  borderRadius: 16,
+                  padding: '10px 30px',
+                  display: 'inline-block',
+                }}>
+                  <span style={{
+                    fontSize: 22,
+                    fontWeight: 'bold',
+                    color: '#FFFFFF',
+                    letterSpacing: '1px',
+                    fontFamily: 'Montserrat, sans-serif'
+                  }}>
+                    AFTER
+                  </span>
+                </div>
+              </div>
             </div>
+
+            {/* Before Date Overlay under left column */}
+            <div style={{
+              position: 'absolute',
+              bottom: 275,
+              left: 310,
+              transform: 'translateX(-50%)',
+              zIndex: 20,
+              pointerEvents: 'none',
+              textAlign: 'center',
+            }}>
+              <span style={{
+                fontSize: 22,
+                fontWeight: '600',
+                color: '#718096',
+                textTransform: 'uppercase',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {firstScan.date.toUpperCase()}
+              </span>
+            </div>
+
+            {/* Before Score under left column */}
+            <div style={{
+              position: 'absolute',
+              bottom: 165,
+              left: 310,
+              transform: 'translateX(-50%)',
+              zIndex: 20,
+              pointerEvents: 'none',
+              textAlign: 'center',
+            }}>
+              <span style={{
+                fontSize: 90,
+                fontWeight: '800',
+                color: '#1A202C',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {firstScore}
+              </span>
+            </div>
+
+            {/* After Date Overlay under right column */}
+            <div style={{
+              position: 'absolute',
+              bottom: 275,
+              right: 310,
+              transform: 'translateX(50%)',
+              zIndex: 20,
+              pointerEvents: 'none',
+              textAlign: 'center',
+            }}>
+              <span style={{
+                fontSize: 22,
+                fontWeight: '600',
+                color: '#718096',
+                textTransform: 'uppercase',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {lastScan.date.toUpperCase()}
+              </span>
+            </div>
+
+            {/* After Score under right column */}
+            <div style={{
+              position: 'absolute',
+              bottom: 165,
+              right: 310,
+              transform: 'translateX(50%)',
+              zIndex: 20,
+              pointerEvents: 'none',
+              textAlign: 'center',
+            }}>
+              <span style={{
+                fontSize: 90,
+                fontWeight: '800',
+                color: '#1A202C',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {lastScore}
+              </span>
+            </div>
+
+            {/* Delta Change Overlay */}
+            <div style={{
+              position: 'absolute',
+              bottom: 60,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 20,
+              pointerEvents: 'none',
+            }}>
+              <span style={{
+                fontSize: 68,
+                fontWeight: '800',
+                color: deltaColor,
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                {deltaText}
+              </span>
+            </div>
+
           </AbsoluteFill>
         );
       })()}
@@ -1041,7 +1059,7 @@ export const ProgressVideo = ({
 
         return (
           <AbsoluteFill style={{
-            background: '#ffffff',
+            background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -1617,8 +1635,8 @@ export const ProgressVideo = ({
 
         return (
           <AbsoluteFill style={{
-            transform: `translateY(\${chartRiseProgress}px)`,
-            backgroundColor: '#ffffff',
+            transform: `translateY(${chartRiseProgress}px)`,
+            background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
             padding: '100px 80px',
             display: 'flex',
             flexDirection: 'column',
@@ -1739,12 +1757,12 @@ export const ProgressVideo = ({
         <AbsoluteFill style={{
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#ffffff',
+          background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
           opacity: outroOpacity,
           transform: `scale(${outroScale})`
         }}>
           <div style={{ marginBottom: 50 }}>
-            <AppLogo size={360} />
+            <Img src={mmLogo} style={{ width: 360, height: 360, objectFit: 'contain' }} />
           </div>
           <h2 style={{ fontSize: 28, letterSpacing: 5, color: '#718096', fontWeight: '600' }}>
             VERIFIED BY
@@ -1757,6 +1775,12 @@ export const ProgressVideo = ({
           </p>
         </AbsoluteFill>
       )}
+
+      {/* ── WATERMARK BRANDING (Every page except the last one) ── */}
+      {frame < 965 && (() => {
+        const watermarkOpacity = interpolate(frame, [950, 965], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        return <Watermark opacity={watermarkOpacity} />;
+      })()}
 
     </AbsoluteFill>
   );
