@@ -109,7 +109,7 @@ const Watermark = ({ opacity = 1 }) => {
     <div style={{
       position: 'absolute',
       bottom: 80,
-      left: 60,
+      left: 70,
       zIndex: 999,
       display: 'flex',
       alignItems: 'center',
@@ -290,6 +290,7 @@ export const ProgressVideo = ({
   const daysDiff = (firstDate && lastDate)
     ? Math.max(1, Math.round((lastDate - firstDate) / (1000 * 60 * 60 * 24)))
     : 30;
+  const nDays = daysDiff || 28;
 
   // ── SCENE BOUNDARIES ──
   // Scene 1: Fullscreen Intro Screen (Frames 0 to 120 = 0s - 3s)
@@ -757,15 +758,13 @@ export const ProgressVideo = ({
         const deltaText = scoreDiffVal !== 0 ? `${deltaArrow} ${Math.abs(scoreDiffVal)}` : '0';
         const deltaColor = isPositive ? '#1D9E75' : '#718096';
 
-        const nDays = daysDiff || 28;
-
         return (
           <AbsoluteFill style={{
             background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
             overflow: 'hidden'
           }}>
 
-            {/* Header: concernName and daysDiff */}
+            {/* Header: concernName */}
             <div style={{
               position: 'absolute',
               top: 120,
@@ -786,17 +785,6 @@ export const ProgressVideo = ({
                 fontFamily: 'Montserrat, sans-serif'
               }}>
                 {concernName}
-              </span>
-              <span style={{
-                fontSize: 24,
-                fontWeight: '700',
-                color: '#10AFCC',
-                letterSpacing: '2px',
-                marginTop: 10,
-                textTransform: 'uppercase',
-                fontFamily: 'Montserrat, sans-serif'
-              }}>
-                / {nDays} DAYS
               </span>
             </div>
 
@@ -1013,14 +1001,15 @@ export const ProgressVideo = ({
             {/* Delta Change Overlay */}
             <div style={{
               position: 'absolute',
-              bottom: 60,
+              bottom: 165,
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 20,
               pointerEvents: 'none',
+              textAlign: 'center',
             }}>
               <span style={{
-                fontSize: 68,
+                fontSize: 96,
                 fontWeight: '800',
                 color: deltaColor,
                 fontFamily: 'Montserrat, sans-serif'
@@ -1028,6 +1017,8 @@ export const ProgressVideo = ({
                 {deltaText}
               </span>
             </div>
+
+
 
           </AbsoluteFill>
         );
@@ -1296,13 +1287,23 @@ export const ProgressVideo = ({
 
           // Map actual scores and dates (day of the month from 1 to 28)
           // Map actual scores and dates (Day-wise indices starting from 1)
-          beforePoints = beforeScans.map((s, idx) => ({
-            day: idx + 1,
+          // Helper to calculate exact day offset based on scan date vs first Date
+          const getDayOffset = (dateStr) => {
+            const dateObj = parseScanDate(dateStr);
+            if (!dateObj || !firstDate) return 1;
+            const diffMs = dateObj - firstDate;
+            const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+            return Math.max(0, diffDays) + 1;
+          };
+
+          // Map actual scores and dates using real day gap
+          beforePoints = beforeScans.map((s) => ({
+            day: getDayOffset(s.date),
             score: s.metrics?.[highlightMetric] || 60
           }));
 
-          duringPoints = afterScans.map((s, idx) => ({
-            day: idx + 1,
+          duringPoints = afterScans.map((s) => ({
+            day: getDayOffset(s.date),
             score: s.metrics?.[highlightMetric] || 75
           }));
         } else {
@@ -1312,74 +1313,78 @@ export const ProgressVideo = ({
             return (x - Math.floor(x)) * 2 - 1; // Float between -1.0 and 1.0
           };
 
-          const beforePointsRaw = Array.from({ length: 14 }).map((_, idx) => {
-            const day = idx + 1;
+          // Distribute simulated points across the total test period duration
+          const numBefore = 6;
+          const numAfter = 7;
+          const midDay = Math.floor(nDays / 2);
+
+          beforePoints = Array.from({ length: numBefore }).map((_, idx) => {
+            const fraction = idx / (numBefore - 1 || 1);
+            const day = Math.max(1, Math.round(1 + fraction * (midDay - 1)));
             const noise = getDeterministicNoise(day, avBT * 3.1);
-            return noise;
-          });
-
-          const beforeMean = beforePointsRaw.reduce((sum, v) => sum + v, 0) / 14;
-          const beforeNoiseNorm = beforePointsRaw.map(v => v - beforeMean);
-
-          const beforeScores = beforeNoiseNorm.map((noise) => {
             const rawScore = avBT + noise * 6.5;
-            return Math.max(5, Math.min(95, Math.round(rawScore)));
+            return {
+              day,
+              score: Math.max(5, Math.min(95, Math.round(rawScore)))
+            };
           });
 
-          beforePoints = beforeScores.map((score, idx) => ({
-            day: idx + 1,
-            score
-          }));
-
-          const duringPointsRaw = Array.from({ length: 14 }).map((_, idx) => {
-            const day = idx + 1;
+          duringPoints = Array.from({ length: numAfter }).map((_, idx) => {
+            const fraction = idx / (numAfter - 1 || 1);
+            const day = Math.min(nDays, Math.round((midDay + 1) + fraction * (nDays - midDay - 1)));
             const noise = getDeterministicNoise(day, avPT * 5.7);
-            return noise;
-          });
-
-          const duringMean = duringPointsRaw.reduce((sum, v) => sum + v, 0) / 14;
-          const duringNoiseNorm = duringPointsRaw.map(v => v - duringMean);
-
-          const duringScores = duringNoiseNorm.map((noise) => {
             const rawScore = avPT + noise * 7.5;
-            return Math.max(5, Math.min(95, Math.round(rawScore)));
+            return {
+              day,
+              score: Math.max(5, Math.min(95, Math.round(rawScore)))
+            };
           });
-
-          duringPoints = duringScores.map((score, idx) => ({
-            day: idx + 1,
-            score
-          }));
         }
 
-        // Combine points for continuous line/dot animation
-        const allPoints = [
-          ...beforePoints.map(p => ({ ...p, period: 'before' })),
-          ...duringPoints.map((p, idx) => ({ ...p, period: 'after', day: beforePoints.length + idx + 1 }))
+        // Distribute simulated or actual points across the total test period duration
+        const totalPointsCount = (beforePoints.length + duringPoints.length) || 2;
+        const rawPoints = [
+          ...beforePoints.map((p, idx) => ({ ...p, period: 'before', index: idx })),
+          ...duringPoints.map((p, idx) => ({ ...p, period: 'after', index: beforePoints.length + idx }))
         ];
-        const maxDaysVal = allPoints.length || 5;
 
-        // Dynamic Y-axis limits scaling to fit and expand scores visually
+        const allPoints = rawPoints.map((pt) => {
+          const fraction = pt.index / (totalPointsCount - 1 || 1);
+          const day = Math.max(1, Math.min(nDays, Math.round(1 + fraction * (nDays - 1))));
+          return {
+            ...pt,
+            day,
+            indexInPeriod: pt.period === 'before' ? pt.index : pt.index - beforePoints.length
+          };
+        });
+
+        beforePoints = allPoints.filter(p => p.period === 'before');
+        duringPoints = allPoints.filter(p => p.period === 'after');
+        const maxDaysVal = nDays;
+
+        // Dynamic Y-axis limits scaling to fit and expand scores visually (tightened padding to increase gap)
         const allScoresList = allPoints.map(p => p.score);
-        const minScoreVal = Math.max(0, Math.min(...allScoresList, avBT, avPT) - 15);
-        const maxScoreVal = Math.min(100, Math.max(...allScoresList, avBT, avPT) + 15);
+        const minScoreVal = Math.max(0, Math.min(...allScoresList, avBT, avPT) - 8);
+        const maxScoreVal = Math.min(100, Math.max(...allScoresList, avBT, avPT) + 8);
         const scoreRangeVal = maxScoreVal - minScoreVal;
 
-        // Generate grid values dynamically (every 10 units)
-        const minGridValue = Math.ceil(minScoreVal / 10) * 10;
-        const maxGridValue = Math.floor(maxScoreVal / 10) * 10;
+        // Generate grid values dynamically (every 5 or 10 units depending on range)
+        const stepSize = scoreRangeVal <= 25 ? 5 : 10;
+        const minGridValue = Math.ceil(minScoreVal / stepSize) * stepSize;
+        const maxGridValue = Math.floor(maxScoreVal / stepSize) * stepSize;
         const gridSteps = [];
-        for (let s = minGridValue; s <= maxGridValue; s += 10) {
+        for (let s = minGridValue; s <= maxGridValue; s += stepSize) {
           gridSteps.push(s);
         }
 
         // SVG Layout Coordinates Mapping
         const svgWidth = 940;
-        const svgHeight = 700; // Expanded height
+        const svgHeight = 580; // Adjusted height
 
         const marginLeft = 80;
         const marginRight = 40;
-        const marginTop = 70;
-        const marginBottom = 80;
+        const marginTop = 50;
+        const marginBottom = 90;
 
         const getX = (d) => {
           if (maxDaysVal <= 1) return marginLeft + (svgWidth - marginRight - marginLeft) / 2;
@@ -1409,20 +1414,19 @@ export const ProgressVideo = ({
         const currentDiff = Math.round(easedProgress * diffVal);
         const diffText = currentDiff > 0 ? `+${currentDiff} points` : currentDiff < 0 ? `−${Math.abs(currentDiff)} points` : `0 points`;
 
-        const nDays = daysDiff || 28;
-        const absDiff = Math.abs(diffVal);
+        const absDiff = Math.round(Math.abs(diffVal));
         const summarySentence = avPT >= avBT
           ? `After testing ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of +${absDiff} points.`
           : `After testing ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of −${absDiff} points.`;
 
         const renderChartSVG = () => {
           return (
-            <svg width="100%" height="100%" viewBox={`0 0 \${svgWidth} \${svgHeight}`} style={{ overflow: 'visible' }}>
+            <svg width="100%" height="100%" viewBox={`0 0 ${svgWidth} ${svgHeight}`} style={{ overflow: 'visible' }}>
               {/* 1. Dynamic Grid Lines and Left Labels */}
               {gridSteps.map((s) => {
                 const lineY = getY(s);
                 return (
-                  <g key={`grid-\${s}`}>
+                  <g key={`grid-${s}`}>
                     <line
                       x1={marginLeft}
                       y1={lineY}
@@ -1467,7 +1471,7 @@ export const ProgressVideo = ({
                 const tickX = getX(day);
                 const tickY = svgHeight - marginBottom;
                 return (
-                  <g key={`tick-\${day}`}>
+                  <g key={`tick-${day}`}>
                     <line
                       x1={tickX}
                       y1={tickY}
@@ -1481,7 +1485,7 @@ export const ProgressVideo = ({
                       y={tickY + 36}
                       textAnchor="middle"
                       fill="#718096"
-                      fontSize={18}
+                      fontSize={16}
                       fontWeight="600"
                     >
                       Day {day}
@@ -1496,7 +1500,7 @@ export const ProgressVideo = ({
                 y={svgHeight - 15}
                 textAnchor="middle"
                 fill="#1A202C"
-                fontSize={22}
+                fontSize={20}
                 fontWeight="700"
                 letterSpacing={2}
               >
@@ -1507,11 +1511,11 @@ export const ProgressVideo = ({
               <g>
                 {/* Y Axis */}
                 <line x1={marginLeft} y1={marginTop - 15} x2={marginLeft} y2={svgHeight - marginBottom} stroke="#718096" strokeWidth={3} />
-                <path d={`M \${marginLeft - 6} \${marginTop - 5} L \${marginLeft} \${marginTop - 17} L \${marginLeft + 6} \${marginTop - 5}`} stroke="#718096" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={`M ${marginLeft - 6} ${marginTop - 5} L ${marginLeft} ${marginTop - 17} L ${marginLeft + 6} ${marginTop - 5}`} stroke="#718096" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
                 {/* X Axis */}
                 <line x1={marginLeft} y1={svgHeight - marginBottom} x2={svgWidth - marginRight + 15} y2={svgHeight - marginBottom} stroke="#718096" strokeWidth={3} />
-                <path d={`M \${svgWidth - marginRight + 5} \${svgHeight - marginBottom - 6} L \${svgWidth - marginRight + 17} \${svgHeight - marginBottom} L \${svgWidth - marginRight + 5} \${svgHeight - marginBottom + 6}`} stroke="#718096" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={`M ${svgWidth - marginRight + 5} ${svgHeight - marginBottom - 6} L ${svgWidth - marginRight + 17} ${svgHeight - marginBottom} L ${svgWidth - marginRight + 5} ${svgHeight - marginBottom + 6}`} stroke="#718096" strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </g>
 
               {/* 4. Gap Fill (floods in during Beat 4) */}
@@ -1538,44 +1542,25 @@ export const ProgressVideo = ({
                 opacity={beforeLineOpacity}
               />
 
-              {/* BEFORE Line label */}
-              {beforeLineOpacity > 0.1 && (
-                <g opacity={beforeLineOpacity}>
-                  <rect
-                    x={marginLeft + 15}
-                    y={getY(avBT) - 18}
-                    width={110}
-                    height={36}
-                    rx={8}
-                    fill="rgba(136, 135, 128, 0.9)"
-                  />
-                  <text
-                    x={marginLeft + 70}
-                    y={getY(avBT) + 6}
-                    textAnchor="middle"
-                    fill="#FFFFFF"
-                    fontSize={14}
-                    fontWeight="800"
-                  >
-                    Before Avg
-                  </text>
-                </g>
-              )}
-
               {/* 6. Dynamic Daily Data Score Dots (Beat 2: wave from left to right) */}
               {allPoints.map((pt, idx) => {
                 const dotX = getX(pt.day);
                 const dotY = getY(pt.score);
 
-                // Animation logic for each dot popping up in wave
-                const startFrame = 80 + (idx / allPoints.length) * 120;
+                // Animation logic for each dot popping up in wave (only grey/before dots first, green/after dots later with green line)
+                let startFrame;
+                if (pt.period === 'before') {
+                  startFrame = 60 + (pt.indexInPeriod / Math.max(1, beforePoints.length)) * 80;
+                } else {
+                  startFrame = 220 + (pt.indexInPeriod / Math.max(1, duringPoints.length)) * 80;
+                }
                 const dotScale = interpolate(localFrame, [startFrame, startFrame + 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
                 if (dotScale <= 0.001) return null;
 
                 return (
                   <circle
-                    key={`dot-\${idx}`}
+                    key={`dot-${idx}`}
                     cx={dotX}
                     cy={dotY}
                     r={8.5} // slightly larger score dots
@@ -1583,8 +1568,8 @@ export const ProgressVideo = ({
                     stroke="#FFFFFF"
                     strokeWidth={2}
                     style={{
-                      transform: `scale(\${dotScale})`,
-                      transformOrigin: `\${dotX}px \${dotY}px`,
+                      transform: `scale(${dotScale})`,
+                      transformOrigin: `${dotX}px ${dotY}px`,
                       opacity: interpolate(localFrame, [300, 320], [1, 0.45], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
                     }}
                   />
@@ -1593,41 +1578,15 @@ export const ProgressVideo = ({
 
               {/* 7. AFTER Average Reference Line (Solid, teal/gray) */}
               {afterLineOpacity > 0.001 && (
-                <>
-                  <line
-                    x1={getX(1)}
-                    y1={getY(avPT)}
-                    x2={afterLineX2}
-                    y2={getY(avPT)}
-                    stroke={avPT >= avBT ? '#1D9E75' : '#888780'}
-                    strokeWidth={4.5}
-                    opacity={afterLineOpacity}
-                  />
-
-                  {/* AFTER Line label */}
-                  {localFrame >= 290 && (
-                    <g opacity={interpolate(localFrame, [290, 310], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}>
-                      <rect
-                        x={svgWidth - marginRight - 125}
-                        y={getY(avPT) - 18}
-                        width={110}
-                        height={36}
-                        rx={8}
-                        fill={avPT >= avBT ? 'rgba(29, 158, 117, 0.9)' : 'rgba(136, 135, 128, 0.9)'}
-                      />
-                      <text
-                        x={svgWidth - marginRight - 70}
-                        y={getY(avPT) + 6}
-                        textAnchor="middle"
-                        fill="#FFFFFF"
-                        fontSize={14}
-                        fontWeight="800"
-                      >
-                        After Avg
-                      </text>
-                    </g>
-                  )}
-                </>
+                <line
+                  x1={getX(1)}
+                  y1={getY(avPT)}
+                  x2={afterLineX2}
+                  y2={getY(avPT)}
+                  stroke={avPT >= avBT ? '#1D9E75' : '#888780'}
+                  strokeWidth={4.5}
+                  opacity={afterLineOpacity}
+                />
               )}
             </svg>
           );
@@ -1637,7 +1596,7 @@ export const ProgressVideo = ({
           <AbsoluteFill style={{
             transform: `translateY(${chartRiseProgress}px)`,
             background: 'linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%)',
-            padding: '100px 80px',
+            padding: '80px 80px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -1650,7 +1609,7 @@ export const ProgressVideo = ({
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'flex-start',
-              marginBottom: 90 // pushed down by 50px from {nDays}-Day Test Results
+              marginBottom: 40 // pushed down by 40px from {nDays}-Day Test Results
             }}>
               <span style={{
                 fontSize: 22,
@@ -1674,22 +1633,91 @@ export const ProgressVideo = ({
               </h1>
             </div>
 
-            {/* SVG Chart Container - height increased to 700px */}
+            {/* SVG Chart Container - height set to 960px, flexShrink: 0 to prevent shrinking */}
             <div style={{
               position: 'relative',
               width: '100%',
-              height: 700,
+              height: 960,
+              flexShrink: 0,
               display: 'flex',
-              justifyContent: 'center',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               alignItems: 'center',
               backgroundColor: '#ffffff',
-              borderRadius: 24,
+              borderRadius: 32,
               border: '2px solid rgba(0, 0, 0, 0.04)',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.02)',
-              padding: '20px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.03)',
+              padding: '24px 20px 30px 20px',
               boxSizing: 'border-box'
             }}>
-              {renderChartSVG()}
+              {/* SVG Chart */}
+              <div style={{ width: '100%', height: 580 }}>
+                {renderChartSVG()}
+              </div>
+
+              {/* Average Boxes Container */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                gap: 20,
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: '0 10px',
+                marginTop: 40
+              }}>
+                {/* Average Before Box */}
+                <div style={{
+                  width: 'calc(50% - 10px)',
+                  height: 250,
+                  backgroundColor: '#f3f3f3',
+                  borderRadius: 24,
+                  padding: '20px 15px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+                  border: '1px solid rgba(0, 0, 0, 0.03)',
+                  boxSizing: 'border-box',
+                  opacity: interpolate(localFrame, [50, 70], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
+                  transform: `translateY(${interpolate(localFrame, [50, 70], [15, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px)`,
+                }}>
+                  <div style={{ width: 100, height: 8, borderRadius: 20, backgroundColor: '#a7a7a7', marginBottom: 16 }} />
+                  <span style={{ fontSize: 28, fontWeight: '600', color: '#2f3b4a', fontFamily: 'Montserrat, sans-serif', marginBottom: 12 }}>
+                    Average Before
+                  </span>
+                  <span style={{ fontSize: 80, fontWeight: '700', color: '#8d8d8d', fontFamily: 'Montserrat, sans-serif', lineHeight: 1 }}>
+                    {avBT}
+                  </span>
+                </div>
+
+                {/* Average After Box */}
+                <div style={{
+                  width: 'calc(50% - 10px)',
+                  height: 250,
+                  backgroundColor: '#eef8f6',
+                  borderRadius: 24,
+                  padding: '20px 15px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(29, 158, 117, 0.03)',
+                  border: '1px solid rgba(29, 158, 117, 0.08)',
+                  boxSizing: 'border-box',
+                  opacity: interpolate(localFrame, [220, 240], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
+                  transform: `translateY(${interpolate(localFrame, [220, 240], [15, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px)`,
+                }}>
+                  <div style={{ width: 100, height: 8, borderRadius: 20, backgroundColor: '#10B392', marginBottom: 16 }} />
+                  <span style={{ fontSize: 28, fontWeight: '600', color: '#2f3b4a', fontFamily: 'Montserrat, sans-serif', marginBottom: 12 }}>
+                    Average After
+                  </span>
+                  <span style={{ fontSize: 80, fontWeight: '700', color: '#10B392', fontFamily: 'Montserrat, sans-serif', lineHeight: 1 }}>
+                    {avPT}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Bottom Payoff Section - positioned exactly 30px below the graph */}
@@ -1704,7 +1732,7 @@ export const ProgressVideo = ({
               {/* Delta Pill */}
               <div style={{
                 opacity: pillOpacity,
-                transform: `scale(\${interpolate(localFrame, [350, 370], [0.8, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
+                transform: `scale(${interpolate(localFrame, [350, 370], [0.8, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
                 padding: '16px 48px',
                 borderRadius: 40,
                 fontSize: 42,
@@ -1722,7 +1750,7 @@ export const ProgressVideo = ({
               {/* Summary Sentence & Disclaimer */}
               <div style={{
                 opacity: textOpacity,
-                transform: `translateY(\${interpolate(localFrame, [360, 390], [20, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px)`,
+                transform: `translateY(${interpolate(localFrame, [360, 390], [20, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px)`,
                 textAlign: 'center',
                 padding: '70px 40px',
                 boxSizing: 'border-box',
