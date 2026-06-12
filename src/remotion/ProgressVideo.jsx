@@ -264,8 +264,8 @@ export const ProgressVideo = ({
   };
 
   const highlightMetric = overallHighlight?.metric || "redness";
-  const firstScore = firstScan.metrics?.[highlightMetric] || 87;
-  const lastScore = lastScan.metrics?.[highlightMetric] || 88;
+  const firstScore = Math.round(firstScan.metrics?.[highlightMetric] || 87);
+  const lastScore = Math.round(lastScan.metrics?.[highlightMetric] || 88);
   const metricLabel = overallHighlight?.label || "REDNESS REDUCTION";
   const scoreDiff = lastScore - firstScore;
   const improvementStat = scoreDiff > 0 ? `↑${scoreDiff}` : scoreDiff < 0 ? `↓${Math.abs(scoreDiff)}` : `0`;
