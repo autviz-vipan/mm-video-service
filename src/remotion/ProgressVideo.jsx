@@ -1278,11 +1278,11 @@ export const ProgressVideo = ({
           // Calculate real average of actual metrics
           if (beforeScans.length > 0) {
             const sum = beforeScans.reduce((acc, s) => acc + (s.metrics?.[highlightMetric] || 0), 0);
-            avBT = Number((sum / beforeScans.length).toFixed(1));
+            avBT = Math.round(sum / beforeScans.length);
           }
           if (afterScans.length > 0) {
             const sum = afterScans.reduce((acc, s) => acc + (s.metrics?.[highlightMetric] || 0), 0);
-            avPT = Number((sum / afterScans.length).toFixed(1));
+            avPT = Math.round(sum / afterScans.length);
           }
 
           // Map actual scores and dates (day of the month from 1 to 28)
@@ -1414,7 +1414,7 @@ export const ProgressVideo = ({
         const currentDiff = Math.round(easedProgress * diffVal);
         const diffText = currentDiff > 0 ? `+${currentDiff} points` : currentDiff < 0 ? `−${Math.abs(currentDiff)} points` : `0 points`;
 
-        const absDiff = Math.abs(diffVal);
+        const absDiff = Math.round(Math.abs(diffVal));
         const summarySentence = avPT >= avBT
           ? `After testing ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of +${absDiff} points.`
           : `After testing ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of −${absDiff} points.`;
@@ -1688,7 +1688,7 @@ export const ProgressVideo = ({
                     Average Before
                   </span>
                   <span style={{ fontSize: 80, fontWeight: '700', color: '#8d8d8d', fontFamily: 'Montserrat, sans-serif', lineHeight: 1 }}>
-                    {avBT.toFixed(1)}
+                    {avBT}
                   </span>
                 </div>
 
@@ -1714,7 +1714,7 @@ export const ProgressVideo = ({
                     Average After
                   </span>
                   <span style={{ fontSize: 80, fontWeight: '700', color: '#10B392', fontFamily: 'Montserrat, sans-serif', lineHeight: 1 }}>
-                    {avPT.toFixed(1)}
+                    {avPT}
                   </span>
                 </div>
               </div>
