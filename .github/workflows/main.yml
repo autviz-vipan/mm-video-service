@@ -23,7 +23,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION,FASTAPI_CALLBACK_URL
           script: |
-            cd /home/ubuntu/mm-video-service
+            cd /home/ubuntu/video-service/prod/mm-video-service
       
             git pull origin main
       
