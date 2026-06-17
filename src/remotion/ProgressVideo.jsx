@@ -108,8 +108,8 @@ const Watermark = ({ opacity = 1 }) => {
   return (
     <div style={{
       position: 'absolute',
-      bottom: 80,
-      left: 70,
+      bottom: 30,
+      left: 30,
       zIndex: 999,
       display: 'flex',
       alignItems: 'center',
