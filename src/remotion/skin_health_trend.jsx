@@ -53,7 +53,7 @@ const Watermark = ({ opacity = 1 }) => (
             overflow: 'hidden',
             flexShrink: 0,
         }}>
-            <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Magic Mirror Logo" />
+            <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <span style={{ fontSize: 34, lineHeight: 1.0, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif' }}>
@@ -66,7 +66,7 @@ const Watermark = ({ opacity = 1 }) => (
     </div>
 );
 
-const BG = '#ffffff';
+const BG = '#FFF0F2';
 
 // ─── SCENE 1: PRODUCT INFO ───────────────────────────────────────────────────
 // Frames 0 – 179 (6 s @ 30 fps)
@@ -120,7 +120,7 @@ const SceneProductInfo = ({
     const initials = getInitials(brand_name, product_name);
     const logoText = brand_name ? brand_name.toUpperCase() : (product_name ? product_name.toUpperCase() : 'MAGIC MIRROR');
 
-    const testingPeriodStr = before_timeperiod && after_timeperiod
+    const trackingPeriodStr = before_timeperiod && after_timeperiod
         ? `${before_timeperiod} → ${after_timeperiod}`
         : (startDateDisplay || 'May 4 → May 26');
 
@@ -130,7 +130,7 @@ const SceneProductInfo = ({
 
     return (
         <AbsoluteFill style={{
-            background: '#ffffff',
+            background: '#FFF0F2',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -162,7 +162,7 @@ const SceneProductInfo = ({
                     overflow: 'hidden',
                     flexShrink: 0,
                 }}>
-                    <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Magic Mirror Logo" />
+                    <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
                 </div>
                 <div style={{
                     fontSize: 44,
@@ -188,7 +188,7 @@ const SceneProductInfo = ({
                 opacity: line1Opacity,
                 transform: `translateY(${line1Y}px)`,
             }}>
-                Efficacy testing
+                Effectiveness tracking
             </div>
 
             {/* Product Unit */}
@@ -269,7 +269,7 @@ const SceneProductInfo = ({
                 opacity: panelOpacity,
                 transform: `translateY(${panelY}px)`,
             }}>
-                {/* Testing For */}
+                {/* Tracking For */}
                 <div style={{
                     backgroundColor: '#10AFCC',
                     borderRadius: 36,
@@ -281,14 +281,14 @@ const SceneProductInfo = ({
                     width: '100%',
                 }}>
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                        Testing for
+                        Tracking for
                     </div>
                     <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
                         {concernsStr}
                     </div>
                 </div>
 
-                {/* Testing Period (Alt) */}
+                {/* Tracking Period */}
                 <div style={{
                     backgroundColor: '#1A202C',
                     borderRadius: 36,
@@ -300,14 +300,14 @@ const SceneProductInfo = ({
                     width: '100%',
                 }}>
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                        Testing period
+                        Tracking period
                     </div>
                     <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
-                        {testingPeriodStr}
+                        {trackingPeriodStr}
                     </div>
                 </div>
 
-                {/* Tested By */}
+                {/* Tracked By */}
                 <div style={{
                     backgroundColor: '#10AFCC',
                     borderRadius: 36,
@@ -319,7 +319,7 @@ const SceneProductInfo = ({
                     width: '100%',
                 }}>
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                        Tested by
+                        Tracked by
                     </div>
                     <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
                         {testerName}
@@ -383,24 +383,11 @@ const SceneChart = ({
         return (x - Math.floor(x)) * 2 - 1; // Float between -1.0 and 1.0
     };
 
-    const numBefore = 6;
-    const numAfter = 7;
-    const midDay = Math.floor(nDays / 2);
-
-    let beforePoints = Array.from({ length: numBefore }).map((_, idx) => {
-        const fraction = idx / (numBefore - 1 || 1);
-        const day = Math.max(1, Math.round(1 + fraction * (midDay - 1)));
-        const noise = getDeterministicNoise(day, avBT * 3.1);
-        const rawScore = avBT + noise * 5.0;
-        return {
-            day,
-            score: Math.max(5, Math.min(95, Math.round(rawScore * 10) / 10))
-        };
-    });
+    const numAfter = 12; // 12 points across the entire timeline
 
     let duringPoints = Array.from({ length: numAfter }).map((_, idx) => {
         const fraction = idx / (numAfter - 1 || 1);
-        const day = Math.min(nDays, Math.round((midDay + 1) + fraction * (nDays - midDay - 1)));
+        const day = Math.max(1, Math.min(nDays, Math.round(1 + fraction * (nDays - 1))));
         const noise = getDeterministicNoise(day, avPT * 5.7);
         const rawScore = avPT + noise * 6.0;
         return {
@@ -409,24 +396,17 @@ const SceneChart = ({
         };
     });
 
-    const totalPointsCount = beforePoints.length + duringPoints.length;
-    const rawPoints = [
-        ...beforePoints.map((p, idx) => ({ ...p, period: 'before', index: idx })),
-        ...duringPoints.map((p, idx) => ({ ...p, period: 'after', index: beforePoints.length + idx }))
-    ];
+    const rawPoints = duringPoints.map((p, idx) => ({ ...p, period: 'after', index: idx }));
 
     const allPoints = rawPoints.map((pt) => {
-        const fraction = pt.index / (totalPointsCount - 1 || 1);
-        const day = Math.max(1, Math.min(nDays, Math.round(1 + fraction * (nDays - 1))));
         return {
             ...pt,
-            day,
-            indexInPeriod: pt.period === 'before' ? pt.index : pt.index - beforePoints.length
+            indexInPeriod: pt.index
         };
     });
 
-    beforePoints = allPoints.filter(p => p.period === 'before');
-    duringPoints = allPoints.filter(p => p.period === 'after');
+    const beforePoints = [];
+    duringPoints = allPoints;
 
     const allScoresList = allPoints.map(p => p.score);
     const minScoreVal = Math.max(0, Math.min(...allScoresList, avBT, avPT) - 8);
@@ -465,23 +445,24 @@ const SceneChart = ({
 
     const beforeLineOpacity = interpolate(localFrame, [10, 45], [0, 0.8], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-    const afterLineProgress = interpolate(localFrame, [160, 240], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-    const afterLineOpacity = interpolate(localFrame, [160, 175], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const afterLineProgress = interpolate(localFrame, [20, 100], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const afterLineOpacity = interpolate(localFrame, [20, 35], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
     const afterLineX2 = getX(1) + afterLineProgress * (getX(nDays) - getX(1));
 
-    const fillOpacity = interpolate(localFrame, [240, 280], [0, 0.20], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const fillOpacity = interpolate(localFrame, [100, 140], [0, 0.20], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-    const pillOpacity = interpolate(localFrame, [260, 280], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-    const textOpacity = interpolate(localFrame, [280, 300], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const pillOpacity = interpolate(localFrame, [120, 140], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const textOpacity = interpolate(localFrame, [140, 160], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-    const progress = interpolate(localFrame, [260, 310], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const progress = interpolate(localFrame, [120, 170], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
     const easedProgress = Math.sin((progress * Math.PI) / 2);
     const currentDiff = easedProgress * diffVal;
     const diffText = formatDelta(currentDiff);
 
     const deltaColor = '#ffffff';
-    const afterColor = isImproved ? '#1D9E75' : '#D24B76';
-    const deltaLabel = isImproved ? 'Point Improvement' : 'Point Decline';
+    const afterColor = isImproved ? '#1D9E75' : '#8E8E93';
+    const gapFillColor = isImproved ? '#1D9E75' : '#708E9B';
+    const deltaLabel = isImproved ? 'Score Improvement' : 'Score Decline';
 
     const renderChartSVG = () => {
         return (
@@ -496,16 +477,16 @@ const SceneChart = ({
                                 y1={lineY}
                                 x2={svgWidth - marginRight}
                                 y2={lineY}
-                                stroke="rgba(255, 255, 255, 0.15)"
-                                strokeWidth={2}
+                                stroke="rgba(26, 32, 44, 0.12)"
+                                strokeWidth={3}
                                 strokeDasharray="6 6"
                             />
                             <text
                                 x={marginLeft - 20}
-                                y={lineY + 8}
+                                y={lineY + 10}
                                 textAnchor="end"
-                                fill="rgba(255, 255, 255, 0.6)"
-                                fontSize={26}
+                                fill="rgba(26, 32, 44, 0.6)"
+                                fontSize={34}
                                 fontWeight="600"
                             >
                                 {s}
@@ -519,8 +500,8 @@ const SceneChart = ({
                     x={marginLeft}
                     y={marginTop - 25}
                     textAnchor="middle"
-                    fill="rgba(255, 255, 255, 0.8)"
-                    fontSize={24}
+                    fill="rgba(26, 32, 44, 0.85)"
+                    fontSize={32}
                     fontWeight="700"
                 >
                     Scores
@@ -542,16 +523,16 @@ const SceneChart = ({
                                     x1={tickX}
                                     y1={tickY}
                                     x2={tickX}
-                                    y2={tickY + 12}
-                                    stroke="rgba(255, 255, 255, 0.4)"
-                                    strokeWidth={3}
+                                    y2={tickY + 15}
+                                    stroke="rgba(26, 32, 44, 0.3)"
+                                    strokeWidth={4}
                                 />
                                 <text
                                     x={tickX}
-                                    y={tickY + 44}
+                                    y={tickY + 48}
                                     textAnchor="middle"
-                                    fill="rgba(255, 255, 255, 0.6)"
-                                    fontSize={22}
+                                    fill="rgba(26, 32, 44, 0.6)"
+                                    fontSize={30}
                                     fontWeight="600"
                                 >
                                     Day {day}
@@ -566,23 +547,23 @@ const SceneChart = ({
                     x={(marginLeft + svgWidth - marginRight) / 2}
                     y={svgHeight - 15}
                     textAnchor="middle"
-                    fill="rgba(255, 255, 255, 0.6)"
-                    fontSize={24}
+                    fill="rgba(26, 32, 44, 0.6)"
+                    fontSize={32}
                     fontWeight="700"
                     letterSpacing={1}
                 >
-                    Test period (days)
+                    Tracking period (days)
                 </text>
 
                 {/* 3. Main Axes lines */}
                 <g>
                     {/* Y Axis */}
-                    <line x1={marginLeft} y1={marginTop - 10} x2={marginLeft} y2={svgHeight - marginBottom} stroke="rgba(255, 255, 255, 0.4)" strokeWidth={5} />
-                    <path d={`M ${marginLeft - 8} ${marginTop + 2} L ${marginLeft} ${marginTop - 15} L ${marginLeft + 8} ${marginTop + 2}`} stroke="rgba(255, 255, 255, 0.4)" strokeWidth={5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1={marginLeft} y1={marginTop - 10} x2={marginLeft} y2={svgHeight - marginBottom} stroke="rgba(26, 32, 44, 0.3)" strokeWidth={7} />
+                    <path d={`M ${marginLeft - 8} ${marginTop + 2} L ${marginLeft} ${marginTop - 15} L ${marginLeft + 8} ${marginTop + 2}`} stroke="rgba(26, 32, 44, 0.3)" strokeWidth={7} fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
                     {/* X Axis */}
-                    <line x1={marginLeft} y1={svgHeight - marginBottom} x2={svgWidth - marginRight + 15} y2={svgHeight - marginBottom} stroke="rgba(255, 255, 255, 0.4)" strokeWidth={5} />
-                    <path d={`M ${svgWidth - marginRight + 5} ${svgHeight - marginBottom - 8} L ${svgWidth - marginRight + 18} ${svgHeight - marginBottom} L ${svgWidth - marginRight + 5} ${svgHeight - marginBottom + 8}`} stroke="rgba(255, 255, 255, 0.4)" strokeWidth={5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1={marginLeft} y1={svgHeight - marginBottom} x2={svgWidth - marginRight + 15} y2={svgHeight - marginBottom} stroke="rgba(26, 32, 44, 0.3)" strokeWidth={7} />
+                    <path d={`M ${svgWidth - marginRight + 5} ${svgHeight - marginBottom - 8} L ${svgWidth - marginRight + 18} ${svgHeight - marginBottom} L ${svgWidth - marginRight + 5} ${svgHeight - marginBottom + 8}`} stroke="rgba(26, 32, 44, 0.3)" strokeWidth={7} fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </g>
 
                 {/* 4. Gap Fill */}
@@ -592,7 +573,7 @@ const SceneChart = ({
                         y={Math.min(getY(avBT), getY(avPT))}
                         width={getX(nDays) - getX(1)}
                         height={Math.abs(getY(avBT) - getY(avPT))}
-                        fill={afterColor}
+                        fill={gapFillColor}
                         opacity={fillOpacity}
                     />
                 )}
@@ -603,8 +584,8 @@ const SceneChart = ({
                     y1={getY(avBT)}
                     x2={getX(nDays)}
                     y2={getY(avBT)}
-                    stroke="rgba(255, 255, 255, 0.5)"
-                    strokeWidth={6}
+                    stroke="rgba(26, 32, 44, 0.45)"
+                    strokeWidth={8}
                     strokeDasharray="10 8"
                     opacity={beforeLineOpacity}
                 />
@@ -614,12 +595,7 @@ const SceneChart = ({
                     const dotX = getX(pt.day);
                     const dotY = getY(pt.score);
 
-                    let startFrame;
-                    if (pt.period === 'before') {
-                        startFrame = 40 + (pt.indexInPeriod / Math.max(1, beforePoints.length)) * 80;
-                    } else {
-                        startFrame = 160 + (pt.indexInPeriod / Math.max(1, duringPoints.length)) * 80;
-                    }
+                    const startFrame = 10 + (pt.index / Math.max(1, allPoints.length)) * 90;
                     const dotScale = interpolate(localFrame, [startFrame, startFrame + 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
                     if (dotScale <= 0.001) return null;
@@ -629,14 +605,14 @@ const SceneChart = ({
                             key={`dot-${idx}`}
                             cx={dotX}
                             cy={dotY}
-                            r={9.5}
-                            fill={pt.period === 'before' ? 'rgba(255, 255, 255, 0.6)' : afterColor}
+                            r={13}
+                            fill={pt.period === 'before' ? '#888780' : afterColor}
                             stroke="#FFFFFF"
-                            strokeWidth={2.5}
+                            strokeWidth={3.5}
                             style={{
                                 transform: `scale(${dotScale})`,
                                 transformOrigin: `${dotX}px ${dotY}px`,
-                                opacity: interpolate(localFrame, [240, 260], [1, 0.45], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+                                opacity: interpolate(localFrame, [110, 130], [1, 0.45], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
                             }}
                         />
                     );
@@ -650,7 +626,7 @@ const SceneChart = ({
                         x2={afterLineX2}
                         y2={getY(avPT)}
                         stroke={afterColor}
-                        strokeWidth={8}
+                        strokeWidth={10}
                         opacity={afterLineOpacity}
                     />
                 )}
@@ -660,7 +636,7 @@ const SceneChart = ({
 
     return (
         <AbsoluteFill style={{
-            background: '#ffffff',
+            background: '#FFF0F2',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -693,14 +669,14 @@ const SceneChart = ({
                     lineHeight: 1.1,
                     fontFamily: 'Montserrat, sans-serif'
                 }}>
-                    Efficacy review — {nDays} days
+                    Effectiveness Review — {nDays} days
                 </h1>
             </div>
 
-            {/* Card 1: SVG Line Chart Container (Dark) */}
+            {/* Card 1: SVG Line Chart Container (Pink/Light) */}
             <div style={{
                 width: '100%',
-                backgroundColor: '#1A202C',
+                backgroundColor: '#FFEBEF',
                 borderRadius: 36,
                 padding: '40px 30px 30px 30px',
                 boxSizing: 'border-box',
@@ -709,6 +685,7 @@ const SceneChart = ({
                 flexDirection: 'column',
                 justifyContent: 'center',
                 marginBottom: 40,
+                boxShadow: '0 8px 30px rgba(228, 96, 120, 0.06)',
             }}>
                 <div style={{ width: '100%', height: 600 }}>
                     {renderChartSVG()}
@@ -741,7 +718,7 @@ const SceneChart = ({
                         {diffText}
                     </div>
                     <div style={{
-                        fontSize: 28,
+                        fontSize: 34,
                         fontWeight: '600',
                         letterSpacing: '0.04em',
                         textTransform: 'uppercase',
@@ -757,16 +734,16 @@ const SceneChart = ({
                     <div style={{
                         backgroundColor: 'rgba(255,255,255,0.16)',
                         borderRadius: 20,
-                        padding: '20px 30px',
+                        padding: '24px 34px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: 4,
-                        minWidth: 220,
+                        gap: 8,
+                        minWidth: 260,
                         boxSizing: 'border-box'
                     }}>
                         <div style={{
-                            fontSize: 24,
+                            fontSize: 34,
                             fontWeight: '600',
                             letterSpacing: '0.03em',
                             textTransform: 'uppercase',
@@ -778,7 +755,7 @@ const SceneChart = ({
                             Average<br />before
                         </div>
                         <div style={{
-                            fontSize: 54,
+                            fontSize: 70,
                             fontWeight: '700',
                             color: '#ffffff',
                             fontFamily: 'Montserrat, sans-serif'
@@ -790,16 +767,16 @@ const SceneChart = ({
                     <div style={{
                         backgroundColor: 'rgba(255,255,255,0.16)',
                         borderRadius: 20,
-                        padding: '20px 30px',
+                        padding: '24px 34px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: 4,
-                        minWidth: 220,
+                        gap: 8,
+                        minWidth: 260,
                         boxSizing: 'border-box'
                     }}>
                         <div style={{
-                            fontSize: 24,
+                            fontSize: 34,
                             fontWeight: '600',
                             letterSpacing: '0.03em',
                             textTransform: 'uppercase',
@@ -811,7 +788,7 @@ const SceneChart = ({
                             Average<br />after
                         </div>
                         <div style={{
-                            fontSize: 54,
+                            fontSize: 70,
                             fontWeight: '700',
                             color: '#ffffff',
                             fontFamily: 'Montserrat, sans-serif'
@@ -839,7 +816,7 @@ const SceneChart = ({
                     fontFamily: 'Montserrat, sans-serif',
                     margin: '0 0 24px 0',
                 }}>
-                    After testing <span style={{ color: '#10AFCC', fontWeight: 700 }}>{product_name}</span> for <span style={{ color: '#10AFCC', fontWeight: 700 }}>{nDays} days</span>, my {concernLabel} score {isImproved ? 'improved' : 'changed'} by <span style={{ color: '#10AFCC', fontWeight: 700 }}>{formatDelta(diffVal)}</span> — from {fmtScore(avBT)} to {fmtScore(avPT)}.
+                    After tracking <span style={{ color: '#10AFCC', fontWeight: 700 }}>{product_name}</span> for <span style={{ color: '#10AFCC', fontWeight: 700 }}>{nDays} days</span>, my {concernLabel} score {isImproved ? 'improved' : 'changed'} by <span style={{ color: '#10AFCC', fontWeight: 700 }}>{formatDelta(diffVal)}</span> — from {fmtScore(avBT)} to {fmtScore(avPT)}.
                 </p>
                 <p style={{
                     fontSize: 26,
@@ -869,8 +846,8 @@ const DownTrendIcon = ({ color = '#8E8E93' }) => (
         flexShrink: 0,
     }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22 17L13.5 8.5L8.5 13.5L2 7" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M16 17H22V11" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M22 17L13.5 8.5L8.5 13.5L2 7" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M16 17H22V11" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     </div>
 );
@@ -888,8 +865,8 @@ const UpTrendIcon = ({ color = '#10AFCC' }) => (
         flexShrink: 0,
     }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22 7L13.5 15.5L8.5 10.5L2 17" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M16 7H22V13" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M22 7L13.5 15.5L8.5 10.5L2 17" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M16 7H22V13" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     </div>
 );
@@ -918,6 +895,22 @@ const SceneSideBySide = ({
     const primaryConcern = concerns.length > 0 ? concerns[0] : 'skin';
     const concernLabel = primaryConcern.charAt(0).toUpperCase() + primaryConcern.slice(1);
 
+    // Calculate days elapsed between scans
+    const parsePeriodDate = (dateStr) => {
+        if (!dateStr) return null;
+        const parsed = Date.parse(dateStr);
+        if (!isNaN(parsed)) {
+            return new Date(parsed);
+        }
+        return null;
+    };
+
+    const startD = parsePeriodDate(before_timeperiod);
+    const endD = parsePeriodDate(after_timeperiod);
+    const nDays = (startD && endD)
+        ? Math.max(1, Math.round((endD - startD) / (1000 * 60 * 60 * 24)))
+        : 30; // fallback to 30 days
+
     const headerOpacity = interpolate(localFrame, [0, 20], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
     const headerY = interpolate(localFrame, [0, 20], [-30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
@@ -931,7 +924,7 @@ const SceneSideBySide = ({
 
     return (
         <AbsoluteFill style={{
-            background: '#ffffff',
+            background: '#FFF0F2',
             display: 'flex',
             flexDirection: 'column',
             padding: '120px 60px 80px',
@@ -966,7 +959,7 @@ const SceneSideBySide = ({
                     color: '#1A202C',
                     fontFamily: 'Montserrat, sans-serif',
                 }}>
-                    Efficacy review — scan highlights
+                    Effectiveness Review — Scan Highlights
                 </div>
             </div>
 
@@ -976,7 +969,6 @@ const SceneSideBySide = ({
                 flexDirection: 'row',
                 gap: 32,
                 width: '100%',
-                flex: 1,
                 marginBottom: 40,
             }}>
                 {/* WORST Column */}
@@ -992,7 +984,7 @@ const SceneSideBySide = ({
                         <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            backgroundColor: '#E5E5EA',
+                            backgroundColor: '#97958dff',
                             padding: '8px 24px 8px 8px',
                             borderRadius: 9999,
                             boxSizing: 'border-box',
@@ -1006,7 +998,7 @@ const SceneSideBySide = ({
                                 fontFamily: 'Montserrat, sans-serif',
                                 letterSpacing: 1,
                             }}>
-                                Lowest scan
+                                Lowest score
                             </span>
                         </div>
                     </div>
@@ -1108,7 +1100,7 @@ const SceneSideBySide = ({
                                 fontFamily: 'Montserrat, sans-serif',
                                 letterSpacing: 1,
                             }}>
-                                Best scan
+                                Best score
                             </span>
                         </div>
                     </div>
@@ -1183,6 +1175,24 @@ const SceneSideBySide = ({
                     </div>
                 </div>
             </div>
+
+            {/* Days between scans info */}
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flex: 1,
+                width: '100%',
+            }}>
+                <span style={{
+                    fontSize: 46,
+                    fontWeight: 700,
+                    color: '#888780',
+                    fontFamily: 'Montserrat, sans-serif',
+                }}>
+                    Scans captured <span style={{ color: '#10AFCC', fontWeight: 800 }}>{nDays} days</span> apart
+                </span>
+            </div>
         </AbsoluteFill>
     );
 };
@@ -1191,10 +1201,10 @@ const SceneSideBySide = ({
 // Frames 840 – 959
 const SceneOutro = ({ fps }) => {
     const frame = useCurrentFrame();
-    const localFrame = frame - 840;
+    const localFrame = frame - 690;
 
     const outroScale = spring({ frame: localFrame, fps, from: 0.6, to: 1, config: { damping: 10 } });
-    const outroOpacity = interpolate(frame, [840, 870], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const outroOpacity = interpolate(frame, [690, 720], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
     return (
         <AbsoluteFill style={{
@@ -1203,17 +1213,20 @@ const SceneOutro = ({ fps }) => {
             background: BG,
             opacity: outroOpacity,
             transform: `scale(${outroScale})`,
+            display: 'flex',
+            flexDirection: 'column',
         }}>
-            <div style={{ marginBottom: 50 }}>
-                <Img src={mmLogo} style={{ width: 360, height: 360, objectFit: 'contain' }} />
+            <div style={{ marginBottom: 40 }}>
+                <Img src={mmLogo} style={{ width: 320, height: 320, objectFit: 'contain' }} />
             </div>
-            <h2 style={{ fontSize: 28, letterSpacing: 5, color: '#718096', fontWeight: 600 }}>
+            <h2 style={{ fontSize: 26, letterSpacing: 4.5, color: '#718096', fontWeight: '600', textTransform: 'uppercase', margin: 0 }}>
                 VERIFIED BY
             </h2>
-            <h1 style={{ fontSize: 68, fontWeight: 900, letterSpacing: 8, color: '#1A202C', marginTop: 15 }}>
+            <h1 style={{ fontSize: 60, fontWeight: '900', letterSpacing: 6, color: '#1A202C', marginTop: 15, marginBottom: 0, textTransform: 'uppercase', lineHeight: 1 }}>
                 MAGIC MIRROR
             </h1>
-            <p style={{ fontSize: 34, color: '#10AFCC', letterSpacing: 2, marginTop: 70, fontWeight: 600 }}>
+            <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,#1D9E75,transparent)', width: '60%', margin: '15px auto' }} />
+            <p style={{ fontSize: 30, color: '#10AFCC', letterSpacing: 2, fontWeight: '600', textTransform: 'uppercase', margin: '30px 0 0 0' }}>
                 OWN YOUR SKIN HEALTH
             </p>
         </AbsoluteFill>
@@ -1251,9 +1264,9 @@ export const SkinHealthTrendVideo = ({
     // Scene boundaries:
     // Scene 1: Product Info    — frames   0 – 179  (6 s)
     // Scene 2: Chart           — frames 180 – 539  (12 s)
-    // Scene 3: Side by Side    — frames 540 – 839  (10 s)
-    // Scene 4: Outro           — frames 840 – 959  (4 s)
-    // Total = 960 frames = 32 s
+    // Scene 3: Side by Side    — frames 540 – 689  (5 s)
+    // Scene 4: Outro           — frames 690 – 809  (4 s)
+    // Total = 810 frames = 27 s
 
     return (
         <AbsoluteFill style={{
@@ -1293,7 +1306,7 @@ export const SkinHealthTrendVideo = ({
             )}
 
             {/* ── SCENE 3: BEST vs WORST ── */}
-            {frame >= 540 && frame < 840 && (
+            {frame >= 540 && frame < 690 && (
                 <SceneSideBySide
                     best_image_url={best_image_url}
                     best_image_score={best_image_score}
@@ -1310,13 +1323,13 @@ export const SkinHealthTrendVideo = ({
             )}
 
             {/* ── SCENE 4: OUTRO ── */}
-            {frame >= 840 && (
+            {frame >= 690 && (
                 <SceneOutro fps={fps} />
             )}
 
             {/* ── WATERMARK (all screens except last) ── */}
-            {frame < 855 && (() => {
-                const watermarkOpacity = interpolate(frame, [840, 855], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+            {frame < 705 && (() => {
+                const watermarkOpacity = interpolate(frame, [690, 705], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
                 return <Watermark opacity={watermarkOpacity} />;
             })()}
         </AbsoluteFill>

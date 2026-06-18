@@ -47,8 +47,8 @@ export const RemotionRoot = () => {
         component={BeforeAfterVideo}
         durationInFrames={555}
         fps={30}
-        width={390}
-        height={844}
+        width={1080}
+        height={1920}
         defaultProps={{
           product_name: "O2 Peptide Firm Perfect Cream",
           brand_name: "Element Eight",
@@ -72,7 +72,7 @@ export const RemotionRoot = () => {
       <Composition
         id="SkinHealthTrendVideo"
         component={SkinHealthTrendVideo}
-        durationInFrames={960}
+        durationInFrames={810}
         fps={30}
         width={1080}
         height={1920}

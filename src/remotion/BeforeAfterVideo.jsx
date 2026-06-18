@@ -1,38 +1,38 @@
-import { AbsoluteFill, useCurrentFrame, Img } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, Img, interpolate } from 'remotion';
 import React from 'react';
 import mmLogo from './MM logo.jpg';
 
 const Watermark = ({ opacity = 1, currentSeg = 0 }) => {
-  const magicTextColor = currentSeg < 2 ? '#FFFFFF' : '#1A202C';
+  const magicTextColor = '#1A202C';
   return (
     <div style={{
       position: 'absolute',
-      bottom: 28,
-      left: 25,
+      bottom: 60,
+      left: 60,
       zIndex: 999,
       display: 'flex',
       alignItems: 'center',
-      gap: 7,
+      gap: 16,
       pointerEvents: 'none',
       opacity: opacity,
     }}>
       <div style={{
-        width: 36,
-        height: 36,
+        width: 80,
+        height: 80,
         borderRadius: '50%',
         backgroundColor: '#FFFFFF',
-        boxShadow: '0 3px 8px rgba(0, 0, 0, 0.08)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
         flexShrink: 0
       }}>
-        <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Magic Mirror Logo" />
+        <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1.0 }}>
         <span style={{
-          fontSize: 12,
+          fontSize: 28,
           lineHeight: 1.0,
           fontWeight: 800,
           color: magicTextColor,
@@ -41,7 +41,7 @@ const Watermark = ({ opacity = 1, currentSeg = 0 }) => {
           MAGIC
         </span>
         <span style={{
-          fontSize: 12,
+          fontSize: 28,
           lineHeight: 1.0,
           fontWeight: 800,
           color: '#10AFCC',
@@ -136,11 +136,47 @@ export const BeforeAfterVideo = ({
     return 0;
   };
 
-  const DARK_SEGS = [0, 1];
+  const DARK_SEGS = [];
+
+  const cleanBeforeDate = before_date.includes(',') ? before_date.split(',')[0].trim() : before_date;
+  const cleanAfterDate = after_date.includes(',') ? after_date.split(',')[0].trim() : after_date;
+  const cleanCreator = creator_name ? (creator_name.startsWith('@') ? creator_name : `@${creator_name}`) : '@MagicMirror';
+
+  // Statement Segment animations and formatting
+  const seg3Frame = frame - 312;
+  const line1Opacity = interpolate(seg3Frame, [10, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const line1Y = interpolate(seg3Frame, [10, 30], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const line2Opacity = interpolate(seg3Frame, [25, 45], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const line2Y = interpolate(seg3Frame, [25, 45], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const panelOpacity = interpolate(seg3Frame, [55, 80], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const panelY = interpolate(seg3Frame, [55, 80], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+
+  const testerName = cleanCreator;
+
+  const getInitials = (brand, product) => {
+    if (brand) {
+      const parts = brand.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return brand.slice(0, 2).toUpperCase();
+    }
+    if (product) {
+      const parts = product.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return product.slice(0, 2).toUpperCase();
+    }
+    return 'MM';
+  };
+
+  const initials = getInitials(brand_name, product_name);
+  const logoText = brand_name ? brand_name.toUpperCase() : (product_name ? product_name.toUpperCase() : 'MAGIC MIRROR');
+  const trackingPeriodStr = `${before_date} → ${after_date}`;
+  const concernsStr = concerns && concerns.length > 0
+    ? concerns.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')
+    : 'Redness';
 
   return (
     <AbsoluteFill style={{
-      backgroundColor: '#000',
+      backgroundColor: '#ffffff',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
@@ -151,118 +187,338 @@ export const BeforeAfterVideo = ({
         __html: `
           *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
           
-          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
           
           .screenport {
-            width: 390px;
-            height: 844px;
-            background: #000;
+            width: 1080px;
+            height: 1920px;
+            background: #ffffff;
             position: relative;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Montserrat', sans-serif;
           }
 
-          .progress-bar { position: absolute; top: 16px; left: 14px; right: 14px; display: flex; gap: 5px; z-index: 90; padding-left: 52px; }
-          .pb-seg { flex: 1; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,0.22); overflow: hidden; }
-          .pb-fill { height: 100%; width: 0%; border-radius: 2px; }
-          .pb-light { background: #fff; }
-          .pb-dark { background: #1D9E75; }
-
-          .seg { position: absolute; inset: 0; display: flex; flex-direction: column; }
-
-          /* heat blobs */
-          .heat { position: absolute; inset: 0; pointer-events: none; }
-          .h-forehead { position: absolute; left: 12%; right: 12%; top: 8%; height: 26%; background: radial-gradient(ellipse at 50% 50%, rgba(218,72,48,0.82) 0%, transparent 70%); border-radius: 50%; filter: blur(8px); }
-          .h-lcheek { position: absolute; left: 4%; top: 44%; width: 36%; height: 28%; background: radial-gradient(ellipse at 50% 50%, rgba(224,80,52,0.88) 0%, transparent 70%); border-radius: 50%; filter: blur(7px); }
-          .h-rcheek { position: absolute; right: 4%; top: 44%; width: 36%; height: 28%; background: radial-gradient(ellipse at 50% 50%, rgba(224,80,52,0.88) 0%, transparent 70%); border-radius: 50%; filter: blur(7px); }
-          .h-nose { position: absolute; left: 36%; right: 36%; top: 42%; height: 22%; background: radial-gradient(ellipse at 50% 50%, rgba(228,96,60,0.75) 0%, transparent 70%); border-radius: 50%; filter: blur(6px); }
-          .h-chin { position: absolute; left: 28%; right: 28%; bottom: 8%; height: 18%; background: radial-gradient(ellipse at 50% 50%, rgba(218,72,48,0.65) 0%, transparent 70%); border-radius: 50%; filter: blur(8px); }
-          .h-forehead.dim { opacity: 0.20; } .h-lcheek.dim { opacity: 0.16; } .h-rcheek.dim { opacity: 0.16; } .h-nose.dim { opacity: 0.14; } .h-chin.dim { opacity: 0.12; }
-
-          /* ── SEG 1: BEFORE ── */
-          .seg-dark { background: #0c1417; align-items: center; justify-content: center; }
-          .seg-after-dark { background: radial-gradient(120% 90% at 50% 30%, #1b2e28 0%, #0c1710 70%, #060c09 100%); align-items: center; justify-content: center; }
-          .scan-face { width: 340px; height: 450px; border-radius: 24px; position: relative; overflow: hidden; background: #c8b5a5; }
-          .scan-face.after-face { background: #b5cdc0; }
-          .scan-oval-ring { position: absolute; inset: 0; border: 1.5px dashed rgba(29,158,117,0.55); border-radius: 24px; }
-          .scan-icon-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 78px; color: rgba(255,255,255,0.1); }
-          .scan-overlay-left { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 0 36px 22px; display: flex; flex-direction: column; gap: 5px; z-index: 10; align-items: flex-start; }
-          .scan-overlay-right { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 22px 36px 0; display: flex; flex-direction: column; gap: 5px; z-index: 10; align-items: flex-end; text-align: right; }
-          .concern-label { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(29,158,117,0.9); }
-          .scan-date-lbl { font-size: 13px; color: rgba(255,255,255,0.55); }
-          .scan-score-big { font-size: 52px; font-weight: 700; letter-spacing: -1px; line-height: 1; color: #fff; }
-          .scan-score-big .unit { font-size: 17px; font-weight: 400; color: rgba(255,255,255,0.45); margin-left: 3px; }
-          .ba-tag { display: inline-flex; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; color: #fff; }
-          .tag-before { background: rgba(136,135,128,0.75); }
-          .tag-after { background: rgba(29,158,117,0.8); }
-
-          /* ── SEG 3: SIDE BY SIDE ── */
-          .seg-compare { background: #FAFAF9; justify-content: center; padding: 56px 18px 24px; }
-          .compare-concern { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #1D9E75; margin-bottom: 14px; }
-          .compare-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-          .cmp-wrap { display: flex; flex-direction: column; }
-          .cmp-photo { position: relative; border-radius: 14px 14px 0 0; aspect-ratio: 3/4; overflow: hidden; }
-          .cmp-bg { position: absolute; inset: 0; }
-          .cmp-bg.before { background: #c8b5a5; } .cmp-bg.after { background: #b5cdc0; }
-          .cmp-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 42px; color: rgba(255,255,255,0.1); }
-          .cmp-date { position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.55); border-radius: 4px; padding: 2px 6px; font-size: 9px; color: #fff; }
-          .cmp-lbl { padding: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; text-align: center; color: #fff; }
-          .cmp-lbl.before { background: #888780; border-radius: 0 0 14px 14px; }
-          .cmp-lbl.after { background: #1D9E75; border-radius: 0 0 14px 14px; }
-          .delta-hero { margin-top: 22px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
-          .dh-score { text-align: center; }
-          .dh-num { font-size: 26px; font-weight: 700; line-height: 1; }
-          .dh-num.b { color: #888780; } .dh-num.a { color: #1D9E75; }
-          .dh-lbl { font-size: 9px; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
-          .dh-center { display: flex; flex-direction: column; align-items: center; }
-          .dh-big { font-size: 46px; font-weight: 700; color: #085041; line-height: 1; }
-          .dh-sub { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #1D9E75; margin-top: 4px; }
-
-          /* ── SEG 4: STATEMENT ── */
-          .seg-statement {
-            background: radial-gradient(ellipse 160% 80% at 50% -10%, #c8e8e2 0%, #e8f4f2 30%, #f5faf9 60%, #ffffff 100%);
-            padding: 0; justify-content: flex-start;
+          /* ── PROGRESS BAR ── */
+          .progress-bar {
+            position: absolute;
+            top: 40px;
+            left: 45px;
+            right: 45px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
           }
-          .stmt-inner { display: flex; flex-direction: column; height: 100%; padding: 48px 20px 20px; }
-          .stmt-eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-bottom: 4px; }
-          .stmt-product-name { font-size: 16px; font-weight: 700; color: #111; line-height: 1.2; margin-bottom: 2px; }
-          .stmt-brand-name { font-size: 11px; font-weight: 500; color: #1D9E75; margin-bottom: 16px; }
-
-          .stmt-img-card {
-            background: #fff; border-radius: 16px;
-            padding: 20px; display: flex; align-items: center; justify-content: center;
-            margin-bottom: 16px; height: 130px;
-            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+          .pb-seg {
+            flex: 1;
+            height: 10px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
           }
-          .stmt-img-placeholder { width: 70px; height: 70px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #1D9E75; }
-
-          .stmt-rows { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-          .stmt-row {
-            background: #fff; border-radius: 12px;
-            padding: 10px 14px; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+          .pb-seg.pb-light {
+            background: rgba(255, 255, 255, 0.22);
           }
-          .stmt-row-label { font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #bbb; min-width: 72px; line-height: 1.3; }
-          .stmt-row-value { font-size: 13px; font-weight: 600; color: #111; display: flex; align-items: center; gap: 6px; }
-          .stmt-row-dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
-          .stmt-row-value .arrow { color: #bbb; font-size: 11px; margin: 0 2px; }
-          .stmt-row-value .improvement { color: #085041; font-weight: 700; font-size: 14px; }
-          .stmt-row-value .scores { color: #888; font-size: 11px; font-weight: 500; }
+          .pb-fill {
+            height: 100%;
+            border-radius: 5px;
+            width: 0%;
+          }
+          .pb-light .pb-fill { background: #fff; }
+          .pb-dark .pb-fill  { background: #1D9E75; }
 
-          .stmt-logo-row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
-          .stmt-logo-circle { width: 28px; height: 28px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; }
-          .stmt-logo-circle svg { width: 16px; height: 16px; }
-          .stmt-logo-text { display: flex; flex-direction: column; line-height: 1; }
-          .stmt-logo-text .l1 { font-size: 8px; font-weight: 700; letter-spacing: 0.5px; color: #333; }
-          .stmt-logo-text .l2 { font-size: 8px; font-weight: 700; letter-spacing: 0.5px; color: #1D9E75; }
-
-          /* ── SEG 5: END CARD ── */
-          .seg-end {
-            background: linear-gradient(180deg, rgba(16, 175, 204, 0.08) 0%, #ffffff 35%, #ffffff 65%, rgba(16, 175, 204, 0.08) 100%);
-            align-items: center; justify-content: center; text-align: center; padding: 40px 24px;
+          .seg {
+            position: absolute;
+            inset: 0;
             display: flex;
             flex-direction: column;
           }
+
+          /* ── SEG 1: BEFORE ── */
+          .seg-before {
+            background: #ffffff;
+          }
+          .photo-block {
+            position: relative;
+            width: calc(100% - 90px);
+            height: 1150px;
+            margin: 100px auto 0;
+            border-radius: 36px;
+            overflow: hidden;
+            background: #ffffff;
+          }
+          .photo-block img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1px solid;
+            width: fit-content;
+          }
+          .badge-before {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.75);
+          }
+          .badge-after {
+            background: rgba(29,158,117,0.2);
+            border-color: rgba(29,158,117,0.4);
+            color: #4ecca3;
+          }
+          
+          .score-block {
+            background: #ffffff;
+            height: 670px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding: 40px 80px 50px;
+            gap: 12px;
+            box-sizing: border-box;
+          }
+          .score-block-title {
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #10AFCC;
+            margin-bottom: 4px;
+            text-align: right;
+          }
+          .score-block-value {
+            font-size: 160px;
+            font-weight: 800;
+            line-height: 1;
+            color: #1A202C;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: -4px;
+            text-align: right;
+            display: flex;
+            align-items: baseline;
+          }
+          .score-block-value.teal {
+            color: #1D9E75;
+          }
+          .score-block-max {
+            font-size: 70px;
+            font-weight: 500;
+            color: #a0aec0;
+            margin-left: 10px;
+            letter-spacing: 0;
+          }
+          .score-block-date {
+            font-size: 30px;
+            font-weight: 500;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0px;
+            text-align: right;
+          }
+
+          /* ── SEG 2: AFTER ── */
+          .seg-after {
+            background: #ffffff;
+          }
+          .seg-after .photo-block {
+            background: #ffffff;
+          }
+
+          /* ── SEG 3: COMPARE ── */
+          .seg-compare {
+            background: #f7f4f0;
+            padding: 120px 40px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+          }
+          .compare-eyebrow {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #9a9490;
+            margin-bottom: 50px;
+            text-align: left;
+            width: 100%;
+          }
+          .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+          }
+          .cmp-col {
+            display: flex;
+            flex-direction: column;
+            border-radius: 40px;
+            overflow: hidden;
+            background: #0c151d;
+          }
+          .cmp-photo {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: #0c151d;
+            overflow: hidden;
+          }
+          .cmp-photo img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .cmp-photo.after-ph {
+            background: #0c151d;
+          }
+          .cmp-score-block {
+            background: #0c151d;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+          }
+          .cmp-score-lbl {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+          }
+          .cmp-score-val {
+            font-size: 120px;
+            font-weight: 800;
+            line-height: 1;
+            color: #fff;
+            letter-spacing: -2px;
+          }
+          .cmp-score-val.teal {
+            color: #1D9E75;
+          }
+          .cmp-score-date {
+            font-size: 30px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+          }
+
+          /* ── SEG 4: STATEMENT ── */
+          .seg-statement {
+            background: #fff;
+            padding: 150px 60px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+          }
+          .stmt-header {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 80px;
+            width: 100%;
+          }
+          .stmt-logo-card {
+            width: 200px;
+            height: 200px;
+            background: #0c151d;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+          }
+          .stmt-logo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+          .stmt-title-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+          }
+          .stmt-product {
+            font-size: 60px;
+            font-weight: 800;
+            color: #0c151d;
+            line-height: 1.15;
+            text-align: left;
+          }
+          .stmt-brand {
+            font-size: 34px;
+            font-weight: 600;
+            color: #10AFCC;
+            text-align: left;
+            margin-top: 10px;
+          }
+          .stmt-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            width: 100%;
+          }
+          .stmt-pill-row {
+            border-radius: 40px;
+            padding: 40px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 130px;
+            box-sizing: border-box;
+            color: #fff;
+            width: 100%;
+          }
+          .stmt-pill-row.blue {
+            background: #10AFCC;
+          }
+          .stmt-pill-row.dark {
+            background: #0c151d;
+          }
+          .stmt-pill-label {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.85;
+          }
+          .stmt-pill-value {
+            font-size: 38px;
+            font-weight: 800;
+            text-align: right;
+          }
+          .stmt-pill-value.small {
+            font-size: 30px;
+          }
+
+          /* ── SEG 5: END CARD ── */
+          .seg-end {
+            background: #ffffff;
+            align-items: center; justify-content: center; text-align: center; padding: 100px 60px;
+            display: flex;
+            flex-direction: column;
+          }
+          
+          .tag-before { background: #8a8278; }
         `
       }} />
 
@@ -274,10 +530,10 @@ export const BeforeAfterVideo = ({
             if (idx < currentSeg) widthPct = '100%';
             else if (idx === currentSeg) widthPct = `${segProgress * 100}%`;
 
-            const fillClass = DARK_SEGS.includes(idx) ? 'pb-light' : 'pb-dark';
+            const segClass = DARK_SEGS.includes(idx) ? 'pb-light' : 'pb-dark';
             return (
-              <div key={idx} className="pb-seg">
-                <div className={`pb-fill ${fillClass}`} style={{ width: widthPct }} />
+              <div key={idx} className={`pb-seg ${segClass}`}>
+                <div className="pb-fill" style={{ width: widthPct }} />
               </div>
             );
           })}
@@ -289,136 +545,312 @@ export const BeforeAfterVideo = ({
         )}
 
         {/* SEG 1: BEFORE */}
-        <div className="seg seg-dark" style={{ opacity: getSegOpacity(0), pointerEvents: currentSeg === 0 ? 'auto' : 'none' }}>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="scan-face">
-              {before_image_url ? (
-                <Img src={before_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div className="scan-icon-face">&#9786;</div>
-              )}
-              {mask_enabled === 'on' && before_mask_url && (
-                <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-              )}
-
-              <div className="scan-oval-ring"></div>
-            </div>
+        <div className="seg seg-before" style={{ opacity: getSegOpacity(0), pointerEvents: currentSeg === 0 ? 'auto' : 'none' }}>
+          <div className="photo-block">
+            {before_image_url ? (
+              <Img src={before_image_url} />
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+            )}
+            {mask_enabled === 'on' && before_mask_url && (
+              <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+            )}
+            <div className="badge-pill badge-before" style={{ position: 'absolute', top: 100, left: 60 }}>Before</div>
           </div>
-          <div className="scan-overlay-left">
-            <div className="concern-label">{concernName}</div>
-            <div className="scan-date-lbl">{before_date}</div>
-            <div className="scan-score-big">{beforeScore}<span className="unit">/ 100</span></div>
-            <div className="ba-tag tag-before">Before</div>
+
+          <div className="score-block">
+            <div className="score-block-title">{concernName.toUpperCase()}</div>
+            <div className="score-block-date">{before_date}</div>
+            <div className="score-block-value">
+              {beforeScore}
+              <span className="score-block-max">/ 100</span>
+            </div>
           </div>
         </div>
 
         {/* SEG 2: AFTER */}
-        <div className="seg seg-after-dark" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="scan-face after-face">
-              {after_image_url ? (
-                <Img src={after_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div className="scan-icon-face">&#9786;</div>
-              )}
-              {mask_enabled === 'on' && after_mask_url && (
-                <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-              )}
-
-              <div className="scan-oval-ring"></div>
-            </div>
+        <div className="seg seg-after" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
+          <div className="photo-block">
+            {after_image_url ? (
+              <Img src={after_image_url} />
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+            )}
+            {mask_enabled === 'on' && after_mask_url && (
+              <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+            )}
+            <div className="badge-pill badge-after" style={{ position: 'absolute', top: 100, right: 60 }}>After</div>
           </div>
-          <div className="scan-overlay-right">
-            <div className="concern-label">{concernName}</div>
-            <div className="scan-date-lbl">{after_date}</div>
-            <div className="scan-score-big">{afterScore}<span className="unit">/ 100</span></div>
-            <div className="ba-tag tag-after">After</div>
+
+          <div className="score-block">
+            <div className="score-block-title">{concernName.toUpperCase()}</div>
+            <div className="score-block-date">{after_date}</div>
+            <div className="score-block-value teal">
+              {afterScore}
+              <span className="score-block-max">/ 100</span>
+            </div>
           </div>
         </div>
 
-        {/* SEG 3: SIDE BY SIDE */}
+        {/* SEG 3: COMPARE */}
         <div className="seg seg-compare" style={{ opacity: getSegOpacity(2), pointerEvents: currentSeg === 2 ? 'auto' : 'none' }}>
-          <div className="compare-concern">{concernName}</div>
-          <div className="compare-photos">
-            <div className="cmp-wrap">
+          <div className="compare-eyebrow">{concernName} &nbsp;·&nbsp; Side by side</div>
+          <div className="compare-grid">
+            <div className="cmp-col">
               <div className="cmp-photo">
                 {before_image_url ? (
                   <Img src={before_image_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div className="cmp-bg before"></div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
                 )}
                 {mask_enabled === 'on' && before_mask_url && (
                   <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
                 )}
-
-                {!before_image_url && <div className="cmp-face">&#9786;</div>}
-                <div className="cmp-date">{before_date}</div>
               </div>
-              <div className="cmp-lbl before">Before</div>
+              <div className="cmp-score-block">
+                <div className="cmp-score-lbl">SCORE</div>
+                <div className="cmp-score-val">{beforeScore}</div>
+                <div className="cmp-score-date">{before_date}</div>
+              </div>
             </div>
-            <div className="cmp-wrap">
-              <div className="cmp-photo">
+
+            <div className="cmp-col">
+              <div className="cmp-photo after-ph">
                 {after_image_url ? (
                   <Img src={after_image_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div className="cmp-bg after"></div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
                 )}
                 {mask_enabled === 'on' && after_mask_url && (
                   <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
                 )}
-
-                {!after_image_url && <div className="cmp-face">&#9786;</div>}
-                <div className="cmp-date">{after_date}</div>
               </div>
-              <div className="cmp-lbl after">After</div>
-            </div>
-          </div>
-          <div className="delta-hero">
-            <div className="dh-score">
-              <div className="dh-num b">{beforeScore}</div>
-              <div className="dh-lbl">Before</div>
-            </div>
-            <div className="dh-center">
-              <div className="dh-big">{diffText}</div>
-              <div className="dh-sub">{improvementLabel}</div>
-            </div>
-            <div className="dh-score">
-              <div className="dh-num a">{afterScore}</div>
-              <div className="dh-lbl">After</div>
+              <div className="cmp-score-block">
+                <div className="cmp-score-lbl">SCORE</div>
+                <div className="cmp-score-val teal">{afterScore}</div>
+                <div className="cmp-score-date">{after_date}</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* SEG 4: STATEMENT */}
-        <div className="seg seg-statement" style={{ opacity: getSegOpacity(3), pointerEvents: currentSeg === 3 ? 'auto' : 'none' }}>
-          <div className="stmt-inner">
-            <div className="stmt-eyebrow">Before &amp; After · {concernName}</div>
-            <div className="stmt-product-name">{product_name}</div>
-            {brand_name && <div className="stmt-brand-name">by {brand_name}</div>}
+        <div className="seg seg-statement" style={{
+          background: '#FFF0F2',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          padding: '120px 60px 100px',
+          boxSizing: 'border-box',
+          opacity: getSegOpacity(3),
+          pointerEvents: currentSeg === 3 ? 'auto' : 'none',
+          position: 'absolute',
+          inset: 0,
+        }}>
+          <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');` }} />
 
-            <div className="stmt-img-card">
-              {product_image_url ? (
-                <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-              ) : (
-                <div className="stmt-img-placeholder">&#10022;</div>
-              )}
+          {/* Brand Lockup */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 20,
+            marginBottom: 40,
+            opacity: line1Opacity,
+            transform: `translateY(${line1Y}px)`,
+          }}>
+            <div style={{
+              width: 54,
+              height: 54,
+              borderRadius: '50%',
+              backgroundColor: '#ffffff',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              overflow: 'hidden',
+              flexShrink: 0,
+            }}>
+              <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
+            </div>
+            <div style={{
+              fontSize: 44,
+              fontWeight: 800,
+              color: '#1A202C',
+              letterSpacing: '0.03em',
+              fontFamily: 'Montserrat, sans-serif',
+            }}>
+              MAGIC MIRROR
+            </div>
+          </div>
+
+          {/* Review Label */}
+          <div style={{
+            fontSize: 38,
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: '#888780',
+            textAlign: 'center',
+            marginBottom: 50,
+            fontFamily: 'Montserrat, sans-serif',
+            opacity: line1Opacity,
+            transform: `translateY(${line1Y}px)`,
+          }}>
+            Effectiveness tracking
+          </div>
+
+          {/* Product Unit */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 40,
+            margin: '60px 0',
+            width: '100%',
+            opacity: line2Opacity,
+            transform: `translateY(${line2Y}px)`,
+          }}>
+            <div style={{
+              width: 250,
+              height: 250,
+              borderRadius: 50,
+              backgroundColor: '#1A202C',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <div style={{
+                width: 180,
+                height: 180,
+                borderRadius: 36,
+                backgroundColor: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '10px',
+                boxSizing: 'border-box',
+              }}>
+                {product_image_url ? (
+                  <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Product" />
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
+                      {initials}
+                    </span>
+                    <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
+                      {logoText}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                fontSize: 72,
+                fontWeight: 800,
+                color: '#1A202C',
+                lineHeight: 1.1,
+                fontFamily: 'Montserrat, sans-serif',
+              }}>
+                {product_name || 'Hand Lotion'}
+              </div>
+              <div style={{
+                fontSize: 44,
+                fontWeight: 600,
+                color: '#10AFCC',
+                marginTop: 10,
+                fontFamily: 'Montserrat, sans-serif',
+              }}>
+                by {brand_name || 'Niven Morgan'}
+              </div>
+            </div>
+          </div>
+
+          {/* Setup Rows */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 24,
+            marginTop: 40,
+            width: '100%',
+            opacity: panelOpacity,
+            transform: `translateY(${panelY}px)`,
+          }}>
+            {/* Tested For */}
+            <div style={{
+              backgroundColor: '#10AFCC',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Tested for
+              </div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                {concernsStr}
+              </div>
             </div>
 
-            <div className="stmt-rows">
-              <div className="stmt-row">
-                <div className="stmt-row-label">Testing for</div>
-                <div className="stmt-row-value"><span className="stmt-row-dot"></span>{concernName}</div>
+            {/* Tracking Period */}
+            <div style={{
+              backgroundColor: '#1A202C',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Tracking period
               </div>
-              <div className="stmt-row">
-                <div className="stmt-row-label">Testing period</div>
-                <div className="stmt-row-value">{before_date} <span className="arrow">→</span> {after_date}</div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                {trackingPeriodStr}
               </div>
-              <div className="stmt-row">
-                <div className="stmt-row-label">Score change</div>
-                <div className="stmt-row-value">
-                  <span className="improvement">{diffText} pts</span>
-                  <span className="scores">&nbsp;({beforeScore} → {afterScore})</span>
-                </div>
+            </div>
+
+            {/* Tracked By */}
+            <div style={{
+              backgroundColor: '#10AFCC',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Tracked by
+              </div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                {testerName}
+              </div>
+            </div>
+
+            {/* Score Change */}
+            <div style={{
+              backgroundColor: '#1A202C',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Score change
+              </div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                {diffText} pts ({beforeScore}→{afterScore})
               </div>
             </div>
           </div>
@@ -431,16 +863,17 @@ export const BeforeAfterVideo = ({
           position: 'absolute',
           inset: 0
         }}>
-          <div style={{ marginBottom: 18 }}>
-            <Img src={mmLogo} style={{ width: 130, height: 130, objectFit: 'contain' }} />
+          <div style={{ marginBottom: 40 }}>
+            <Img src={mmLogo} style={{ width: 320, height: 320, objectFit: 'contain' }} />
           </div>
-          <h2 style={{ fontSize: 10, letterSpacing: 1.8, color: '#718096', fontWeight: '600', textTransform: 'uppercase', margin: 0 }}>
+          <h2 style={{ fontSize: 26, letterSpacing: 4.5, color: '#718096', fontWeight: '600', textTransform: 'uppercase', margin: 0 }}>
             VERIFIED BY
           </h2>
-          <h1 style={{ fontSize: 24, fontWeight: '900', letterSpacing: 2.8, color: '#1A202C', marginTop: 5, marginBottom: 0, textTransform: 'uppercase', lineHeight: 1 }}>
+          <h1 style={{ fontSize: 60, fontWeight: '900', letterSpacing: 6, color: '#1A202C', marginTop: 15, marginBottom: 0, textTransform: 'uppercase', lineHeight: 1 }}>
             MAGIC MIRROR
           </h1>
-          <p style={{ fontSize: 12, color: '#10AFCC', letterSpacing: 0.7, marginTop: 25, fontWeight: '600', textTransform: 'uppercase', margin: '25px 0 0 0' }}>
+          <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,#1D9E75,transparent)', width: '60%', margin: '15px auto' }} />
+          <p style={{ fontSize: 30, color: '#10AFCC', letterSpacing: 2, fontWeight: '600', textTransform: 'uppercase', margin: '30px 0 0 0' }}>
             OWN YOUR SKIN HEALTH
           </p>
         </div>
