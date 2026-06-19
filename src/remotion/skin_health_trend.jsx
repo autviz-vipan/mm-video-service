@@ -45,7 +45,7 @@ const Watermark = ({ opacity = 1 }) => (
             width: 100,
             height: 100,
             borderRadius: '50%',
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#fff',
             boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
             display: 'flex',
             justifyContent: 'center',
@@ -155,7 +155,7 @@ const SceneProductInfo = ({
                     width: 54,
                     height: 54,
                     borderRadius: '50%',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: '#fff',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -216,7 +216,7 @@ const SceneProductInfo = ({
                         width: 180,
                         height: 180,
                         borderRadius: 36,
-                        backgroundColor: '#ffffff',
+                        backgroundColor: '#fff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -281,9 +281,9 @@ const SceneProductInfo = ({
                     width: '100%',
                 }}>
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                        Tracking for
+                        Concern tracked
                     </div>
-                    <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                    <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                         {concernsStr}
                     </div>
                 </div>
@@ -302,7 +302,7 @@ const SceneProductInfo = ({
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
                         Tracking period
                     </div>
-                    <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                    <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                         {trackingPeriodStr}
                     </div>
                 </div>
@@ -321,7 +321,7 @@ const SceneProductInfo = ({
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
                         Tracked by
                     </div>
-                    <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+                    <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                         {testerName}
                     </div>
                 </div>
@@ -459,7 +459,7 @@ const SceneChart = ({
     const currentDiff = easedProgress * diffVal;
     const diffText = formatDelta(currentDiff);
 
-    const deltaColor = '#ffffff';
+    const deltaColor = '#fff';
     const afterColor = isImproved ? '#1D9E75' : '#8E8E93';
     const gapFillColor = isImproved ? '#1D9E75' : '#708E9B';
     const deltaLabel = isImproved ? 'Score Improvement' : 'Score Decline';
@@ -607,7 +607,7 @@ const SceneChart = ({
                             cy={dotY}
                             r={13}
                             fill={pt.period === 'before' ? '#888780' : afterColor}
-                            stroke="#FFFFFF"
+                            stroke="#fff"
                             strokeWidth={3.5}
                             style={{
                                 transform: `scale(${dotScale})`,
@@ -757,7 +757,7 @@ const SceneChart = ({
                         <div style={{
                             fontSize: 70,
                             fontWeight: '700',
-                            color: '#ffffff',
+                            color: '#fff',
                             fontFamily: 'Montserrat, sans-serif'
                         }}>
                             {fmtScore(avBT)}
@@ -790,7 +790,7 @@ const SceneChart = ({
                         <div style={{
                             fontSize: 70,
                             fontWeight: '700',
-                            color: '#ffffff',
+                            color: '#fff',
                             fontFamily: 'Montserrat, sans-serif'
                         }}>
                             {fmtScore(avPT)}
@@ -838,7 +838,7 @@ const DownTrendIcon = ({ color = '#8E8E93' }) => (
         width: 44,
         height: 44,
         borderRadius: '50%',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -857,7 +857,7 @@ const UpTrendIcon = ({ color = '#10AFCC' }) => (
         width: 44,
         height: 44,
         borderRadius: '50%',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -1056,7 +1056,7 @@ const SceneSideBySide = ({
                         <div style={{
                             fontSize: 84,
                             fontWeight: 800,
-                            color: '#ffffff',
+                            color: '#fff',
                             fontFamily: 'Montserrat, sans-serif',
                             lineHeight: 1.1,
                         }}>
@@ -1096,7 +1096,7 @@ const SceneSideBySide = ({
                                 fontSize: 26,
                                 fontWeight: 700,
                                 textTransform: 'uppercase',
-                                color: '#ffffff',
+                                color: '#fff',
                                 fontFamily: 'Montserrat, sans-serif',
                                 letterSpacing: 1,
                             }}>

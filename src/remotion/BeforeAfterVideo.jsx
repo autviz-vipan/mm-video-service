@@ -20,7 +20,7 @@ const Watermark = ({ opacity = 1, currentSeg = 0 }) => {
         width: 80,
         height: 80,
         borderRadius: '50%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#fff',
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
         display: 'flex',
         justifyContent: 'center',
@@ -84,6 +84,7 @@ export const BeforeAfterVideo = ({
   // Get before & after scores dynamically
   const beforeScore = before_metrics?.[highlightMetric] || before_metrics?.[highlightMetric.toLowerCase()] || 49;
   const afterScore = after_metrics?.[highlightMetric] || after_metrics?.[highlightMetric.toLowerCase()] || 71;
+  const summaryBgColor = beforeScore > afterScore ? '#D6CFC8' : '#C8DDD6';
 
   // Calculate score change/improvement
   const diff = afterScore - beforeScore;
@@ -176,7 +177,7 @@ export const BeforeAfterVideo = ({
 
   return (
     <AbsoluteFill style={{
-      backgroundColor: '#ffffff',
+      backgroundColor: '#fff',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
@@ -192,7 +193,7 @@ export const BeforeAfterVideo = ({
           .screenport {
             width: 1080px;
             height: 1920px;
-            background: #ffffff;
+            background: #fff;
             position: relative;
             overflow: hidden;
             font-family: 'Montserrat', sans-serif;
@@ -233,190 +234,317 @@ export const BeforeAfterVideo = ({
             flex-direction: column;
           }
 
-          /* ── SEG 1: BEFORE ── */
-          .seg-before {
-            background: #ffffff;
-          }
-          .photo-block {
-            position: relative;
-            width: calc(100% - 90px);
-            height: 1150px;
-            margin: 100px auto 0;
-            border-radius: 36px;
-            overflow: hidden;
-            background: #ffffff;
-          }
-          .photo-block img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          .badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            border: 1px solid;
-            width: fit-content;
-          }
-          .badge-before {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.75);
-          }
-          .badge-after {
-            background: rgba(29,158,117,0.2);
-            border-color: rgba(29,158,117,0.4);
-            color: #4ecca3;
-          }
-          
-          .score-block {
-            background: #ffffff;
-            height: 670px;
-            width: 100%;
+          /* ── REDESIGNED SEG 0 & SEG 1: BEFORE & AFTER ── */
+          .seg-before, .seg-after {
+            background: #fff;
+            padding: 180px 45px 60px;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
             justify-content: flex-start;
-            padding: 40px 80px 50px;
-            gap: 12px;
-            box-sizing: border-box;
           }
-          .score-block-title {
-            font-size: 30px;
+          .custom-eyebrow {
+            font-size: 33px;
+            letter-spacing: 0.14em;
             font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #10AFCC;
-            margin-bottom: 4px;
-            text-align: right;
-          }
-          .score-block-value {
-            font-size: 160px;
-            font-weight: 800;
-            line-height: 1;
-            color: #1A202C;
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: -4px;
-            text-align: right;
-            display: flex;
-            align-items: baseline;
-          }
-          .score-block-value.teal {
-            color: #1D9E75;
-          }
-          .score-block-max {
-            font-size: 70px;
-            font-weight: 500;
-            color: #a0aec0;
-            margin-left: 10px;
-            letter-spacing: 0;
-          }
-          .score-block-date {
-            font-size: 30px;
-            font-weight: 500;
             color: #718096;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 0px;
-            text-align: right;
-          }
-
-          /* ── SEG 2: AFTER ── */
-          .seg-after {
-            background: #ffffff;
-          }
-          .seg-after .photo-block {
-            background: #ffffff;
-          }
-
-          /* ── SEG 3: COMPARE ── */
-          .seg-compare {
-            background: #f7f4f0;
-            padding: 120px 40px 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-          }
-          .compare-eyebrow {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #9a9490;
-            margin-bottom: 50px;
+            margin-bottom: 38px;
             text-align: left;
-            width: 100%;
           }
-          .compare-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            width: 100%;
-          }
-          .cmp-col {
-            display: flex;
-            flex-direction: column;
-            border-radius: 40px;
-            overflow: hidden;
-            background: #0c151d;
-          }
-          .cmp-photo {
+          .custom-card {
+            border-radius: 60px;
+            padding: 38px;
             position: relative;
-            width: 100%;
-            aspect-ratio: 3/4;
-            background: #0c151d;
-            overflow: hidden;
           }
-          .cmp-photo img {
+          .custom-card.before-theme {
+            background: #D6CFC8;
+            border: 3px solid #B4ADA6;
+          }
+          .custom-card.after-theme {
+            background: #C8DDD6;
+            border: 3px solid #1D9E75;
+          }
+          .custom-tag {
             position: absolute;
-            inset: 0;
+            top: 71px;
+            right: 71px;
+            background: #0c151d;
+            color: #fff;
+            font-size: 33px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 16px 38px;
+            border-radius: 55px;
+            z-index: 2;
+          }
+          .custom-photo-frame {
+            border-radius: 44px;
+            overflow: hidden;
+            width: 100%;
+            height: 980px;
+            background: #000;
+            position: relative;
+          }
+          .custom-photo-frame img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
           }
-          .cmp-photo.after-ph {
-            background: #0c151d;
-          }
-          .cmp-score-block {
-            background: #0c151d;
-            padding: 40px 20px;
+          .custom-stat-row {
+            margin-top: 50px;
+            border-radius: 55px;
+            padding: 55px 60px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+          }
+          .custom-stat-row.before-theme {
+            background: #D6CFC8;
+            border: 3px solid #B4ADA6;
+          }
+          .custom-stat-row.after-theme {
+            background: #C8DDD6;
+            border: 3px solid #1D9E75;
+          }
+          .custom-stat-label {
+            font-size: 33px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            text-align: left;
+          }
+          .custom-stat-value {
+            font-size: 104px;
+            font-weight: 800;
+            line-height: 1.0;
+            color: #0c151d;
+            text-align: left;
+          }
+          .custom-stat-value span {
+            font-size: 50px;
+            font-weight: 600;
+            color: #718096;
+          }
+          .custom-divider {
+            width: 3px;
+            height: 126px;
+            margin: 0 50px;
+          }
+          .custom-divider.before-theme {
+            background: #B4ADA6;
+          }
+          .custom-divider.after-theme {
+            background: #1D9E75;
+          }
+          .custom-date-block {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+          }
+          .custom-date-icon {
+            width: 93px;
+            height: 93px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            flex-shrink: 0;
           }
-          .cmp-score-lbl {
-            font-size: 26px;
+          .custom-date-icon.before-theme {
+            border: 3px solid #B4ADA6;
+          }
+          .custom-date-icon.after-theme {
+            border: 3px solid #1D9E75;
+          }
+          .custom-date-icon svg {
+            width: 44px;
+            height: 44px;
+            stroke: #718096;
+          }
+          .custom-date-value {
+            font-size: 41px;
             font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.4);
+            color: #0c151d;
+            text-align: left;
           }
-          .cmp-score-val {
-            font-size: 120px;
+
+          /* ── SEG 2: COMPARE ── */
+          .seg-compare {
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            inset: 0;
+          }
+          .cmp-eyebrow {
+            padding: 115px 45px 38px;
+            flex-shrink: 0;
+          }
+          .cmp-eyebrow-text {
+            font-size: 30px;
             font-weight: 800;
-            line-height: 1;
-            color: #fff;
-            letter-spacing: -2px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #718096;
           }
-          .cmp-score-val.teal {
+          .cmp-cards-row {
+            display: flex;
+            gap: 28px;
+            padding: 0 45px;
+            flex: 1;
+            min-height: 0;
+          }
+          .cmp-photo-card {
+            flex: 1;
+            background: #fff;
+            border-radius: 60px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 4px solid #B4ADA6;
+          }
+          .cmp-photo-card.after-card {
+            border: 4px solid #1D9E75;
+          }
+          .cmp-photo-zone {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .cmp-photo-label {
+            position: absolute;
+            top: 28px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #0c151d;
+          }
+          .cmp-score-row {
+            padding: 28px 33px 33px;
+            text-align: center;
+            background: #fff;
+          }
+          .cmp-score-num {
+            font-size: 120px;
+            font-weight: 900;
+            line-height: 1.0;
+            letter-spacing: -5px;
+          }
+          .cmp-score-num.before {
+            color: #0c151d;
+          }
+          .cmp-score-num.after {
             color: #1D9E75;
           }
           .cmp-score-date {
+            font-size: 28px;
+            font-weight: 700;
+            color: #718096;
+            margin-top: 11px;
+            letter-spacing: 0.04em;
+          }
+          .cmp-summary {
+            margin: 28px 45px 0;
+            border-radius: 50px;
+            background: #fff;
+            padding: 44px 50px 55px;
+            border: 3px solid #E2E8F0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+          }
+          .cmp-summary-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+          }
+          .cmp-summary-label {
             font-size: 30px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.35);
+            font-weight: 700;
+            letter-spacing: 0.22em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 2px;
+            color: #A0AEC0;
+          }
+          .cmp-chip {
+            display: inline-flex;
+            align-items: center;
+            background: #E6FBF4;
+            border: 4px solid #1D9E75;
+            border-radius: 80px;
+            padding: 14px 44px;
+            font-size: 33px;
+            font-weight: 700;
+            color: #0F6E56;
+            letter-spacing: 0.04em;
+          }
+          .cmp-summary-scores {
+            display: flex;
+            align-items: baseline;
+            gap: 33px;
+          }
+          .cmp-summary-score {
+            font-size: 110px;
+            font-weight: 900;
+            letter-spacing: -4px;
+            line-height: 1.0;
+          }
+          .cmp-summary-score.b {
+            color: #0c151d;
+          }
+          .cmp-summary-score.a {
+            color: #1D9E75;
+          }
+          .cmp-summary-arrow {
+            font-size: 55px;
+            color: #CBD5E0;
+            font-weight: 500;
+          }
+          .cmp-logo-strip {
+            padding: 38px 45px 0;
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            background: transparent;
+            flex-shrink: 0;
+            margin-bottom: 50px;
+          }
+          .cmp-logo-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+          }
+          .cmp-logo-magic {
+            font-size: 30px;
+            font-weight: 800;
+            color: #0c151d;
+            letter-spacing: 0.05em;
+          }
+          .cmp-logo-mirror {
+            font-size: 30px;
+            font-weight: 800;
+            color: #10AFCC;
+            letter-spacing: 0.05em;
           }
 
           /* ── SEG 4: STATEMENT ── */
@@ -512,7 +640,7 @@ export const BeforeAfterVideo = ({
 
           /* ── SEG 5: END CARD ── */
           .seg-end {
-            background: #ffffff;
+            background: #fff;
             align-items: center; justify-content: center; text-align: center; padding: 100px 60px;
             display: flex;
             flex-direction: column;
@@ -539,97 +667,174 @@ export const BeforeAfterVideo = ({
           })}
         </div>
 
-        {/* Watermark (Every page except the last one) */}
-        {currentSeg < 4 && (
+        {/* Watermark (Every page except Compare and Statement/Outro as specified) */}
+        {currentSeg < 4 && currentSeg !== 2 && (
           <Watermark currentSeg={currentSeg} />
         )}
 
         {/* SEG 1: BEFORE */}
         <div className="seg seg-before" style={{ opacity: getSegOpacity(0), pointerEvents: currentSeg === 0 ? 'auto' : 'none' }}>
-          <div className="photo-block">
-            {before_image_url ? (
-              <Img src={before_image_url} />
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
-            )}
-            {mask_enabled === 'on' && before_mask_url && (
-              <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-            )}
-            <div className="badge-pill badge-before" style={{ position: 'absolute', top: 100, left: 60 }}>Before</div>
+          <div className="custom-eyebrow">{concernName} · Scan 1</div>
+
+          <div className="custom-card before-theme">
+            <div className="custom-tag">BEFORE</div>
+            <div className="custom-photo-frame">
+              {before_image_url ? (
+                <Img src={before_image_url} />
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+              )}
+              {mask_enabled === 'on' && before_mask_url && (
+                <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+              )}
+            </div>
           </div>
 
-          <div className="score-block">
-            <div className="score-block-title">{concernName.toUpperCase()}</div>
-            <div className="score-block-date">{before_date}</div>
-            <div className="score-block-value">
-              {beforeScore}
-              <span className="score-block-max">/ 100</span>
+          <div className="custom-stat-row before-theme">
+            <div>
+              <div className="custom-stat-label">{concernName} Score</div>
+              <div className="custom-stat-value">{beforeScore}<span>/100</span></div>
+            </div>
+
+            <div className="custom-divider before-theme" />
+
+            <div className="custom-date-block">
+              <div className="custom-date-icon before-theme">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div>
+                <div className="custom-stat-label">Date</div>
+                <div className="custom-date-value">{cleanBeforeDate}</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* SEG 2: AFTER */}
         <div className="seg seg-after" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
-          <div className="photo-block">
-            {after_image_url ? (
-              <Img src={after_image_url} />
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
-            )}
-            {mask_enabled === 'on' && after_mask_url && (
-              <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-            )}
-            <div className="badge-pill badge-after" style={{ position: 'absolute', top: 100, right: 60 }}>After</div>
+          <div className="custom-eyebrow">{concernName} · Scan 2</div>
+
+          <div className="custom-card after-theme">
+            <div className="custom-tag">AFTER</div>
+            <div className="custom-photo-frame">
+              {after_image_url ? (
+                <Img src={after_image_url} />
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+              )}
+              {mask_enabled === 'on' && after_mask_url && (
+                <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+              )}
+            </div>
           </div>
 
-          <div className="score-block">
-            <div className="score-block-title">{concernName.toUpperCase()}</div>
-            <div className="score-block-date">{after_date}</div>
-            <div className="score-block-value teal">
-              {afterScore}
-              <span className="score-block-max">/ 100</span>
+          <div className="custom-stat-row after-theme">
+            <div>
+              <div className="custom-stat-label">{concernName} Score</div>
+              <div className="custom-stat-value">{afterScore}<span>/100</span></div>
+            </div>
+
+            <div className="custom-divider after-theme" />
+
+            <div className="custom-date-block">
+              <div className="custom-date-icon after-theme">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div>
+                <div className="custom-stat-label">Date</div>
+                <div className="custom-date-value">{cleanAfterDate}</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* SEG 3: COMPARE */}
         <div className="seg seg-compare" style={{ opacity: getSegOpacity(2), pointerEvents: currentSeg === 2 ? 'auto' : 'none' }}>
-          <div className="compare-eyebrow">{concernName} &nbsp;·&nbsp; Side by side</div>
-          <div className="compare-grid">
-            <div className="cmp-col">
-              <div className="cmp-photo">
+          {/* Header */}
+          <div className="cmp-eyebrow">
+            <div className="cmp-eyebrow-text">{concernName} · Side by Side</div>
+          </div>
+
+          {/* Cards Row */}
+          <div className="cmp-cards-row">
+            {/* Before Photo Card */}
+            <div className="cmp-photo-card">
+              <div className="cmp-photo-zone" style={{ background: '#D6CFC8' }}>
                 {before_image_url ? (
-                  <Img src={before_image_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Img src={before_image_url} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
                 )}
                 {mask_enabled === 'on' && before_mask_url && (
-                  <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+                  <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
+                <div className="cmp-photo-label">BEFORE</div>
               </div>
-              <div className="cmp-score-block">
-                <div className="cmp-score-lbl">SCORE</div>
-                <div className="cmp-score-val">{beforeScore}</div>
+              <div className="cmp-score-row">
+                <div className="cmp-score-num before">{beforeScore}</div>
                 <div className="cmp-score-date">{before_date}</div>
               </div>
             </div>
 
-            <div className="cmp-col">
-              <div className="cmp-photo after-ph">
+            {/* After Photo Card */}
+            <div className="cmp-photo-card after-card">
+              <div className="cmp-photo-zone" style={{ background: '#C8DDD6' }}>
                 {after_image_url ? (
-                  <Img src={after_image_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Img src={after_image_url} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
                 )}
                 {mask_enabled === 'on' && after_mask_url && (
-                  <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+                  <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
+                <div className="cmp-photo-label">AFTER</div>
               </div>
-              <div className="cmp-score-block">
-                <div className="cmp-score-lbl">SCORE</div>
-                <div className="cmp-score-val teal">{afterScore}</div>
+              <div className="cmp-score-row">
+                <div className="cmp-score-num after">{afterScore}</div>
                 <div className="cmp-score-date">{after_date}</div>
               </div>
+            </div>
+          </div>
+
+          {/* Summary Card */}
+          <div className="cmp-summary" style={{ backgroundColor: summaryBgColor, borderColor: summaryBgColor }}>
+            <div className="cmp-summary-top">
+              <div className="cmp-summary-label" style={{ color: '#718096' }}>{concernName}</div>
+              <div className="cmp-chip" style={
+                beforeScore > afterScore
+                  ? { backgroundColor: '#fff', color: '#718096', borderColor: '#718096' }
+                  : { backgroundColor: '#E6FBF4', color: '#0F6E56', borderColor: '#1D9E75' }
+              }>{diffText}</div>
+            </div>
+            <div className="cmp-summary-scores">
+              <span className="cmp-summary-score b" style={{ color: '#0c151d' }}>{beforeScore}</span>
+              <span className="cmp-summary-arrow" style={{ color: '#718096' }}>→</span>
+              <span className="cmp-summary-score a" style={{ color: '#1D9E75' }}>{afterScore}</span>
+            </div>
+          </div>
+
+          {/* Logo Strip */}
+          <div className="cmp-logo-strip" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="cmp-logo-circle">
+              <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1.0 }}>
+              <span className="cmp-logo-magic" style={{ fontSize: 28, lineHeight: 1.0, fontWeight: 800, color: '#0c151d', fontFamily: 'Montserrat, sans-serif' }}>
+                MAGIC
+              </span>
+              <span className="cmp-logo-mirror" style={{ fontSize: 28, lineHeight: 1.0, fontWeight: 800, color: '#10AFCC', fontFamily: 'Montserrat, sans-serif' }}>
+                MIRROR
+              </span>
             </div>
           </div>
         </div>
@@ -664,7 +869,7 @@ export const BeforeAfterVideo = ({
               width: 54,
               height: 54,
               borderRadius: '50%',
-              backgroundColor: '#ffffff',
+              backgroundColor: '#fff',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -725,7 +930,7 @@ export const BeforeAfterVideo = ({
                 width: 180,
                 height: 180,
                 borderRadius: 36,
-                backgroundColor: '#ffffff',
+                backgroundColor: '#fff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -790,9 +995,9 @@ export const BeforeAfterVideo = ({
               width: '100%',
             }}>
               <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                Tested for
+                Concern Tracked
               </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                 {concernsStr}
               </div>
             </div>
@@ -811,7 +1016,7 @@ export const BeforeAfterVideo = ({
               <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
                 Tracking period
               </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                 {trackingPeriodStr}
               </div>
             </div>
@@ -830,7 +1035,7 @@ export const BeforeAfterVideo = ({
               <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
                 Tracked by
               </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                 {testerName}
               </div>
             </div>
@@ -849,7 +1054,7 @@ export const BeforeAfterVideo = ({
               <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
                 Score change
               </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#ffffff', fontFamily: 'Montserrat, sans-serif' }}>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
                 {diffText} pts ({beforeScore}→{afterScore})
               </div>
             </div>
