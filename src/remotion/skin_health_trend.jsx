@@ -676,7 +676,7 @@ const SceneChart = ({
             {/* Card 1: SVG Line Chart Container (Pink/Light) */}
             <div style={{
                 width: '100%',
-                backgroundColor: '#FFEBEF',
+                backgroundColor: '#fff',
                 borderRadius: 36,
                 padding: '40px 30px 30px 30px',
                 boxSizing: 'border-box',
