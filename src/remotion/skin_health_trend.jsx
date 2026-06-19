@@ -66,7 +66,7 @@ const Watermark = ({ opacity = 1 }) => (
     </div>
 );
 
-const BG = '#FFF0F2';
+const BG = '#fff';
 
 // ─── SCENE 1: PRODUCT INFO ───────────────────────────────────────────────────
 // Frames 0 – 179 (6 s @ 30 fps)
@@ -130,7 +130,7 @@ const SceneProductInfo = ({
 
     return (
         <AbsoluteFill style={{
-            background: '#FFF0F2',
+            background: BG,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -636,7 +636,7 @@ const SceneChart = ({
 
     return (
         <AbsoluteFill style={{
-            background: '#FFF0F2',
+            background: BG,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -924,7 +924,7 @@ const SceneSideBySide = ({
 
     return (
         <AbsoluteFill style={{
-            background: '#FFF0F2',
+            background: BG,
             display: 'flex',
             flexDirection: 'column',
             padding: '120px 60px 80px',
