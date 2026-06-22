@@ -1,4 +1,4 @@
-import { AbsoluteFill, useCurrentFrame, Img, interpolate } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, Img, interpolate, spring, useVideoConfig } from 'remotion';
 import React from 'react';
 import mmLogo from './MM logo.jpg';
 
@@ -91,6 +91,29 @@ export const BeforeAfterVideo = ({
   const diffSign = diff > 0 ? '+' : '';
   const diffText = `${diffSign}${diff}`;
   const improvementLabel = diff >= 0 ? 'improvement' : 'decline';
+
+  const { fps } = useVideoConfig();
+  const compareFrame = frame - 192;
+  const chipScale = spring({
+    frame: compareFrame - 5,
+    fps,
+    from: 0,
+    to: 1.5,
+    config: {
+      damping: 12,
+      mass: 0.8,
+      stiffness: 100,
+    },
+  });
+
+  const currentDiffVal = Math.round(interpolate(
+    compareFrame,
+    [15, 65],
+    [0, diff],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  ));
+  const currentDiffSign = currentDiffVal > 0 ? '+' : '';
+  const dynamicDiffText = `${currentDiffSign}${currentDiffVal}`;
 
   // Durations in frames: [3.2s, 3.2s, 4s, 4.5s, 3.6s] at 30 fps
   const DURATIONS = [96, 96, 120, 135, 108];
@@ -255,6 +278,9 @@ export const BeforeAfterVideo = ({
             border-radius: 60px;
             padding: 38px;
             position: relative;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto;
           }
           .custom-card.before-theme {
             background: #D6CFC8;
@@ -266,8 +292,8 @@ export const BeforeAfterVideo = ({
           }
           .custom-tag {
             position: absolute;
-            top: 71px;
-            right: 71px;
+            top: 10px;
+            right: 10px;
             background: #0c151d;
             color: #fff;
             font-size: 33px;
@@ -280,16 +306,18 @@ export const BeforeAfterVideo = ({
           .custom-photo-frame {
             border-radius: 44px;
             overflow: hidden;
-            width: 100%;
-            height: 980px;
-            background: #000;
+            width: fit-content;
+            max-width: 100%;
+            height: auto;
+            background: transparent;
             position: relative;
           }
           .custom-photo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 100%;
+            height: auto;
+            max-height: 980px;
             display: block;
+            border-radius: 44px;
           }
           .custom-stat-row {
             margin-top: 50px;
@@ -680,12 +708,12 @@ export const BeforeAfterVideo = ({
             <div className="custom-tag">BEFORE</div>
             <div className="custom-photo-frame">
               {before_image_url ? (
-                <Img src={before_image_url} />
+                <Img src={before_image_url} style={{ maxWidth: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px' }} />
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
               )}
               {mask_enabled === 'on' && before_mask_url && (
-                <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+                <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
               )}
             </div>
           </div>
@@ -723,12 +751,12 @@ export const BeforeAfterVideo = ({
             <div className="custom-tag">AFTER</div>
             <div className="custom-photo-frame">
               {after_image_url ? (
-                <Img src={after_image_url} />
+                <Img src={after_image_url} style={{ maxWidth: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px' }} />
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
               )}
               {mask_enabled === 'on' && after_mask_url && (
-                <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+                <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
               )}
             </div>
           </div>
@@ -810,11 +838,13 @@ export const BeforeAfterVideo = ({
           <div className="cmp-summary" style={{ backgroundColor: summaryBgColor, borderColor: summaryBgColor }}>
             <div className="cmp-summary-top">
               <div className="cmp-summary-label" style={{ color: '#718096' }}>{concernName}</div>
-              <div className="cmp-chip" style={
-                beforeScore > afterScore
+              <div className="cmp-chip" style={{
+                ...(beforeScore > afterScore
                   ? { backgroundColor: '#fff', color: '#718096', borderColor: '#718096' }
-                  : { backgroundColor: '#fff', color: '#0F6E56', borderColor: '#1D9E75' }
-              }>{diffText}</div>
+                  : { backgroundColor: '#fff', color: '#0F6E56', borderColor: '#1D9E75' }),
+                transform: `scale(${chipScale})`,
+                transformOrigin: 'right center',
+              }}>{dynamicDiffText}</div>
             </div>
             <div className="cmp-summary-scores">
               <span className="cmp-summary-score b" style={{ color: '#0c151d' }}>{beforeScore}</span>
