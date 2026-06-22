@@ -482,7 +482,7 @@ export const BeforeAfterVideo = ({
           .cmp-chip {
             display: inline-flex;
             align-items: center;
-            background: #E6FBF4;
+            background: #fff;
             border: 4px solid #1D9E75;
             border-radius: 80px;
             padding: 14px 44px;
@@ -813,7 +813,7 @@ export const BeforeAfterVideo = ({
               <div className="cmp-chip" style={
                 beforeScore > afterScore
                   ? { backgroundColor: '#fff', color: '#718096', borderColor: '#718096' }
-                  : { backgroundColor: '#E6FBF4', color: '#0F6E56', borderColor: '#1D9E75' }
+                  : { backgroundColor: '#fff', color: '#0F6E56', borderColor: '#1D9E75' }
               }>{diffText}</div>
             </div>
             <div className="cmp-summary-scores">
