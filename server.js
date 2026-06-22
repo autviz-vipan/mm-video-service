@@ -94,6 +94,8 @@ app.post('/render-video', (req, res) => {
         compId = 'BeforeAfterVideo';
       } else if (payload.video_role === 'skin_health_trend') {
         compId = 'SkinHealthTrendVideo';
+      } else if (payload.video_role === 'new_format') {
+        compId = 'NewFormatVideo';
       } else {
         compId = 'ProgressVideo';
       }

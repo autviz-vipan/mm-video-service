@@ -3,6 +3,7 @@ import { Composition } from 'remotion';
 import { ProgressVideo } from './ProgressVideo';
 import { BeforeAfterVideo } from './BeforeAfterVideo';
 import { SkinHealthTrendVideo } from './skin_health_trend';
+import { NewFormatVideo } from './New_Format';
 
 export const RemotionRoot = () => {
   return (
@@ -94,6 +95,28 @@ export const RemotionRoot = () => {
           worst_image_score: 42,
           before_timeperiod: "MAY 15, 2026",
           after_timeperiod: "JUN 15, 2026",
+        }}
+      />
+      <Composition
+        id="NewFormatVideo"
+        component={NewFormatVideo}
+        durationInFrames={450}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{
+          product_name: "Hand Lotion",
+          brand_name: "Niven Morgan",
+          creator_name: "",
+          concerns: ["Redness"],
+          product_image_url: "",
+          platform: "reels",
+          mask_enabled: "off",
+          image_url: "",
+          score: 72,
+          date: "JUN 22, 2026",
+          mask_url: null,
+          video_role: "new_format",
         }}
       />
     </>

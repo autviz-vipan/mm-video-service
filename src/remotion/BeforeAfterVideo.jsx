@@ -278,9 +278,8 @@ export const BeforeAfterVideo = ({
             border-radius: 60px;
             padding: 38px;
             position: relative;
-            width: fit-content;
-            max-width: 100%;
-            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
           }
           .custom-card.before-theme {
             background: #D6CFC8;
@@ -306,18 +305,18 @@ export const BeforeAfterVideo = ({
           .custom-photo-frame {
             border-radius: 44px;
             overflow: hidden;
-            width: fit-content;
-            max-width: 100%;
+            width: 100%;
             height: auto;
             background: transparent;
             position: relative;
           }
           .custom-photo-frame img {
-            max-width: 100%;
+            width: 100%;
             height: auto;
             max-height: 980px;
             display: block;
             border-radius: 44px;
+            object-fit: cover;
           }
           .custom-stat-row {
             margin-top: 50px;
@@ -708,9 +707,9 @@ export const BeforeAfterVideo = ({
             <div className="custom-tag">BEFORE</div>
             <div className="custom-photo-frame">
               {before_image_url ? (
-                <Img src={before_image_url} style={{ maxWidth: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px' }} />
+                <Img src={before_image_url} style={{ width: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px', objectFit: 'cover' }} />
               ) : (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '980px', width: '900px', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
               )}
               {mask_enabled === 'on' && before_mask_url && (
                 <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
@@ -751,9 +750,9 @@ export const BeforeAfterVideo = ({
             <div className="custom-tag">AFTER</div>
             <div className="custom-photo-frame">
               {after_image_url ? (
-                <Img src={after_image_url} style={{ maxWidth: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px' }} />
+                <Img src={after_image_url} style={{ width: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px', objectFit: 'cover' }} />
               ) : (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '980px', width: '900px', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
               )}
               {mask_enabled === 'on' && after_mask_url && (
                 <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
@@ -871,7 +870,7 @@ export const BeforeAfterVideo = ({
 
         {/* SEG 4: STATEMENT */}
         <div className="seg seg-statement" style={{
-          background: '#FFF0F2',
+          background: '#fff',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-start',
