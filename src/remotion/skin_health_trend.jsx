@@ -8,6 +8,7 @@ import {
 } from 'remotion';
 import React from 'react';
 import mmLogo from './MM logo.jpg';
+import tiktokLogo from './Tiktok logo.png';
 
 // ─── SHARED COMPONENTS (mirrored from ProgressVideo) ────────────────────────
 
@@ -62,6 +63,26 @@ const Watermark = ({ opacity = 1 }) => (
             <span style={{ fontSize: 34, lineHeight: 1.0, fontWeight: 800, color: '#10AFCC', fontFamily: 'Montserrat, sans-serif' }}>
                 MIRROR
             </span>
+        </div>
+        {/* 10px gap divider */}
+        <div style={{ width: 2, height: 70, backgroundColor: 'rgba(0,0,0,0.12)', marginLeft: 10, marginRight: 10, flexShrink: 0 }} />
+        {/* TikTok block */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+            <div style={{
+                width: 100,
+                height: 100,
+                borderRadius: '50%',
+                backgroundColor: '#fff',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                overflow: 'hidden',
+                flexShrink: 0,
+            }}>
+                <Img src={tiktokLogo} style={{ width: '90%', height: '90%', objectFit: 'contain' }} alt="TikTok" />
+            </div>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>@officialmagicmirror</span>
         </div>
     </div>
 );
@@ -339,6 +360,7 @@ const SceneChart = ({
     product_name = '',
     before_timeperiod = '',
     after_timeperiod = '',
+    timeline_scores = [],
     fps,
 }) => {
     const frame = useCurrentFrame();
@@ -377,36 +399,37 @@ const SceneChart = ({
         ? Math.max(1, Math.round((endD - startD) / (1000 * 60 * 60 * 24)))
         : 30; // fallback to 30 days
 
-    // Deterministic point simulation logic matching ProgressVideo fallback
-    const getDeterministicNoise = (day, seed) => {
-        const x = Math.sin(day * 12.9898 + seed * 78.233) * 43758.5453123;
-        return (x - Math.floor(x)) * 2 - 1; // Float between -1.0 and 1.0
-    };
-
-    const numAfter = 12; // 12 points across the entire timeline
-
-    let duringPoints = Array.from({ length: numAfter }).map((_, idx) => {
-        const fraction = idx / (numAfter - 1 || 1);
-        const day = Math.max(1, Math.min(nDays, Math.round(1 + fraction * (nDays - 1))));
-        const noise = getDeterministicNoise(day, avPT * 5.7);
-        const rawScore = avPT + noise * 6.0;
-        return {
-            day,
-            score: Math.max(5, Math.min(95, Math.round(rawScore * 10) / 10))
+    // ── Build allPoints from real timeline_scores data ──────────────────────────
+    // X-axis (day) is always spread evenly from Day 1 → nDays so dots start at the left.
+    // Scores come from real timeline_scores data.
+    let allPoints = [];
+    if (timeline_scores && timeline_scores.length > 0) {
+        const n = timeline_scores.length;
+        allPoints = timeline_scores.map((entry, idx) => {
+            // Always evenly space points regardless of actual dates
+            const fraction = n <= 1 ? 0 : idx / (n - 1);
+            const day = Math.max(1, Math.min(nDays, Math.round(1 + fraction * (nDays - 1))));
+            const score = entry[primaryConcern] ?? entry[Object.keys(entry).find(k => k !== 'date')] ?? avPT;
+            return { day, score, period: 'after', index: idx, indexInPeriod: idx };
+        });
+    } else {
+        // Fallback: generate 5 deterministic points if no timeline_scores provided
+        const getDeterministicNoise = (day, seed) => {
+            const x = Math.sin(day * 12.9898 + seed * 78.233) * 43758.5453123;
+            return (x - Math.floor(x)) * 2 - 1;
         };
-    });
-
-    const rawPoints = duringPoints.map((p, idx) => ({ ...p, period: 'after', index: idx }));
-
-    const allPoints = rawPoints.map((pt) => {
-        return {
-            ...pt,
-            indexInPeriod: pt.index
-        };
-    });
+        const numFallback = 5;
+        allPoints = Array.from({ length: numFallback }).map((_, idx) => {
+            const fraction = idx / (numFallback - 1 || 1);
+            const day = Math.max(1, Math.min(nDays, Math.round(1 + fraction * (nDays - 1))));
+            const noise = getDeterministicNoise(day, avPT * 5.7);
+            const rawScore = avPT + noise * 6.0;
+            return { day, score: Math.max(5, Math.min(95, Math.round(rawScore * 10) / 10)), period: 'after', index: idx, indexInPeriod: idx };
+        });
+    }
 
     const beforePoints = [];
-    duringPoints = allPoints;
+    const duringPoints = allPoints;
 
     const allScoresList = allPoints.map(p => p.score);
     const minScoreVal = Math.max(0, Math.min(...allScoresList, avBT, avPT) - 8);
@@ -1255,6 +1278,7 @@ export const SkinHealthTrendVideo = ({
     after_timeperiod = '',
     best_mask_url = null,
     worst_mask_url = null,
+    timeline_scores = [],
 }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
@@ -1301,6 +1325,7 @@ export const SkinHealthTrendVideo = ({
                     product_name={product_name}
                     before_timeperiod={before_timeperiod}
                     after_timeperiod={after_timeperiod}
+                    timeline_scores={timeline_scores}
                     fps={fps}
                 />
             )}

@@ -1,6 +1,7 @@
 import { AbsoluteFill, useCurrentFrame, Img, interpolate, spring, useVideoConfig } from 'remotion';
 import React from 'react';
 import mmLogo from './MM logo.jpg';
+import tiktokLogo from './Tiktok logo.png';
 
 const Watermark = ({ opacity = 1, currentSeg = 0 }) => {
   const magicTextColor = '#1A202C';
@@ -49,6 +50,26 @@ const Watermark = ({ opacity = 1, currentSeg = 0 }) => {
         }}>
           MIRROR
         </span>
+      </div>
+      {/* 10px gap divider */}
+      <div style={{ width: 2, height: 60, backgroundColor: 'rgba(0,0,0,0.12)', marginLeft: 10, marginRight: 10, flexShrink: 0 }} />
+      {/* TikTok block */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <div style={{
+          width: 80,
+          height: 80,
+          borderRadius: '50%',
+          backgroundColor: '#fff',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}>
+          <Img src={tiktokLogo} style={{ width: '90%', height: '90%', objectFit: 'contain' }} alt="TikTok" />
+        </div>
+        <span style={{ fontSize: 28, fontWeight: 700, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>@officialmagicmirror</span>
       </div>
     </div>
   );
@@ -701,11 +722,18 @@ export const BeforeAfterVideo = ({
 
         {/* SEG 1: BEFORE */}
         <div className="seg seg-before" style={{ opacity: getSegOpacity(0), pointerEvents: currentSeg === 0 ? 'auto' : 'none' }}>
-          <div className="custom-eyebrow">{concernName} · Scan 1</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
+              <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
+              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+            </div>
+            <span style={{ fontSize: 33, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Scan 1</span>
+          </div>
 
           <div className="custom-card before-theme">
-            <div className="custom-tag">BEFORE</div>
-            <div className="custom-photo-frame">
+            <div className="custom-photo-frame" style={{ borderRadius: '44px', overflow: 'hidden', position: 'relative', width: '100%' }}>
+              <div className="custom-tag">BEFORE</div>
               {before_image_url ? (
                 <Img src={before_image_url} style={{ width: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px', objectFit: 'cover' }} />
               ) : (
@@ -744,11 +772,18 @@ export const BeforeAfterVideo = ({
 
         {/* SEG 2: AFTER */}
         <div className="seg seg-after" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
-          <div className="custom-eyebrow">{concernName} · Scan 2</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
+              <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
+              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+            </div>
+            <span style={{ fontSize: 33, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Scan 2</span>
+          </div>
 
           <div className="custom-card after-theme">
-            <div className="custom-tag">AFTER</div>
-            <div className="custom-photo-frame">
+            <div className="custom-photo-frame" style={{ borderRadius: '44px', overflow: 'hidden', position: 'relative', width: '100%' }}>
+              <div className="custom-tag">AFTER</div>
               {after_image_url ? (
                 <Img src={after_image_url} style={{ width: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px', objectFit: 'cover' }} />
               ) : (
@@ -789,7 +824,7 @@ export const BeforeAfterVideo = ({
         <div className="seg seg-compare" style={{ opacity: getSegOpacity(2), pointerEvents: currentSeg === 2 ? 'auto' : 'none' }}>
           {/* Header */}
           <div className="cmp-eyebrow">
-            <div className="cmp-eyebrow-text">{concernName} · Side by Side</div>
+            <div className="cmp-eyebrow-text">Side by Side</div>
           </div>
 
           {/* Cards Row */}
