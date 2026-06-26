@@ -619,6 +619,9 @@ export const NewFormatVideo = ({
                 </div>
 
             </div>
+            <p style={{ position: 'absolute', bottom: 80, left: 0, right: 0, textAlign: 'center', fontSize: 35, color: '#10AFCC', fontWeight: '500', padding: '0 40px', lineHeight: 1.4 }}>
+                Results reflect my personal experience. Individual outcomes may vary based on skin condition and lifestyle.
+            </p>
         </AbsoluteFill>
     );
 };
