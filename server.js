@@ -89,12 +89,22 @@ app.post('/render-video', (req, res) => {
         console.log(`[Job ID: ${jobId}] [Remotion] Reusing pre-compiled React bundle (saved ~2-4 seconds of bundling time!).`);
       }
 
-      console.log(`[Job ID: ${jobId}] [Remotion] Selecting composition ProgressVideo...`);
+      let compId;
+      if (payload.video_role === 'before_after') {
+        compId = 'BeforeAfterVideo';
+      } else if (payload.video_role === 'skin_health_trend') {
+        compId = 'SkinHealthTrendVideo';
+      } else if (payload.video_role === 'new_format') {
+        compId = 'NewFormatVideo';
+      } else {
+        compId = 'ProgressVideo';
+      }
+      console.log(`[Job ID: ${jobId}] [Remotion] Selecting composition ${compId}...`);
       const compositionStartTime = Date.now();
       // 2. Load the registered composition (using serveUrl parameter)
       const composition = await selectComposition({
         serveUrl: bundleLocation,
-        id: 'ProgressVideo',
+        id: compId,
         inputProps: payload,
       });
       const compositionDuration = (Date.now() - compositionStartTime) / 1000;

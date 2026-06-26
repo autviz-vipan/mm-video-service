@@ -108,8 +108,8 @@ const Watermark = ({ opacity = 1 }) => {
   return (
     <div style={{
       position: 'absolute',
-      bottom: 80,
-      left: 70,
+      bottom: 30,
+      left: 30,
       zIndex: 999,
       display: 'flex',
       alignItems: 'center',
@@ -129,7 +129,7 @@ const Watermark = ({ opacity = 1 }) => {
         overflow: 'hidden',
         flexShrink: 0
       }}>
-        <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Magic Mirror Logo" />
+        <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <span style={{
@@ -1086,7 +1086,7 @@ export const ProgressVideo = ({
                 opacity: line1Opacity,
                 transform: `translateY(${line1Y}px)`
               }}>
-                EFFICACY TESTING WITH MAGIC MIRROR
+                EFFECTIVENESS TRACKING WITH MAGIC MIRROR
               </span>
 
               <h1 style={{
@@ -1149,7 +1149,7 @@ export const ProgressVideo = ({
               </div>
             </div>
 
-            {/* ── BOTTOM: Testing Info Panel ── */}
+            {/* ── BOTTOM: Tracking Info Panel ── */}
             <div style={{
               zIndex: 1,
               display: 'flex',
@@ -1160,7 +1160,7 @@ export const ProgressVideo = ({
               transform: `translateY(${panelY}px)`
             }}>
 
-              {/* TESTING FOR */}
+              {/* TRACKING FOR */}
               <div style={{
                 background: '#FFFFFF',
                 border: '1px solid rgba(0, 0, 0, 0.05)',
@@ -1173,7 +1173,7 @@ export const ProgressVideo = ({
                 boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)'
               }}>
                 <span style={{ fontSize: 25, fontWeight: '700', color: '#718096', letterSpacing: 3, flexShrink: 0, width: 220 }}>
-                  TESTING FOR
+                  TRACKING FOR
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '10px 36px', alignItems: 'center' }}>
                   {(concerns.length > 0 ? concerns : ['—']).map((c, i) => (
@@ -1187,7 +1187,7 @@ export const ProgressVideo = ({
                 </div>
               </div>
 
-              {/* TESTING PERIOD */}
+              {/* TRACKING PERIOD */}
               <div style={{
                 background: '#FFFFFF',
                 border: '1px solid rgba(0, 0, 0, 0.05)',
@@ -1200,7 +1200,7 @@ export const ProgressVideo = ({
                 boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)'
               }}>
                 <span style={{ fontSize: 25, fontWeight: '700', color: '#718096', letterSpacing: 3, flexShrink: 0, width: 220 }}>
-                  TESTING PERIOD
+                  TRACKING PERIOD
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
                   {before_date && (
@@ -1416,8 +1416,8 @@ export const ProgressVideo = ({
 
         const absDiff = Math.round(Math.abs(diffVal));
         const summarySentence = avPT >= avBT
-          ? `After testing ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of +${absDiff} points.`
-          : `After testing ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of −${absDiff} points.`;
+          ? `After tracking ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of +${absDiff} points.`
+          : `After tracking ${product_name} for ${nDays} days, my average ${concernLower} score changed from ${avBT} to ${avPT} — a shift of −${absDiff} points.`;
 
         const renderChartSVG = () => {
           return (
