@@ -841,16 +841,6 @@ const SceneChart = ({
                 }}>
                     After tracking <span style={{ color: '#10AFCC', fontWeight: 700 }}>{product_name}</span> for <span style={{ color: '#10AFCC', fontWeight: 700 }}>{nDays} days</span>, my {concernLabel} score {isImproved ? 'improved' : 'changed'} by <span style={{ color: '#10AFCC', fontWeight: 700 }}>{formatDelta(diffVal)}</span> — from {fmtScore(avBT)} to {fmtScore(avPT)}.
                 </p>
-                <p style={{
-                    fontSize: 26,
-                    color: '#8a8e94ff',
-                    fontWeight: '500',
-                    lineHeight: '1.3',
-                    margin: 0,
-                    fontFamily: 'Montserrat, sans-serif'
-                }}>
-                    Results reflect my personal experience. Individual outcomes may vary based on skin condition and lifestyle.
-                </p>
             </div>
         </AbsoluteFill>
     );
@@ -1251,6 +1241,9 @@ const SceneOutro = ({ fps }) => {
             <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,#1D9E75,transparent)', width: '60%', margin: '15px auto' }} />
             <p style={{ fontSize: 30, color: '#10AFCC', letterSpacing: 2, fontWeight: '600', textTransform: 'uppercase', margin: '30px 0 0 0' }}>
                 OWN YOUR SKIN HEALTH
+            </p>
+            <p style={{ position: 'absolute', bottom: 80, left: 0, right: 0, textAlign: 'center', fontSize: 35, color: '#10AFCC', fontWeight: '500', padding: '0 40px', lineHeight: 1.4 }}>
+                Results reflect my personal experience. Individual outcomes may vary based on skin condition and lifestyle.
             </p>
         </AbsoluteFill>
     );
