@@ -1145,11 +1145,11 @@ export const BeforeAfterVideo = ({
           <p style={{ fontSize: 30, color: '#10AFCC', letterSpacing: 2, fontWeight: '600', textTransform: 'uppercase', margin: '30px 0 0 0' }}>
             OWN YOUR SKIN HEALTH
           </p>
+          <p style={{ position: 'absolute', bottom: 80, left: 0, right: 0, textAlign: 'center', fontSize: 35, color: '#10AFCC', fontWeight: '500', padding: '0 40px', lineHeight: 1.4 }}>
+            Results reflect my personal experience. Individual outcomes may vary based on skin condition and lifestyle.
+          </p>
         </div>
       </div>
-      <p style={{ position: 'absolute', bottom: 80, left: 0, right: 0, textAlign: 'center', fontSize: 35, color: '#10AFCC', fontWeight: '500', padding: '0 40px', lineHeight: 1.4 }}>
-        Results reflect my personal experience. Individual outcomes may vary based on skin condition and lifestyle.
-      </p>
     </AbsoluteFill>
   );
 };
