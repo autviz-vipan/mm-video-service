@@ -900,6 +900,26 @@ export const BeforeAfterVideo = ({
                 MIRROR
               </span>
             </div>
+            {/* 10px gap divider */}
+            <div style={{ width: 2, height: 60, backgroundColor: 'rgba(0,0,0,0.12)', marginLeft: 10, marginRight: 10, flexShrink: 0 }} />
+            {/* TikTok block */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+              <div style={{
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                backgroundColor: '#fff',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                overflow: 'hidden',
+                flexShrink: 0,
+              }}>
+                <Img src={tiktokLogo} style={{ width: '90%', height: '90%', objectFit: 'contain' }} alt="TikTok" />
+              </div>
+              <span style={{ fontSize: 28, fontWeight: 700, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>@officialmagicmirror</span>
+            </div>
           </div>
         </div>
 

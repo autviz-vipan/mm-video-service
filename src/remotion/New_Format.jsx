@@ -346,8 +346,10 @@ export const NewFormatVideo = ({
                     })}
                 </div>
 
-                {/* Watermark on all screens */}
-                <Watermark opacity={1} />
+                {/* Watermark on all screens except the last page */}
+                {currentSeg !== 2 && (
+                    <Watermark opacity={1} />
+                )}
 
                 {/* ══════════════════════════════════════════════════
             SEG 0: SCAN SCREEN  (same as BeforeAfterVideo BEFORE)
