@@ -100,6 +100,7 @@ const SceneProductInfo = ({
     product_start_date = '',
     before_timeperiod = '',
     after_timeperiod = '',
+    total_weeks = 7,
     fps,
 }) => {
     const frame = useCurrentFrame();
@@ -140,6 +141,9 @@ const SceneProductInfo = ({
 
     const initials = getInitials(brand_name, product_name);
     const logoText = brand_name ? brand_name.toUpperCase() : (product_name ? product_name.toUpperCase() : 'MAGIC MIRROR');
+
+    const weeksNum = total_weeks ?? 1;
+    const weekLabel = weeksNum === 1 ? 'WEEK' : 'WEEKS';
 
     const trackingPeriodStr = before_timeperiod && after_timeperiod
         ? `${before_timeperiod} → ${after_timeperiod}`
@@ -323,8 +327,13 @@ const SceneProductInfo = ({
                     <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
                         Tracking period
                     </div>
-                    <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
-                        {trackingPeriodStr}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontFamily: 'Montserrat, sans-serif' }}>
+                        <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', textTransform: 'uppercase' }}>
+                            {weeksNum} {weekLabel}
+                        </span>
+                        <span style={{ fontSize: 30, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
+                            {trackingPeriodStr}
+                        </span>
                     </div>
                 </div>
 
@@ -1269,6 +1278,7 @@ export const SkinHealthTrendVideo = ({
     worst_image_score = 0,
     before_timeperiod = '',
     after_timeperiod = '',
+    total_weeks = 7,
     best_mask_url = null,
     worst_mask_url = null,
     timeline_scores = [],
@@ -1305,6 +1315,7 @@ export const SkinHealthTrendVideo = ({
                     product_start_date={product_start_date}
                     before_timeperiod={before_timeperiod}
                     after_timeperiod={after_timeperiod}
+                    total_weeks={total_weeks}
                     fps={fps}
                 />
             )}

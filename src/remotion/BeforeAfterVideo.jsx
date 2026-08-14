@@ -78,6 +78,7 @@ const Watermark = ({ opacity = 1, currentSeg = 0 }) => {
 export const BeforeAfterVideo = ({
   product_name = "O2 Peptide Firm Perfect Cream",
   brand_name = "Element Eight",
+  brand_name_visible = true,
   creator_name = "",
   concerns = ["Redness"],
   product_image_url = "",
@@ -88,6 +89,7 @@ export const BeforeAfterVideo = ({
   after_image_url = "",
   before_mask_url = null,
   after_mask_url = null,
+  total_weeks = 7,
   before_date = "Apr 16, 2026",
   after_date = "Jun 10, 2026",
   before_metrics = { redness: 49 },
@@ -114,7 +116,7 @@ export const BeforeAfterVideo = ({
   const improvementLabel = diff >= 0 ? 'improvement' : 'decline';
 
   const { fps } = useVideoConfig();
-  const compareFrame = frame - 192;
+  const compareFrame = frame - 327;
   const chipScale = spring({
     frame: compareFrame - 5,
     fps,
@@ -136,25 +138,25 @@ export const BeforeAfterVideo = ({
   const currentDiffSign = currentDiffVal > 0 ? '+' : '';
   const dynamicDiffText = `${currentDiffSign}${currentDiffVal}`;
 
-  // Durations in frames: [3.2s, 3.2s, 4s, 4.5s, 3.6s] at 30 fps
-  const DURATIONS = [96, 96, 120, 135, 108];
-  const SEG_START_FRAMES = [0, 96, 192, 312, 447];
+  // Durations in frames: [4.5s, 3.2s, 3.2s, 4s, 3.6s] at 30 fps
+  const DURATIONS = [135, 96, 96, 120, 108];
+  const SEG_START_FRAMES = [0, 135, 231, 327, 447];
 
   // Determine current active segment & progress inside it
   let currentSeg = 0;
   let segProgress = 0;
-  if (frame < 96) {
+  if (frame < 135) {
     currentSeg = 0;
-    segProgress = frame / 96;
-  } else if (frame < 192) {
+    segProgress = frame / 135;
+  } else if (frame < 231) {
     currentSeg = 1;
-    segProgress = (frame - 96) / 96;
-  } else if (frame < 312) {
+    segProgress = (frame - 135) / 96;
+  } else if (frame < 327) {
     currentSeg = 2;
-    segProgress = (frame - 192) / 120;
+    segProgress = (frame - 231) / 96;
   } else if (frame < 447) {
     currentSeg = 3;
-    segProgress = (frame - 312) / 135;
+    segProgress = (frame - 327) / 120;
   } else {
     currentSeg = 4;
     segProgress = Math.min(1, (frame - 447) / 108);
@@ -188,7 +190,7 @@ export const BeforeAfterVideo = ({
   const cleanCreator = creator_name ? (creator_name.startsWith('@') ? creator_name : `@${creator_name}`) : '@MagicMirror';
 
   // Statement Segment animations and formatting
-  const seg3Frame = frame - 312;
+  const seg3Frame = frame - 0;
   const line1Opacity = interpolate(seg3Frame, [10, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const line1Y = interpolate(seg3Frame, [10, 30], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const line2Opacity = interpolate(seg3Frame, [25, 45], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
@@ -214,7 +216,10 @@ export const BeforeAfterVideo = ({
 
   const initials = getInitials(brand_name, product_name);
   const logoText = brand_name ? brand_name.toUpperCase() : (product_name ? product_name.toUpperCase() : 'MAGIC MIRROR');
-  const trackingPeriodStr = `${before_date} → ${after_date}`;
+
+  const weeksNum = total_weeks ?? 1;
+  const weekLabel = weeksNum === 1 ? 'WEEK' : 'WEEKS';
+  const eyebrowWeekText = `AFTER ${weeksNum} ${weekLabel}`;
   const concernsStr = concerns && concerns.length > 0
     ? concerns.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')
     : 'Redness';
@@ -435,7 +440,7 @@ export const BeforeAfterVideo = ({
             flex-shrink: 0;
           }
           .cmp-eyebrow-text {
-            font-size: 30px;
+            font-size: 40px;
             font-weight: 800;
             letter-spacing: 0.22em;
             text-transform: uppercase;
@@ -715,18 +720,249 @@ export const BeforeAfterVideo = ({
           })}
         </div>
 
-        {/* Watermark (Every page except Compare and Statement/Outro as specified) */}
-        {currentSeg < 4 && currentSeg !== 2 && (
+        {/* Watermark (Every page except Compare and Outro as specified) */}
+        {currentSeg < 3 && (
           <Watermark currentSeg={currentSeg} />
         )}
 
-        {/* SEG 1: BEFORE */}
-        <div className="seg seg-before" style={{ opacity: getSegOpacity(0), pointerEvents: currentSeg === 0 ? 'auto' : 'none' }}>
+        {/* SEG 1: STATEMENT */}
+        <div className="seg seg-statement" style={{
+          background: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          padding: '120px 60px 100px',
+          boxSizing: 'border-box',
+          opacity: getSegOpacity(0),
+          pointerEvents: currentSeg === 0 ? 'auto' : 'none',
+          position: 'absolute',
+          inset: 0,
+        }}>
+          <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');` }} />
+
+          {/* Brand Lockup */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 20,
+            marginBottom: 40,
+            opacity: line1Opacity,
+            transform: `translateY(${line1Y}px)`,
+          }}>
+            <div style={{
+              width: 54,
+              height: 54,
+              borderRadius: '50%',
+              backgroundColor: '#fff',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              overflow: 'hidden',
+              flexShrink: 0,
+            }}>
+              <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
+            </div>
+            <div style={{
+              fontSize: 44,
+              fontWeight: 800,
+              color: '#1A202C',
+              letterSpacing: '0.03em',
+              fontFamily: 'Montserrat, sans-serif',
+            }}>
+              MAGIC MIRROR
+            </div>
+          </div>
+
+          {/* Review Label */}
+          <div style={{
+            fontSize: 38,
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: '#888780',
+            textAlign: 'center',
+            marginBottom: 50,
+            fontFamily: 'Montserrat, sans-serif',
+            opacity: line1Opacity,
+            transform: `translateY(${line1Y}px)`,
+          }}>
+            Effectiveness tracking
+          </div>
+
+          {/* Product Unit */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 40,
+            margin: '60px 0',
+            width: '100%',
+            opacity: line2Opacity,
+            transform: `translateY(${line2Y}px)`,
+          }}>
+            <div style={{
+              width: 250,
+              height: 250,
+              borderRadius: 36,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              overflow: 'hidden',
+            }}>
+              {product_image_url ? (
+                <Img src={product_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 36 }} alt="Product" />
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: '#fff',
+                  border: '4px solid #1A202C',
+                  borderRadius: 36,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
+                    {initials}
+                  </span>
+                  <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
+                    {logoText}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                fontSize: 72,
+                fontWeight: 800,
+                color: '#1A202C',
+                lineHeight: 1.1,
+                fontFamily: 'Montserrat, sans-serif',
+              }}>
+                {product_name || 'Hand Lotion'}
+              </div>
+              {brand_name_visible && (
+                <div style={{
+                  fontSize: 44,
+                  fontWeight: 600,
+                  color: '#10AFCC',
+                  marginTop: 10,
+                  fontFamily: 'Montserrat, sans-serif',
+                }}>
+                  by {brand_name || 'Niven Morgan'}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Setup Rows */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 24,
+            marginTop: 40,
+            width: '100%',
+            opacity: panelOpacity,
+            transform: `translateY(${panelY}px)`,
+          }}>
+            {/* Tested For */}
+            <div style={{
+              backgroundColor: '#10AFCC',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Concern Tracked
+              </div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
+                {concernsStr}
+              </div>
+            </div>
+
+            {/* Tracking Period */}
+            <div style={{
+              backgroundColor: '#1A202C',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Tracking period
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontFamily: 'Montserrat, sans-serif' }}>
+                <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', textTransform: 'uppercase' }}>
+                  {weeksNum} {weekLabel}
+                </span>
+                <span style={{ fontSize: 30, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
+                  {before_date} &rarr; {after_date}
+                </span>
+              </div>
+            </div>
+
+            {/* Tracked By */}
+            <div style={{
+              backgroundColor: '#10AFCC',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Tracked by
+              </div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
+                {testerName}
+              </div>
+            </div>
+
+            {/* Score Change */}
+            <div style={{
+              backgroundColor: '#1A202C',
+              borderRadius: 36,
+              padding: '36px 50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              width: '100%',
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
+                Score change
+              </div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
+                {diffText} pts ({beforeScore}→{afterScore})
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SEG 2: BEFORE */}
+        <div className="seg seg-before" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
-              <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
-              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+              {brand_name_visible && (
+                <>
+                  <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
+                  <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+                </>
+              )}
             </div>
             <span style={{ fontSize: 33, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Scan 1</span>
           </div>
@@ -770,13 +1006,17 @@ export const BeforeAfterVideo = ({
           </div>
         </div>
 
-        {/* SEG 2: AFTER */}
-        <div className="seg seg-after" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
+        {/* SEG 3: AFTER */}
+        <div className="seg seg-after" style={{ opacity: getSegOpacity(2), pointerEvents: currentSeg === 2 ? 'auto' : 'none' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
-              <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
-              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+              {brand_name_visible && (
+                <>
+                  <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
+                  <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+                </>
+              )}
             </div>
             <span style={{ fontSize: 33, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Scan 2</span>
           </div>
@@ -820,11 +1060,11 @@ export const BeforeAfterVideo = ({
           </div>
         </div>
 
-        {/* SEG 3: COMPARE */}
-        <div className="seg seg-compare" style={{ opacity: getSegOpacity(2), pointerEvents: currentSeg === 2 ? 'auto' : 'none' }}>
+        {/* SEG 4: COMPARE */}
+        <div className="seg seg-compare" style={{ opacity: getSegOpacity(3), pointerEvents: currentSeg === 3 ? 'auto' : 'none' }}>
           {/* Header */}
           <div className="cmp-eyebrow">
-            <div className="cmp-eyebrow-text">Side by Side</div>
+            <div className="cmp-eyebrow-text">{eyebrowWeekText}</div>
           </div>
 
           {/* Cards Row */}
@@ -919,228 +1159,6 @@ export const BeforeAfterVideo = ({
                 <Img src={tiktokLogo} style={{ width: '90%', height: '90%', objectFit: 'contain' }} alt="TikTok" />
               </div>
               <span style={{ fontSize: 28, fontWeight: 700, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>@officialmagicmirror</span>
-            </div>
-          </div>
-        </div>
-
-        {/* SEG 4: STATEMENT */}
-        <div className="seg seg-statement" style={{
-          background: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          padding: '120px 60px 100px',
-          boxSizing: 'border-box',
-          opacity: getSegOpacity(3),
-          pointerEvents: currentSeg === 3 ? 'auto' : 'none',
-          position: 'absolute',
-          inset: 0,
-        }}>
-          <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');` }} />
-
-          {/* Brand Lockup */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 20,
-            marginBottom: 40,
-            opacity: line1Opacity,
-            transform: `translateY(${line1Y}px)`,
-          }}>
-            <div style={{
-              width: 54,
-              height: 54,
-              borderRadius: '50%',
-              backgroundColor: '#fff',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              overflow: 'hidden',
-              flexShrink: 0,
-            }}>
-              <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
-            </div>
-            <div style={{
-              fontSize: 44,
-              fontWeight: 800,
-              color: '#1A202C',
-              letterSpacing: '0.03em',
-              fontFamily: 'Montserrat, sans-serif',
-            }}>
-              MAGIC MIRROR
-            </div>
-          </div>
-
-          {/* Review Label */}
-          <div style={{
-            fontSize: 38,
-            fontWeight: 600,
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            color: '#888780',
-            textAlign: 'center',
-            marginBottom: 50,
-            fontFamily: 'Montserrat, sans-serif',
-            opacity: line1Opacity,
-            transform: `translateY(${line1Y}px)`,
-          }}>
-            Effectiveness tracking
-          </div>
-
-          {/* Product Unit */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 40,
-            margin: '60px 0',
-            width: '100%',
-            opacity: line2Opacity,
-            transform: `translateY(${line2Y}px)`,
-          }}>
-            <div style={{
-              width: 250,
-              height: 250,
-              borderRadius: 50,
-              backgroundColor: '#1A202C',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <div style={{
-                width: 180,
-                height: 180,
-                borderRadius: 36,
-                backgroundColor: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '10px',
-                boxSizing: 'border-box',
-              }}>
-                {product_image_url ? (
-                  <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Product" />
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
-                      {initials}
-                    </span>
-                    <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
-                      {logoText}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{
-                fontSize: 72,
-                fontWeight: 800,
-                color: '#1A202C',
-                lineHeight: 1.1,
-                fontFamily: 'Montserrat, sans-serif',
-              }}>
-                {product_name || 'Hand Lotion'}
-              </div>
-              <div style={{
-                fontSize: 44,
-                fontWeight: 600,
-                color: '#10AFCC',
-                marginTop: 10,
-                fontFamily: 'Montserrat, sans-serif',
-              }}>
-                by {brand_name || 'Niven Morgan'}
-              </div>
-            </div>
-          </div>
-
-          {/* Setup Rows */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 24,
-            marginTop: 40,
-            width: '100%',
-            opacity: panelOpacity,
-            transform: `translateY(${panelY}px)`,
-          }}>
-            {/* Tested For */}
-            <div style={{
-              backgroundColor: '#10AFCC',
-              borderRadius: 36,
-              padding: '36px 50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxSizing: 'border-box',
-              width: '100%',
-            }}>
-              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                Concern Tracked
-              </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
-                {concernsStr}
-              </div>
-            </div>
-
-            {/* Tracking Period */}
-            <div style={{
-              backgroundColor: '#1A202C',
-              borderRadius: 36,
-              padding: '36px 50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxSizing: 'border-box',
-              width: '100%',
-            }}>
-              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                Tracking period
-              </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
-                {trackingPeriodStr}
-              </div>
-            </div>
-
-            {/* Tracked By */}
-            <div style={{
-              backgroundColor: '#10AFCC',
-              borderRadius: 36,
-              padding: '36px 50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxSizing: 'border-box',
-              width: '100%',
-            }}>
-              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                Tracked by
-              </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
-                {testerName}
-              </div>
-            </div>
-
-            {/* Score Change */}
-            <div style={{
-              backgroundColor: '#1A202C',
-              borderRadius: 36,
-              padding: '36px 50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxSizing: 'border-box',
-              width: '100%',
-            }}>
-              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                Score change
-              </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
-                {diffText} pts ({beforeScore}→{afterScore})
-              </div>
             </div>
           </div>
         </div>
