@@ -206,6 +206,7 @@ const INTRO_PARTICLES = Array.from({ length: 16 }).map((_, i) => ({
 export const ProgressVideo = ({
   product_name = "Nivya",
   brand_name = "",
+  brand_name_visible = true,
   product_image_url = "",
   platform = "reels",
   style = "slider_wipe",
@@ -1089,21 +1090,23 @@ export const ProgressVideo = ({
                 EFFECTIVENESS TRACKING WITH MAGIC MIRROR
               </span>
 
-              <h1 style={{
-                fontSize: 48,
-                fontWeight: '600',
-                color: '#10AFCC',
-                letterSpacing: 2,
-                margin: '0 0 28px 0',
-                fontStyle: 'italic',
-                lineHeight: 1.05,
-                opacity: line2Opacity,
-                transform: `translateY(${line2Y}px)`
-              }}>
-                {product_name.toUpperCase()}
-              </h1>
+              {brand_name_visible && (
+                <h1 style={{
+                  fontSize: 48,
+                  fontWeight: '600',
+                  color: '#10AFCC',
+                  letterSpacing: 2,
+                  margin: '0 0 28px 0',
+                  fontStyle: 'italic',
+                  lineHeight: 1.05,
+                  opacity: line2Opacity,
+                  transform: `translateY(${line2Y}px)`
+                }}>
+                  {product_name.toUpperCase()}
+                </h1>
+              )}
 
-              {brand_name ? (
+              {brand_name_visible && brand_name ? (
                 <h2 style={{
                   fontSize: 48,
                   fontWeight: '800',
@@ -1120,34 +1123,36 @@ export const ProgressVideo = ({
             </div>
 
             {/* ── MIDDLE: Logo ── */}
-            <div style={{
-              zIndex: 1,
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              transform: `scale(${logoScale})`,
-            }}>
+            {brand_name_visible && (
               <div style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid rgba(0, 0, 0, 0.06)',
-                padding: '80px 55px 55px 55px',
-                borderRadius: 56,
-                boxShadow: '0 20px 50px rgba(16, 175, 204, 0.12)',
+                zIndex: 1,
+                flex: 1,
                 display: 'flex',
-                alignItems: 'center',
                 justifyContent: 'center',
-                width: 420,
-                height: 420,
-                boxSizing: 'border-box',
+                alignItems: 'center',
+                transform: `scale(${logoScale})`,
               }}>
-                {product_image_url ? (
-                  <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Brand Logo" />
-                ) : (
-                  <AppLogo size={320} />
-                )}
+                <div style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid rgba(0, 0, 0, 0.06)',
+                  padding: '80px 55px 55px 55px',
+                  borderRadius: 56,
+                  boxShadow: '0 20px 50px rgba(16, 175, 204, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 420,
+                  height: 420,
+                  boxSizing: 'border-box',
+                }}>
+                  {product_image_url ? (
+                    <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Brand Logo" />
+                  ) : (
+                    <AppLogo size={320} />
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* ── BOTTOM: Tracking Info Panel ── */}
             <div style={{

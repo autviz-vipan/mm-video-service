@@ -79,6 +79,8 @@ export const BeforeAfterVideo = ({
   product_name = "O2 Peptide Firm Perfect Cream",
   brand_name = "Element Eight",
   brand_name_visible = true,
+  category_name = "",
+  product_category = "",
   creator_name = "",
   concerns = ["Redness"],
   product_image_url = "",
@@ -116,19 +118,88 @@ export const BeforeAfterVideo = ({
   const improvementLabel = diff >= 0 ? 'improvement' : 'decline';
 
   const { fps } = useVideoConfig();
-  const compareFrame = frame - 327;
+
+  // ── MASK URL RESOLVER ──
+  // before_mask_url / after_mask_url can be a plain string (single concern)
+  // or an object keyed by concern name: { redness: 'url', acne: 'url' }
+  const getMaskUrl = (maskProp, concernKey) => {
+    if (!maskProp) return null;
+    if (typeof maskProp === 'string') return maskProp;
+    if (typeof maskProp === 'object') {
+      return maskProp[concernKey] ?? maskProp[concernKey.toLowerCase()] ?? null;
+    }
+    return null;
+  };
+
+  // ── MULTI-CONCERN SUPPORT ──
+  const allConcerns = concerns && concerns.length > 0 ? concerns : ['redness'];
+  const isMultiConcern = concerns && concerns.length >= 2;
+  const getConcernName = (c) => c.charAt(0).toUpperCase() + c.slice(1);
+  const getScore = (metrics, key) => {
+    if (!metrics) return 0;
+    const lk = key.toLowerCase();
+    return metrics[key] ?? metrics[lk] ?? Object.entries(metrics).find(([k]) => k.toLowerCase() === lk)?.[1] ?? 0;
+  };
+  const concernData = allConcerns.map(c => ({
+    key: c,
+    name: getConcernName(c),
+    before: getScore(before_metrics, c),
+    after: getScore(after_metrics, c),
+    diff: getScore(after_metrics, c) - getScore(before_metrics, c),
+  }));
+
+  // Activate per-concern mask flow only when mask is ON and >1 concern
+  const isMultiConcernMask = mask_enabled === 'on' && allConcerns.length > 1;
+
+  // ── DYNAMIC SEGMENT DURATIONS ──
+  // Normal:             [Statement, Before, After, Compare, EndCard]
+  // Multi-concern mask: [Statement, (Before+After+Compare)*N, EndCard]
+  const DURATIONS = isMultiConcernMask
+    ? [135, ...allConcerns.flatMap(() => [96, 96, 120]), 108]
+    : [135, 96, 96, 120, 108];
+
+  const SEG_START_FRAMES = DURATIONS.reduce((acc, dur, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1] + DURATIONS[i - 1]);
+    return acc;
+  }, []);
+
+  // ── CURRENT SEGMENT DETECTION (loop-based, works for any number of segs) ──
+  let currentSeg = DURATIONS.length - 1;
+  let segProgress = 1;
+  for (let i = 0; i < DURATIONS.length; i++) {
+    const segEnd = SEG_START_FRAMES[i] + DURATIONS[i];
+    if (frame < segEnd) {
+      currentSeg = i;
+      segProgress = Math.min(1, (frame - SEG_START_FRAMES[i]) / DURATIONS[i]);
+      break;
+    }
+  }
+
+  // ── SEGMENT OPACITY (cross-fade) ──
+  const getSegOpacity = (idx) => {
+    if (idx < 0 || idx >= DURATIONS.length) return 0;
+    const start = SEG_START_FRAMES[idx];
+    const duration = DURATIONS[idx];
+    const end = start + duration;
+    if (frame < start) return 0;
+    if (frame < start + 12) return (frame - start) / 12;
+    if (frame < end) return 1;
+    if (frame < end + 12) return 1 - (frame - end) / 12;
+    return 0;
+  };
+
+  const DARK_SEGS = [];
+
+  // ── NORMAL COMPARE ANIMATIONS (seg index 3 in non-mask flow) ──
+  const normalCompareSegStart = isMultiConcernMask ? 0 : SEG_START_FRAMES[3];
+  const compareFrame = frame - normalCompareSegStart;
   const chipScale = spring({
     frame: compareFrame - 5,
     fps,
     from: 0,
     to: 1.5,
-    config: {
-      damping: 12,
-      mass: 0.8,
-      stiffness: 100,
-    },
+    config: { damping: 12, mass: 0.8, stiffness: 100 },
   });
-
   const currentDiffVal = Math.round(interpolate(
     compareFrame,
     [15, 65],
@@ -136,60 +207,14 @@ export const BeforeAfterVideo = ({
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   ));
   const currentDiffSign = currentDiffVal > 0 ? '+' : '';
-  const dynamicDiffText = `${currentDiffSign}${currentDiffVal}`;
 
-  // Durations in frames: [4.5s, 3.2s, 3.2s, 4s, 3.6s] at 30 fps
-  const DURATIONS = [135, 96, 96, 120, 108];
-  const SEG_START_FRAMES = [0, 135, 231, 327, 447];
-
-  // Determine current active segment & progress inside it
-  let currentSeg = 0;
-  let segProgress = 0;
-  if (frame < 135) {
-    currentSeg = 0;
-    segProgress = frame / 135;
-  } else if (frame < 231) {
-    currentSeg = 1;
-    segProgress = (frame - 135) / 96;
-  } else if (frame < 327) {
-    currentSeg = 2;
-    segProgress = (frame - 231) / 96;
-  } else if (frame < 447) {
-    currentSeg = 3;
-    segProgress = (frame - 327) / 120;
-  } else {
-    currentSeg = 4;
-    segProgress = Math.min(1, (frame - 447) / 108);
-  }
-
-  // Calculate segment opacity for cross-fade simulation matching the CSS 0.4s ease transition
-  const getSegOpacity = (idx) => {
-    const start = SEG_START_FRAMES[idx];
-    const duration = DURATIONS[idx];
-    const end = start + duration;
-
-    if (frame < start) {
-      return 0;
-    }
-    if (frame >= start && frame < start + 12) {
-      return (frame - start) / 12;
-    }
-    if (frame >= start + 12 && frame < end) {
-      return 1;
-    }
-    if (frame >= end && frame < end + 12) {
-      return 1 - (frame - end) / 12;
-    }
-    return 0;
-  };
-
-  const DARK_SEGS = [];
-
+  // Effective category label: API sends product_category, older JSON sends category_name
+  const effectiveCategory = product_category || category_name;
   const cleanBeforeDate = before_date.includes(',') ? before_date.split(',')[0].trim() : before_date;
   const cleanAfterDate = after_date.includes(',') ? after_date.split(',')[0].trim() : after_date;
   const cleanCreator = creator_name ? (creator_name.startsWith('@') ? creator_name : `@${creator_name}`) : '@MagicMirror';
 
-  // Statement Segment animations and formatting
+  // Statement Segment animations
   const seg3Frame = frame - 0;
   const line1Opacity = interpolate(seg3Frame, [10, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const line1Y = interpolate(seg3Frame, [10, 30], [30, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
@@ -223,6 +248,46 @@ export const BeforeAfterVideo = ({
   const concernsStr = concerns && concerns.length > 0
     ? concerns.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')
     : 'Redness';
+
+  // ── HEADER LABEL helper (respects brand_name_visible / category_name) ──
+  const renderHeaderLabel = () => {
+    if (brand_name_visible) {
+      return (
+        <>
+          <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
+          {brand_name && (
+            <>
+              <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
+              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
+            </>
+          )}
+        </>
+      );
+    }
+    return effectiveCategory
+      ? <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{effectiveCategory}</span>
+      : null;
+  };
+
+  // ── LOGO STRIP (reused in every compare screen) ──
+  const LogoStrip = () => (
+    <div className="cmp-logo-strip" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="cmp-logo-circle">
+        <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1.0 }}>
+        <span className="cmp-logo-magic" style={{ fontSize: 28, lineHeight: 1.0, fontWeight: 800, color: '#0c151d', fontFamily: 'Montserrat, sans-serif' }}>MAGIC</span>
+        <span className="cmp-logo-mirror" style={{ fontSize: 28, lineHeight: 1.0, fontWeight: 800, color: '#10AFCC', fontFamily: 'Montserrat, sans-serif' }}>MIRROR</span>
+      </div>
+      <div style={{ width: 2, height: 60, backgroundColor: 'rgba(0,0,0,0.12)', marginLeft: 10, marginRight: 10, flexShrink: 0 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: '#fff', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
+          <Img src={tiktokLogo} style={{ width: '90%', height: '90%', objectFit: 'contain' }} alt="TikTok" />
+        </div>
+        <span style={{ fontSize: 28, fontWeight: 700, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>@officialmagicmirror</span>
+      </div>
+    </div>
+  );
 
   return (
     <AbsoluteFill style={{
@@ -439,13 +504,6 @@ export const BeforeAfterVideo = ({
             padding: 115px 45px 38px;
             flex-shrink: 0;
           }
-          .cmp-eyebrow-text {
-            font-size: 40px;
-            font-weight: 800;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: #718096;
-          }
           .cmp-cards-row {
             display: flex;
             gap: 28px;
@@ -526,9 +584,9 @@ export const BeforeAfterVideo = ({
             margin-bottom: 28px;
           }
           .cmp-summary-label {
-            font-size: 30px;
-            font-weight: 700;
-            letter-spacing: 0.22em;
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
             color: #A0AEC0;
           }
@@ -536,10 +594,10 @@ export const BeforeAfterVideo = ({
             display: inline-flex;
             align-items: center;
             background: #fff;
-            border: 4px solid #1D9E75;
+            border: 3px solid #1D9E75;
             border-radius: 80px;
-            padding: 14px 44px;
-            font-size: 33px;
+            padding: 10px 28px;
+            font-size: 26px;
             font-weight: 700;
             color: #0F6E56;
             letter-spacing: 0.04em;
@@ -550,7 +608,7 @@ export const BeforeAfterVideo = ({
             gap: 33px;
           }
           .cmp-summary-score {
-            font-size: 110px;
+            font-size: 90px;
             font-weight: 900;
             letter-spacing: -4px;
             line-height: 1.0;
@@ -791,61 +849,61 @@ export const BeforeAfterVideo = ({
             Effectiveness tracking
           </div>
 
-          {/* Product Unit */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 40,
-            margin: '60px 0',
-            width: '100%',
-            opacity: line2Opacity,
-            transform: `translateY(${line2Y}px)`,
-          }}>
+          {/* Product Unit — shown when brand_name_visible=true */}
+          {brand_name_visible ? (
             <div style={{
-              width: 250,
-              height: 250,
-              borderRadius: 36,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0,
-              overflow: 'hidden',
+              gap: 40,
+              margin: '60px 0',
+              width: '100%',
+              opacity: line2Opacity,
+              transform: `translateY(${line2Y}px)`,
             }}>
-              {product_image_url ? (
-                <Img src={product_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 36 }} alt="Product" />
-              ) : (
-                <div style={{
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: '#fff',
-                  border: '4px solid #1A202C',
-                  borderRadius: 36,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
-                    {initials}
-                  </span>
-                  <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
-                    {logoText}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div style={{ textAlign: 'left' }}>
               <div style={{
-                fontSize: 72,
-                fontWeight: 800,
-                color: '#1A202C',
-                lineHeight: 1.1,
-                fontFamily: 'Montserrat, sans-serif',
+                width: 250,
+                height: 250,
+                borderRadius: 36,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                overflow: 'hidden',
               }}>
-                {product_name || 'Hand Lotion'}
+                {product_image_url ? (
+                  <Img src={product_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 36 }} alt="Product" />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: '#fff',
+                    border: '4px solid #1A202C',
+                    borderRadius: 36,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
+                      {initials}
+                    </span>
+                    <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
+                      {logoText}
+                    </span>
+                  </div>
+                )}
               </div>
-              {brand_name_visible && (
+              <div style={{ textAlign: 'left' }}>
+                <div style={{
+                  fontSize: 72,
+                  fontWeight: 800,
+                  color: '#1A202C',
+                  lineHeight: 1.1,
+                  fontFamily: 'Montserrat, sans-serif',
+                }}>
+                  {product_name || 'Hand Lotion'}
+                </div>
                 <div style={{
                   fontSize: 44,
                   fontWeight: 600,
@@ -855,16 +913,46 @@ export const BeforeAfterVideo = ({
                 }}>
                   by {brand_name || 'Niven Morgan'}
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          ) : effectiveCategory ? (
+            /* Category pill badge — shown centered when product details are hidden */
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '50px 0 30px',
+              width: '100%',
+              opacity: line2Opacity,
+              transform: `translateY(${line2Y}px)`,
+            }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#10AFCC',
+                color: '#fff',
+                fontSize: 54,
+                fontWeight: 700,
+                fontFamily: 'Montserrat, sans-serif',
+                letterSpacing: '0.04em',
+                padding: '22px 60px',
+                borderRadius: 60,
+              }}>
+                {effectiveCategory}
+              </div>
+            </div>
+          ) : (
+            /* No product info and no category — small spacer */
+            <div style={{ height: 40 }} />
+          )}
 
           {/* Setup Rows */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: 24,
-            marginTop: 40,
+            marginTop: brand_name_visible ? 40 : 10,
             width: '100%',
             opacity: panelOpacity,
             transform: `translateY(${panelY}px)`,
@@ -931,40 +1019,44 @@ export const BeforeAfterVideo = ({
               </div>
             </div>
 
-            {/* Score Change */}
-            <div style={{
-              backgroundColor: '#1A202C',
-              borderRadius: 36,
-              padding: '36px 50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxSizing: 'border-box',
-              width: '100%',
-            }}>
-              <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'Montserrat, sans-serif' }}>
-                Score change
-              </div>
-              <div style={{ fontSize: 44, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
-                {diffText} pts ({beforeScore}→{afterScore})
-              </div>
-            </div>
+            {/* Score Change — per concern */}
+            {concernData.map((cd, i) => {
+              const ds = cd.diff > 0 ? '+' : '';
+              return (
+                <div key={cd.key} style={{
+                  backgroundColor: i % 2 === 0 ? '#1A202C' : '#10AFCC',
+                  borderRadius: 36,
+                  padding: '28px 50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxSizing: 'border-box',
+                  width: '100%',
+                }}>
+                  <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', fontFamily: 'Montserrat, sans-serif' }}>
+                    {cd.name} Change
+                  </div>
+                  <div style={{ fontSize: 38, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
+                    {ds}{cd.diff} pts ({cd.before}→{cd.after})
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
+        {/* ══════════════════════════════════════════════════════════════
+             NORMAL FLOW (single concern OR mask OFF)
+             SEG 2: BEFORE  |  SEG 3: AFTER  |  SEG 4: COMPARE
+        ══════════════════════════════════════════════════════════════ */}
+        {!isMultiConcernMask && (
+          <>
         {/* SEG 2: BEFORE */}
         <div className="seg seg-before" style={{ opacity: getSegOpacity(1), pointerEvents: currentSeg === 1 ? 'auto' : 'none' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
-              {brand_name_visible && (
-                <>
-                  <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
-                  <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
-                </>
-              )}
+              {renderHeaderLabel()}
             </div>
-            <span style={{ fontSize: 33, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Scan 1</span>
           </div>
 
           <div className="custom-card before-theme">
@@ -975,50 +1067,62 @@ export const BeforeAfterVideo = ({
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '980px', width: '900px', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
               )}
-              {mask_enabled === 'on' && before_mask_url && (
-                <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
+              {mask_enabled === 'on' && getMaskUrl(before_mask_url, highlightMetric) && (
+                <Img src={getMaskUrl(before_mask_url, highlightMetric)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
               )}
             </div>
           </div>
 
-          <div className="custom-stat-row before-theme">
-            <div>
-              <div className="custom-stat-label">{concernName} Score</div>
-              <div className="custom-stat-value">{beforeScore}<span>/100</span></div>
-            </div>
-
-            <div className="custom-divider before-theme" />
-
-            <div className="custom-date-block">
-              <div className="custom-date-icon before-theme">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
+          {isMultiConcern ? (
+            <div style={{ display: 'flex', gap: 20, marginTop: 50, width: '100%' }}>
+              {concernData.map((cd, i) => (
+                <div key={cd.key} style={{
+                  flex: 1,
+                  backgroundColor: '#D6CFC8',
+                  border: '3px solid #B4ADA6',
+                  borderRadius: 44,
+                  padding: '36px 40px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  boxSizing: 'border-box',
+                }}>
+                  <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '0.1em', color: '#718096', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>{cd.name}</div>
+                  <div style={{ fontSize: 80, fontWeight: 800, color: '#0c151d', lineHeight: 1.0, fontFamily: 'Montserrat, sans-serif' }}>{cd.before}<span style={{ fontSize: 38, fontWeight: 600, color: '#718096' }}>/100</span></div>
+                </div>
+              ))}
+              <div style={{
+                backgroundColor: '#D6CFC8',
+                border: '3px solid #B4ADA6',
+                borderRadius: 44,
+                padding: '36px 40px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                gap: 8,
+                boxSizing: 'border-box',
+                minWidth: 200,
+              }}>
+                <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '0.1em', color: '#718096', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Date</div>
+                <div style={{ fontSize: 42, fontWeight: 700, color: '#0c151d', fontFamily: 'Montserrat, sans-serif' }}>{cleanBeforeDate}</div>
               </div>
-              <div>
-                <div className="custom-stat-label">Date</div>
-                <div className="custom-date-value">{cleanBeforeDate}</div>
+            </div>
+          ) : (
+            <div className="custom-stat-row before-theme" style={{ justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div className="custom-stat-label">{concernName} Score</div>
+                <div className="custom-stat-value">{beforeScore}<span>/100</span></div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* SEG 3: AFTER */}
         <div className="seg seg-after" style={{ opacity: getSegOpacity(2), pointerEvents: currentSeg === 2 ? 'auto' : 'none' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{product_name}</span>
-              {brand_name_visible && (
-                <>
-                  <span style={{ fontSize: 34, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.08em', lineHeight: 1.1 }}>By</span>
-                  <span style={{ fontSize: 42, fontWeight: 800, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.02em', lineHeight: 1.1 }}>{brand_name}</span>
-                </>
-              )}
+              {renderHeaderLabel()}
             </div>
-            <span style={{ fontSize: 33, fontWeight: 700, color: '#718096', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Scan 2</span>
           </div>
 
           <div className="custom-card after-theme">
@@ -1029,43 +1133,59 @@ export const BeforeAfterVideo = ({
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '980px', width: '900px', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
               )}
-              {mask_enabled === 'on' && after_mask_url && (
-                <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
+              {mask_enabled === 'on' && getMaskUrl(after_mask_url, highlightMetric) && (
+                <Img src={getMaskUrl(after_mask_url, highlightMetric)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
               )}
             </div>
           </div>
 
-          <div className="custom-stat-row after-theme">
-            <div>
-              <div className="custom-stat-label">{concernName} Score</div>
-              <div className="custom-stat-value">{afterScore}<span>/100</span></div>
-            </div>
-
-            <div className="custom-divider after-theme" />
-
-            <div className="custom-date-block">
-              <div className="custom-date-icon after-theme">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
+          {isMultiConcern ? (
+            <div style={{ display: 'flex', gap: 20, marginTop: 50, width: '100%' }}>
+              {concernData.map((cd, i) => (
+                <div key={cd.key} style={{
+                  flex: 1,
+                  backgroundColor: '#C8DDD6',
+                  border: '3px solid #1D9E75',
+                  borderRadius: 44,
+                  padding: '36px 40px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  boxSizing: 'border-box',
+                }}>
+                  <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '0.1em', color: '#718096', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>{cd.name}</div>
+                  <div style={{ fontSize: 80, fontWeight: 800, color: '#1D9E75', lineHeight: 1.0, fontFamily: 'Montserrat, sans-serif' }}>{cd.after}<span style={{ fontSize: 38, fontWeight: 600, color: '#718096' }}>/100</span></div>
+                </div>
+              ))}
+              <div style={{
+                backgroundColor: '#C8DDD6',
+                border: '3px solid #1D9E75',
+                borderRadius: 44,
+                padding: '36px 40px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                gap: 8,
+                boxSizing: 'border-box',
+                minWidth: 200,
+              }}>
+                <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '0.1em', color: '#718096', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Date</div>
+                <div style={{ fontSize: 42, fontWeight: 700, color: '#0c151d', fontFamily: 'Montserrat, sans-serif' }}>{cleanAfterDate}</div>
               </div>
-              <div>
-                <div className="custom-stat-label">Date</div>
-                <div className="custom-date-value">{cleanAfterDate}</div>
+            </div>
+          ) : (
+            <div className="custom-stat-row after-theme" style={{ justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div className="custom-stat-label">{concernName} Score</div>
+                <div className="custom-stat-value" style={{ color: '#1D9E75' }}>{afterScore}<span>/100</span></div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* SEG 4: COMPARE */}
-        <div className="seg seg-compare" style={{ opacity: getSegOpacity(3), pointerEvents: currentSeg === 3 ? 'auto' : 'none' }}>
+        <div className="seg seg-compare" style={{ opacity: getSegOpacity(3), pointerEvents: currentSeg === 3 ? 'auto' : 'none', paddingTop: 115 }}>
           {/* Header */}
-          <div className="cmp-eyebrow">
-            <div className="cmp-eyebrow-text">{eyebrowWeekText}</div>
-          </div>
 
           {/* Cards Row */}
           <div className="cmp-cards-row">
@@ -1077,13 +1197,13 @@ export const BeforeAfterVideo = ({
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
                 )}
-                {mask_enabled === 'on' && before_mask_url && (
-                  <Img src={before_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
+                {mask_enabled === 'on' && getMaskUrl(before_mask_url, highlightMetric) && (
+                  <Img src={getMaskUrl(before_mask_url, highlightMetric)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
                 <div className="cmp-photo-label">BEFORE</div>
               </div>
               <div className="cmp-score-row">
-                <div className="cmp-score-num before">{beforeScore}</div>
+                {!isMultiConcern && <div className="cmp-score-num before">{beforeScore}</div>}
                 <div className="cmp-score-date">{before_date}</div>
               </div>
             </div>
@@ -1096,77 +1216,355 @@ export const BeforeAfterVideo = ({
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
                 )}
-                {mask_enabled === 'on' && after_mask_url && (
-                  <Img src={after_mask_url} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
+                {mask_enabled === 'on' && getMaskUrl(after_mask_url, highlightMetric) && (
+                  <Img src={getMaskUrl(after_mask_url, highlightMetric)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
                 <div className="cmp-photo-label">AFTER</div>
               </div>
               <div className="cmp-score-row">
-                <div className="cmp-score-num after">{afterScore}</div>
+                {!isMultiConcern && <div className="cmp-score-num after">{afterScore}</div>}
                 <div className="cmp-score-date">{after_date}</div>
               </div>
             </div>
           </div>
 
-          {/* Summary Card */}
-          <div className="cmp-summary" style={{ backgroundColor: summaryBgColor, borderColor: summaryBgColor }}>
-            <div className="cmp-summary-top">
-              <div className="cmp-summary-label" style={{ color: '#718096' }}>{concernName}</div>
-              <div className="cmp-chip" style={{
-                ...(beforeScore > afterScore
-                  ? { backgroundColor: '#fff', color: '#718096', borderColor: '#718096' }
-                  : { backgroundColor: '#fff', color: '#0F6E56', borderColor: '#1D9E75' }),
-                transform: `scale(${chipScale})`,
-                transformOrigin: 'right center',
-              }}>{dynamicDiffText}</div>
-            </div>
-            <div className="cmp-summary-scores">
-              <span className="cmp-summary-score b" style={{ color: '#0c151d' }}>{beforeScore}</span>
-              <span className="cmp-summary-arrow" style={{ color: '#718096' }}>→</span>
-              <span className="cmp-summary-score a" style={{ color: '#1D9E75' }}>{afterScore}</span>
-            </div>
-          </div>
-
-          {/* Logo Strip */}
-          <div className="cmp-logo-strip" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div className="cmp-logo-circle">
-              <Img src={mmLogo} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.6)' }} alt="Magic Mirror Logo" />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1.0 }}>
-              <span className="cmp-logo-magic" style={{ fontSize: 28, lineHeight: 1.0, fontWeight: 800, color: '#0c151d', fontFamily: 'Montserrat, sans-serif' }}>
-                MAGIC
-              </span>
-              <span className="cmp-logo-mirror" style={{ fontSize: 28, lineHeight: 1.0, fontWeight: 800, color: '#10AFCC', fontFamily: 'Montserrat, sans-serif' }}>
-                MIRROR
-              </span>
-            </div>
-            {/* 10px gap divider */}
-            <div style={{ width: 2, height: 60, backgroundColor: 'rgba(0,0,0,0.12)', marginLeft: 10, marginRight: 10, flexShrink: 0 }} />
-            {/* TikTok block */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-              <div style={{
-                width: 80,
-                height: 80,
-                borderRadius: '50%',
-                backgroundColor: '#fff',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                overflow: 'hidden',
-                flexShrink: 0,
-              }}>
-                <Img src={tiktokLogo} style={{ width: '90%', height: '90%', objectFit: 'contain' }} alt="TikTok" />
+          {/* Summary Card — single or multi concern */}
+          {isMultiConcern ? (
+            <div style={{ margin: '20px 45px 0', borderRadius: 44, overflow: 'hidden', flexShrink: 0 }}>
+              {/* Week banner */}
+              <div style={{ backgroundColor: '#0c151d', padding: '22px 50px', display: 'flex', alignItems: 'center', gap: 18 }}>
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span style={{ fontSize: 34, fontWeight: 900, color: '#fff', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{eyebrowWeekText}</span>
               </div>
-              <span style={{ fontSize: 28, fontWeight: 700, color: '#1A202C', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>@officialmagicmirror</span>
+              {/* Per-concern rows */}
+              {concernData.map((cd, i) => {
+                const isPos = cd.diff >= 0;
+                const chipColor = isPos ? '#1D9E75' : '#718096';
+                const bgColor = i % 2 === 0 ? '#C8DDD6' : '#D6CFC8';
+                const borderColor = i % 2 === 0 ? '#1D9E75' : '#B4ADA6';
+                const animDiff = Math.round(interpolate(compareFrame, [15, 65], [0, cd.diff], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }));
+                return (
+                  <div key={cd.key} style={{ backgroundColor: bgColor, border: `3px solid ${borderColor}`, padding: '32px 50px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: 30, fontWeight: 900, color: '#718096', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', marginBottom: 8 }}>{cd.name}</div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 24 }}>
+                        <span style={{ fontSize: 86, fontWeight: 900, color: '#0c151d', lineHeight: 1, fontFamily: 'Montserrat, sans-serif' }}>{cd.before}</span>
+                        <span style={{ fontSize: 50, color: '#718096' }}>→</span>
+                        <span style={{ fontSize: 86, fontWeight: 900, color: '#1D9E75', lineHeight: 1, fontFamily: 'Montserrat, sans-serif' }}>{cd.after}</span>
+                      </div>
+                    </div>
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center',
+                      backgroundColor: '#fff', border: `3px solid ${chipColor}`,
+                      borderRadius: 80, padding: '10px 28px',
+                      fontSize: 30, fontWeight: 700, color: chipColor,
+                      transform: `scale(${chipScale})`, transformOrigin: 'right center',
+                    }}>
+                      {animDiff > 0 && <span style={{ fontSize: '0.7em', marginRight: 4 }}>+</span>}
+                      {animDiff < 0 && <span style={{ fontSize: '0.7em', marginRight: 4 }}>-</span>}
+                      {Math.abs(animDiff)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
-        </div>
+          ) : (
+            <div className="cmp-summary" style={{ backgroundColor: summaryBgColor, border: 'none', padding: '44px 60px 50px' }}>
+              {/* Two-column layout: left = metric info, right = calendar + duration */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
-        {/* SEG 5: END CARD */}
+                {/* LEFT: concern name, scores, change pill */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                  {/* Concern name */}
+                  <div style={{
+                    fontSize: 34,
+                    fontWeight: 900,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: '#A0AEC0',
+                    fontFamily: 'Montserrat, sans-serif',
+                  }}>{concernName}</div>
+
+                  {/* Scores: before → after */}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 20 }}>
+                    <span style={{
+                      fontSize: 90,
+                      fontWeight: 900,
+                      letterSpacing: '-4px',
+                      lineHeight: 1.0,
+                      color: '#0c151d',
+                      fontFamily: 'Montserrat, sans-serif',
+                    }}>{beforeScore}</span>
+                    <span style={{
+                      fontSize: 50,
+                      color: '#CBD5E0',
+                      fontWeight: 500,
+                    }}>→</span>
+                    <span style={{
+                      fontSize: 90,
+                      fontWeight: 900,
+                      letterSpacing: '-4px',
+                      lineHeight: 1.0,
+                      color: '#1D9E75',
+                      fontFamily: 'Montserrat, sans-serif',
+                    }}>{afterScore}</span>
+                  </div>
+
+                  {/* Change pill */}
+                  <div className="cmp-chip" style={{
+                    ...(beforeScore > afterScore
+                      ? { backgroundColor: '#fff', color: '#718096', borderColor: '#718096' }
+                      : { backgroundColor: '#fff', color: '#0F6E56', borderColor: '#1D9E75' }),
+                    transform: `scale(${chipScale})`,
+                    transformOrigin: 'left center',
+                    alignSelf: 'flex-start',
+                    fontSize: 22,
+                    padding: '8px 24px',
+                  }}>
+                    {currentDiffVal > 0 && <span style={{ fontSize: '0.8em', marginRight: 4 }}>+</span>}
+                    {currentDiffVal < 0 && <span style={{ fontSize: '0.8em', marginRight: 4 }}>-</span>}
+                    {Math.abs(currentDiffVal)}
+                  </div>
+                </div>
+
+                {/* RIGHT: calendar icon + "After X weeks" */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 20,
+                  paddingLeft: 40,
+                }}>
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <div style={{
+                    fontSize: 38,
+                    fontWeight: 800,
+                    color: '#1A202C',
+                    textAlign: 'center',
+                    lineHeight: 1.2,
+                    fontFamily: 'Montserrat, sans-serif',
+                  }}>
+                    After {weeksNum} {weeksNum !== 1 ? 'weeks' : 'week'}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          <LogoStrip />
+        </div>
+        </> /* end !isMultiConcernMask */
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+             MULTI-CONCERN MASK FLOW
+             Repeating: Before → After → Compare per concern
+        ══════════════════════════════════════════════════════════════ */}
+        {isMultiConcernMask && allConcerns.map((concern, cIdx) => {
+          const beforeSegIdx = 1 + cIdx * 3;
+          const afterSegIdx  = 2 + cIdx * 3;
+          const cmpSegIdx    = 3 + cIdx * 3;
+          const cd = concernData[cIdx];
+          const cName = cd.name;
+          const cBefore = cd.before;
+          const cAfter  = cd.after;
+          const cDiff   = cd.diff;
+          const cSummaryBg = cBefore > cAfter ? '#D6CFC8' : '#C8DDD6';
+
+          // Per-concern mask URLs
+          const cBeforeMask = getMaskUrl(before_mask_url, concern);
+          const cAfterMask  = getMaskUrl(after_mask_url, concern);
+
+          // Per-concern compare animations (relative to this concern's compare segment start)
+          const cCmpStart = SEG_START_FRAMES[cmpSegIdx] || 0;
+          const cCmpFrame = frame - cCmpStart;
+          const cChipScale = spring({
+            frame: cCmpFrame - 5,
+            fps,
+            from: 0,
+            to: 1.5,
+            config: { damping: 12, mass: 0.8, stiffness: 100 },
+          });
+          const cAnimDiff = Math.round(interpolate(
+            cCmpFrame,
+            [15, 65],
+            [0, cDiff],
+            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+          ));
+
+          return (
+            <React.Fragment key={concern}>
+
+              {/* ── PER-CONCERN BEFORE ── */}
+              <div className="seg seg-before" style={{ opacity: getSegOpacity(beforeSegIdx), pointerEvents: currentSeg === beforeSegIdx ? 'auto' : 'none' }}>
+                {/* Header: concern name badge */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
+                    {renderHeaderLabel()}
+                  </div>
+                  {/* Concern badge */}
+                  <div style={{ backgroundColor: '#0c151d', color: '#fff', fontSize: 30, fontWeight: 700, letterSpacing: '0.08em', padding: '12px 32px', borderRadius: 50, fontFamily: 'Montserrat, sans-serif', textTransform: 'uppercase' }}>
+                    {cName}
+                  </div>
+                </div>
+
+                <div className="custom-card before-theme">
+                  <div className="custom-photo-frame" style={{ borderRadius: '44px', overflow: 'hidden', position: 'relative', width: '100%' }}>
+                    <div className="custom-tag">BEFORE</div>
+                    {before_image_url ? (
+                      <Img src={before_image_url} style={{ width: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '980px', width: '900px', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+                    )}
+                    {cBeforeMask && (
+                      <Img src={cBeforeMask} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
+                    )}
+                  </div>
+                </div>
+
+                <div className="custom-stat-row before-theme" style={{ justifyContent: 'center' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div className="custom-stat-label">{cName} Score</div>
+                    <div className="custom-stat-value">{cBefore}<span>/100</span></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── PER-CONCERN AFTER ── */}
+              <div className="seg seg-after" style={{ opacity: getSegOpacity(afterSegIdx), pointerEvents: currentSeg === afterSegIdx ? 'auto' : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 38, flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
+                    {renderHeaderLabel()}
+                  </div>
+                  <div style={{ backgroundColor: '#1D9E75', color: '#fff', fontSize: 30, fontWeight: 700, letterSpacing: '0.08em', padding: '12px 32px', borderRadius: 50, fontFamily: 'Montserrat, sans-serif', textTransform: 'uppercase' }}>
+                    {cName}
+                  </div>
+                </div>
+
+                <div className="custom-card after-theme">
+                  <div className="custom-photo-frame" style={{ borderRadius: '44px', overflow: 'hidden', position: 'relative', width: '100%' }}>
+                    <div className="custom-tag">AFTER</div>
+                    {after_image_url ? (
+                      <Img src={after_image_url} style={{ width: '100%', height: 'auto', maxHeight: '980px', display: 'block', borderRadius: '44px', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '980px', width: '900px', fontSize: 220, color: 'rgba(0,0,0,0.04)' }}>&#9786;</div>
+                    )}
+                    {cAfterMask && (
+                      <Img src={cAfterMask} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', borderRadius: '44px' }} />
+                    )}
+                  </div>
+                </div>
+
+                <div className="custom-stat-row after-theme" style={{ justifyContent: 'center' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div className="custom-stat-label">{cName} Score</div>
+                    <div className="custom-stat-value" style={{ color: '#1D9E75' }}>{cAfter}<span>/100</span></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── PER-CONCERN COMPARE ── */}
+              <div className="seg seg-compare" style={{ opacity: getSegOpacity(cmpSegIdx), pointerEvents: currentSeg === cmpSegIdx ? 'auto' : 'none', paddingTop: 115 }}>
+                <div className="cmp-cards-row">
+                  {/* Before Card */}
+                  <div className="cmp-photo-card">
+                    <div className="cmp-photo-zone" style={{ background: '#D6CFC8' }}>
+                      {before_image_url ? (
+                        <Img src={before_image_url} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
+                      )}
+                      {cBeforeMask && (
+                        <Img src={cBeforeMask} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
+                      )}
+                      <div className="cmp-photo-label">BEFORE</div>
+                    </div>
+                    <div className="cmp-score-row">
+                      <div className="cmp-score-num before">{cBefore}</div>
+                      <div className="cmp-score-date">{before_date}</div>
+                    </div>
+                  </div>
+
+                  {/* After Card */}
+                  <div className="cmp-photo-card after-card">
+                    <div className="cmp-photo-zone" style={{ background: '#C8DDD6' }}>
+                      {after_image_url ? (
+                        <Img src={after_image_url} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 140, color: 'rgba(0,0,0,0.06)' }}>&#9786;</div>
+                      )}
+                      {cAfterMask && (
+                        <Img src={cAfterMask} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }} />
+                      )}
+                      <div className="cmp-photo-label">AFTER</div>
+                    </div>
+                    <div className="cmp-score-row">
+                      <div className="cmp-score-num after">{cAfter}</div>
+                      <div className="cmp-score-date">{after_date}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Per-concern summary card */}
+                <div className="cmp-summary" style={{ backgroundColor: cSummaryBg, borderColor: cSummaryBg }}>
+                  <div className="cmp-summary-top">
+                    <div className="cmp-summary-label" style={{ color: '#718096' }}>{cName}</div>
+                  </div>
+                  <div className="cmp-summary-scores">
+                    <span className="cmp-summary-score b" style={{ color: '#0c151d' }}>{cBefore}</span>
+                    <span className="cmp-summary-arrow" style={{ color: '#718096' }}>→</span>
+                    <span className="cmp-summary-score a" style={{ color: '#1D9E75' }}>{cAfter}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 30 }}>
+                      <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      <span style={{ fontSize: 36, fontWeight: 900, color: '#1A202C', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{eyebrowWeekText}</span>
+                    </div>
+                  </div>
+                  {/* Change chip below scores */}
+                  <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
+                    <div className="cmp-chip" style={{
+                      ...(cBefore > cAfter
+                        ? { backgroundColor: '#fff', color: '#718096', borderColor: '#718096' }
+                        : { backgroundColor: '#fff', color: '#0F6E56', borderColor: '#1D9E75' }),
+                      transform: `scale(${cChipScale})`,
+                      transformOrigin: 'center',
+                      fontSize: 34,
+                      padding: '14px 40px',
+                    }}>
+                      {cAnimDiff > 0 && <span style={{ fontSize: '0.8em', marginRight: 6 }}>+</span>}
+                      {cAnimDiff < 0 && <span style={{ fontSize: '0.8em', marginRight: 6 }}>-</span>}
+                      {Math.abs(cAnimDiff)}
+                    </div>
+                  </div>
+                </div>
+
+                <LogoStrip />
+              </div>
+
+            </React.Fragment>
+          );
+        })}
+
+        {/* END CARD — always last segment */}
         <div className="seg seg-end" style={{
-          opacity: getSegOpacity(4),
-          pointerEvents: currentSeg === 4 ? 'auto' : 'none',
+          opacity: getSegOpacity(DURATIONS.length - 1),
+          pointerEvents: currentSeg === DURATIONS.length - 1 ? 'auto' : 'none',
           position: 'absolute',
           inset: 0
         }}>
