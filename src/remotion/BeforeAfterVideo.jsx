@@ -126,7 +126,15 @@ export const BeforeAfterVideo = ({
     if (!maskProp) return null;
     if (typeof maskProp === 'string') return maskProp;
     if (typeof maskProp === 'object') {
-      return maskProp[concernKey] ?? maskProp[concernKey.toLowerCase()] ?? null;
+      const lk = concernKey.toLowerCase();
+      // 1. exact match, 2. lowercase match, 3. partial/alias match ("pores" ↔ "visible pores")
+      if (maskProp[concernKey] !== undefined) return maskProp[concernKey];
+      if (maskProp[lk] !== undefined) return maskProp[lk];
+      const found = Object.entries(maskProp).find(([k]) => {
+        const kl = k.toLowerCase();
+        return kl === lk || kl.includes(lk) || lk.includes(kl);
+      });
+      return found ? found[1] : null;
     }
     return null;
   };
