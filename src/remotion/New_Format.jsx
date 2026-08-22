@@ -202,17 +202,15 @@ export const NewFormatVideo = ({
                     {/* Product unit — brand_name_visible controls display */}
                     {brand_name_visible ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 40, margin: '0 0 60px 0', width: '100%', opacity: line2Opacity, transform: `translateY(${line2Y}px)` }}>
-                            <div style={{ width: 250, height: 250, borderRadius: 50, backgroundColor: '#1A202C', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <div style={{ width: 180, height: 180, borderRadius: 36, backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', boxSizing: 'border-box' }}>
-                                    {product_image_url ? (
-                                        <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Product" />
-                                    ) : (
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                            <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>{initials}</span>
-                                            <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>{logoText}</span>
-                                        </div>
-                                    )}
-                                </div>
+                            <div style={{ width: 250, height: 250, borderRadius: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                                {product_image_url ? (
+                                    <Img src={product_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 36 }} alt="Product" />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', backgroundColor: '#fff', border: '4px solid #1A202C', borderRadius: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                        <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>{initials}</span>
+                                        <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>{logoText}</span>
+                                    </div>
+                                )}
                             </div>
                             <div style={{ textAlign: 'left' }}>
                                 <div style={{ fontSize: 72, fontWeight: 800, color: '#1A202C', lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>{product_name || 'Hand Lotion'}</div>

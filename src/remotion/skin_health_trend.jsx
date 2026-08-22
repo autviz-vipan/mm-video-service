@@ -94,6 +94,8 @@ const BG = '#fff';
 const SceneProductInfo = ({
     product_name = '',
     brand_name = '',
+    brand_name_visible = true,
+    product_category = '',
     creator_name = '',
     concerns = [],
     product_image_url = '',
@@ -102,8 +104,10 @@ const SceneProductInfo = ({
     after_timeperiod = '',
     total_weeks = 7,
     fps,
+    startFrame = 0,
 }) => {
-    const frame = useCurrentFrame();
+    const globalFrame = useCurrentFrame();
+    const frame = globalFrame - startFrame;
     const sceneOpacity = interpolate(frame, [155, 179], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
     const line1Opacity = interpolate(frame, [10, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
@@ -125,6 +129,7 @@ const SceneProductInfo = ({
         }
     }
 
+    const effectiveCategory = product_category;
     const getInitials = (brand, product) => {
         if (brand) {
             const parts = brand.trim().split(/\s+/);
@@ -217,72 +222,102 @@ const SceneProductInfo = ({
             </div>
 
             {/* Product Unit */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 40,
-                margin: '60px 0',
-                width: '100%',
-                opacity: line2Opacity,
-                transform: `translateY(${line2Y}px)`,
-            }}>
+            {brand_name_visible ? (
                 <div style={{
-                    width: 250,
-                    height: 250,
-                    borderRadius: 50,
-                    backgroundColor: '#1A202C',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    flexShrink: 0,
+                    gap: 40,
+                    margin: '60px 0',
+                    width: '100%',
+                    opacity: line2Opacity,
+                    transform: `translateY(${line2Y}px)`,
                 }}>
                     <div style={{
-                        width: 180,
-                        height: 180,
-                        borderRadius: 36,
-                        backgroundColor: '#fff',
+                        width: 250,
+                        height: 250,
+                        borderRadius: 50,
+                        backgroundColor: '#1A202C',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '10px',
-                        boxSizing: 'border-box',
+                        flexShrink: 0,
                     }}>
-                        {product_image_url ? (
-                            <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Product" />
-                        ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
-                                    {initials}
-                                </span>
-                                <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
-                                    {logoText}
-                                </span>
-                            </div>
-                        )}
+                        <div style={{
+                            width: 180,
+                            height: 180,
+                            borderRadius: 36,
+                            backgroundColor: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '10px',
+                            boxSizing: 'border-box',
+                        }}>
+                            {product_image_url ? (
+                                <Img src={product_image_url} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Product" />
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1A202C', textAlign: 'center', lineHeight: 1.2, fontFamily: 'Montserrat, sans-serif' }}>
+                                        {initials}
+                                    </span>
+                                    <span style={{ fontSize: 18, fontWeight: 500, color: '#1A202C', textAlign: 'center', marginTop: 4, lineHeight: 1.1, fontFamily: 'Montserrat, sans-serif' }}>
+                                        {logoText}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{
+                            fontSize: 72,
+                            fontWeight: 800,
+                            color: '#1A202C',
+                            lineHeight: 1.1,
+                            fontFamily: 'Montserrat, sans-serif',
+                        }}>
+                            {product_name || 'Hand Lotion'}
+                        </div>
+                        <div style={{
+                            fontSize: 44,
+                            fontWeight: 600,
+                            color: '#10AFCC',
+                            marginTop: 10,
+                            fontFamily: 'Montserrat, sans-serif',
+                        }}>
+                            by {brand_name || 'Niven Morgan'}
+                        </div>
                     </div>
                 </div>
-                <div style={{ textAlign: 'left' }}>
+            ) : effectiveCategory ? (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '60px 0',
+                    width: '100%',
+                    opacity: line2Opacity,
+                    transform: `translateY(${line2Y}px)`,
+                }}>
                     <div style={{
-                        fontSize: 72,
-                        fontWeight: 800,
-                        color: '#1A202C',
-                        lineHeight: 1.1,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#10AFCC',
+                        color: '#fff',
+                        fontSize: 54,
+                        fontWeight: 700,
                         fontFamily: 'Montserrat, sans-serif',
+                        letterSpacing: '0.04em',
+                        padding: '22px 60px',
+                        borderRadius: 60,
                     }}>
-                        {product_name || 'Hand Lotion'}
-                    </div>
-                    <div style={{
-                        fontSize: 44,
-                        fontWeight: 600,
-                        color: '#10AFCC',
-                        marginTop: 10,
-                        fontFamily: 'Montserrat, sans-serif',
-                    }}>
-                        by {brand_name || 'Niven Morgan'}
+                        {effectiveCategory}
                     </div>
                 </div>
-            </div>
+            ) : (
+                <div style={{ height: 40 }} />
+            )}
 
             {/* Setup Rows */}
             <div style={{
@@ -331,8 +366,8 @@ const SceneProductInfo = ({
                         <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', textTransform: 'uppercase' }}>
                             {weeksNum} {weekLabel}
                         </span>
-                        <span style={{ fontSize: 30, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
-                            {trackingPeriodStr}
+                        <span style={{ fontSize: 30, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginTop: 4, textTransform: 'uppercase' }}>
+                            {before_timeperiod} &rarr; {after_timeperiod}
                         </span>
                     </div>
                 </div>
@@ -365,19 +400,24 @@ const SceneProductInfo = ({
 const SceneChart = ({
     before_avg = {},
     after_avg = {},
-    concerns = [],
+    concern = 'redness',
     product_name = '',
+    brand_name_visible = true,
+    product_category = '',
     before_timeperiod = '',
     after_timeperiod = '',
     timeline_scores = [],
     fps,
+    startFrame = 0,
 }) => {
-    const frame = useCurrentFrame();
-    const localFrame = frame - 180;
+    const globalFrame = useCurrentFrame();
+    const localFrame = globalFrame - startFrame;
 
     // Pick the primary concern
-    const primaryConcern = concerns.length > 0 ? concerns[0].toLowerCase() : Object.keys(before_avg)[0] || 'redness';
-    const concernLabel = primaryConcern.charAt(0).toUpperCase() + primaryConcern.slice(1);
+    const primaryConcern = concern.toLowerCase();
+    const concernLabel = concern.charAt(0).toUpperCase() + concern.slice(1);
+
+    const trackedItem = brand_name_visible ? product_name : (product_category || product_name);
 
     const avBT = before_avg[primaryConcern] ?? before_avg[Object.keys(before_avg)[0]] ?? 34.2;
     const avPT = after_avg[primaryConcern] ?? after_avg[Object.keys(after_avg)[0]] ?? 56.8;
@@ -848,7 +888,7 @@ const SceneChart = ({
                     fontFamily: 'Montserrat, sans-serif',
                     margin: '0 0 24px 0',
                 }}>
-                    After tracking <span style={{ color: '#10AFCC', fontWeight: 700 }}>{product_name}</span> for <span style={{ color: '#10AFCC', fontWeight: 700 }}>{nDays} days</span>, my {concernLabel} score {isImproved ? 'improved' : 'changed'} by <span style={{ color: '#10AFCC', fontWeight: 700 }}>{formatDelta(diffVal)}</span> — from {fmtScore(avBT)} to {fmtScore(avPT)}.
+                    After tracking <span style={{ color: '#10AFCC', fontWeight: 700 }}>{trackedItem}</span> for <span style={{ color: '#10AFCC', fontWeight: 700 }}>{nDays} days</span>, my {concernLabel} score {isImproved ? 'improved' : 'changed'} by <span style={{ color: '#10AFCC', fontWeight: 700 }}>{formatDelta(diffVal)}</span> — from {fmtScore(avBT)} to {fmtScore(avPT)}.
                 </p>
             </div>
         </AbsoluteFill>
@@ -900,22 +940,22 @@ const SceneSideBySide = ({
     best_image_score = 0,
     worst_image_url = '',
     worst_image_score = 0,
-    concerns = [],
+    concern = 'redness',
     before_timeperiod = '',
     after_timeperiod = '',
     mask_enabled = 'off',
     best_mask_url = null,
     worst_mask_url = null,
     fps,
+    startFrame = 0,
 }) => {
-    const frame = useCurrentFrame();
-    const localFrame = frame - 540;
+    const globalFrame = useCurrentFrame();
+    const localFrame = globalFrame - startFrame;
 
     // Format scores — show 1 decimal only when not a whole number
     const fmtScore = (v) => Number.isInteger(Number(v)) ? String(Math.round(v)) : Number(v).toFixed(1);
 
-    const primaryConcern = concerns.length > 0 ? concerns[0] : 'skin';
-    const concernLabel = primaryConcern.charAt(0).toUpperCase() + primaryConcern.slice(1);
+    const concernLabel = concern.charAt(0).toUpperCase() + concern.slice(1);
 
     // Calculate days elapsed between scans
     const parsePeriodDate = (dateStr) => {
@@ -1221,12 +1261,12 @@ const SceneSideBySide = ({
 
 // ─── SCENE 4: LOGO OUTRO ─────────────────────────────────────────────────────
 // Frames 840 – 959
-const SceneOutro = ({ fps }) => {
-    const frame = useCurrentFrame();
-    const localFrame = frame - 690;
+const SceneOutro = ({ fps, startFrame = 0 }) => {
+    const globalFrame = useCurrentFrame();
+    const localFrame = globalFrame - startFrame;
 
     const outroScale = spring({ frame: localFrame, fps, from: 0.6, to: 1, config: { damping: 10 } });
-    const outroOpacity = interpolate(frame, [690, 720], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const outroOpacity = interpolate(localFrame, [0, 30], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
     return (
         <AbsoluteFill style={{
@@ -1263,6 +1303,8 @@ const SceneOutro = ({ fps }) => {
 export const SkinHealthTrendVideo = ({
     product_name = 'Nivyaa',
     brand_name = 'Nivya',
+    brand_name_visible = true,
+    product_category = '',
     creator_name = '',
     concerns = [],
     product_start_date = '',
@@ -1279,6 +1321,8 @@ export const SkinHealthTrendVideo = ({
     before_timeperiod = '',
     after_timeperiod = '',
     total_weeks = 7,
+    best_mask_image = null,
+    worst_mask_image = null,
     best_mask_url = null,
     worst_mask_url = null,
     timeline_scores = [],
@@ -1288,12 +1332,39 @@ export const SkinHealthTrendVideo = ({
 
     const introFadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-    // Scene boundaries:
-    // Scene 1: Product Info    — frames   0 – 179  (6 s)
-    // Scene 2: Chart           — frames 180 – 539  (12 s)
-    // Scene 3: Side by Side    — frames 540 – 689  (5 s)
-    // Scene 4: Outro           — frames 690 – 809  (4 s)
-    // Total = 810 frames = 27 s
+    const allConcerns = concerns && concerns.length > 0 ? concerns : ['redness'];
+
+    const getMaskUrl = (maskProp, concernKey) => {
+        if (!maskProp) return null;
+        if (typeof maskProp === 'string') return maskProp;
+        if (typeof maskProp === 'object') {
+            const lk = concernKey.toLowerCase();
+            if (maskProp[concernKey] !== undefined) return maskProp[concernKey];
+            if (maskProp[lk] !== undefined) return maskProp[lk];
+            const found = Object.entries(maskProp).find(([k]) => {
+                const kl = k.toLowerCase();
+                return kl === lk || kl.includes(lk) || lk.includes(kl);
+            });
+            return found ? found[1] : null;
+        }
+        return null;
+    };
+
+    const DURATIONS = [
+        180,
+        ...allConcerns.flatMap(() => [360, 150]),
+        120
+    ];
+
+    const SEG_START_FRAMES = DURATIONS.reduce((acc, dur, i) => {
+        acc.push(i === 0 ? 0 : acc[i - 1] + DURATIONS[i - 1]);
+        return acc;
+    }, []);
+
+    const totalFrames = SEG_START_FRAMES[SEG_START_FRAMES.length - 1] + DURATIONS[DURATIONS.length - 1];
+
+    const outroStartFrame = SEG_START_FRAMES[SEG_START_FRAMES.length - 1];
+    const watermarkOpacity = interpolate(frame, [outroStartFrame, outroStartFrame + 15], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
     return (
         <AbsoluteFill style={{
@@ -1305,62 +1376,81 @@ export const SkinHealthTrendVideo = ({
             <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');` }} />
 
             {/* ── SCENE 1: PRODUCT INFO ── */}
-            {frame < 180 && (
+            {frame < SEG_START_FRAMES[1] && (
                 <SceneProductInfo
                     product_name={product_name}
                     brand_name={brand_name}
+                    brand_name_visible={brand_name_visible}
+                    product_category={product_category}
                     creator_name={creator_name}
-                    concerns={concerns}
+                    concerns={allConcerns}
                     product_image_url={product_image_url}
                     product_start_date={product_start_date}
                     before_timeperiod={before_timeperiod}
                     after_timeperiod={after_timeperiod}
                     total_weeks={total_weeks}
                     fps={fps}
+                    startFrame={SEG_START_FRAMES[0]}
                 />
             )}
 
-            {/* ── SCENE 2: CHART ── */}
-            {frame >= 180 && frame < 540 && (
-                <SceneChart
-                    before_avg={before_avg}
-                    after_avg={after_avg}
-                    concerns={concerns}
-                    product_name={product_name}
-                    before_timeperiod={before_timeperiod}
-                    after_timeperiod={after_timeperiod}
-                    timeline_scores={timeline_scores}
-                    fps={fps}
-                />
-            )}
-
-            {/* ── SCENE 3: BEST vs WORST ── */}
-            {frame >= 540 && frame < 690 && (
-                <SceneSideBySide
-                    best_image_url={best_image_url}
-                    best_image_score={best_image_score}
-                    worst_image_url={worst_image_url}
-                    worst_image_score={worst_image_score}
-                    concerns={concerns}
-                    before_timeperiod={before_timeperiod}
-                    after_timeperiod={after_timeperiod}
-                    mask_enabled={mask_enabled}
-                    best_mask_url={best_mask_url}
-                    worst_mask_url={worst_mask_url}
-                    fps={fps}
-                />
-            )}
+            {/* ── SCENE 2 & 3: PER CONCERN ── */}
+            {allConcerns.map((concern, idx) => {
+                const chartSegIdx = 1 + idx * 2;
+                const sideSegIdx = 2 + idx * 2;
+                
+                const chartStartFrame = SEG_START_FRAMES[chartSegIdx];
+                const sideStartFrame = SEG_START_FRAMES[sideSegIdx];
+                
+                const chartEndFrame = chartStartFrame + DURATIONS[chartSegIdx];
+                const sideEndFrame = sideStartFrame + DURATIONS[sideSegIdx];
+                
+                return (
+                    <React.Fragment key={concern}>
+                        {frame >= chartStartFrame && frame < chartEndFrame && (
+                            <SceneChart
+                                before_avg={before_avg}
+                                after_avg={after_avg}
+                                concern={concern}
+                                product_name={product_name}
+                                brand_name_visible={brand_name_visible}
+                                product_category={product_category}
+                                before_timeperiod={before_timeperiod}
+                                after_timeperiod={after_timeperiod}
+                                timeline_scores={timeline_scores}
+                                fps={fps}
+                                startFrame={chartStartFrame}
+                            />
+                        )}
+                        {frame >= sideStartFrame && frame < sideEndFrame && (
+                            <SceneSideBySide
+                                best_image_url={best_image_url}
+                                best_image_score={best_image_score}
+                                worst_image_url={worst_image_url}
+                                worst_image_score={worst_image_score}
+                                concern={concern}
+                                before_timeperiod={before_timeperiod}
+                                after_timeperiod={after_timeperiod}
+                                mask_enabled={mask_enabled}
+                                best_mask_url={getMaskUrl(best_mask_url, concern)}
+                                worst_mask_url={getMaskUrl(worst_mask_url, concern)}
+                                fps={fps}
+                                startFrame={sideStartFrame}
+                            />
+                        )}
+                    </React.Fragment>
+                );
+            })}
 
             {/* ── SCENE 4: OUTRO ── */}
-            {frame >= 690 && (
-                <SceneOutro fps={fps} />
+            {frame >= outroStartFrame && (
+                <SceneOutro fps={fps} startFrame={outroStartFrame} />
             )}
 
             {/* ── WATERMARK (all screens except last) ── */}
-            {frame < 705 && (() => {
-                const watermarkOpacity = interpolate(frame, [690, 705], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-                return <Watermark opacity={watermarkOpacity} />;
-            })()}
+            {frame < outroStartFrame + 15 && (
+                <Watermark opacity={watermarkOpacity} />
+            )}
         </AbsoluteFill>
     );
 };

@@ -16,6 +16,17 @@ const calcBeforeAfterDuration = ({ props }) => {
   return { durationInFrames: total };
 };
 
+const calcSkinHealthTrendDuration = ({ props }) => {
+  const concerns = props.concerns && props.concerns.length > 0 ? props.concerns : ['redness'];
+  const durations = [
+      180,
+      ...concerns.flatMap(() => [360, 150]),
+      120
+  ];
+  const total = durations.reduce((a, b) => a + b, 0);
+  return { durationInFrames: total };
+};
+
 export const RemotionRoot = () => {
   return (
     <>
@@ -90,6 +101,7 @@ export const RemotionRoot = () => {
         id="SkinHealthTrendVideo"
         component={SkinHealthTrendVideo}
         durationInFrames={810}
+        calculateMetadata={calcSkinHealthTrendDuration}
         fps={30}
         width={1080}
         height={1920}
