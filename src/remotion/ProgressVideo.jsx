@@ -1638,7 +1638,7 @@ export const ProgressVideo = ({
               </h1>
             </div>
 
-            {/* SVG Chart Container - height set to 960px, flexShrink: 0 to prevent shrinking */}
+            {/*height set to 960px, flexShrink: 0 to prevent shrinking */}
             <div style={{
               position: 'relative',
               width: '100%',
