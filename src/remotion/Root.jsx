@@ -5,6 +5,28 @@ import { BeforeAfterVideo } from './BeforeAfterVideo';
 import { SkinHealthTrendVideo } from './skin_health_trend';
 import { NewFormatVideo } from './New_Format';
 
+// Mirrors the same logic as BeforeAfterVideo's DURATIONS computation
+const calcBeforeAfterDuration = ({ props }) => {
+  const concerns = props.concerns && props.concerns.length > 0 ? props.concerns : ['redness'];
+  const isMultiConcernMask = props.mask_enabled === 'on' && concerns.length > 1;
+  const durations = isMultiConcernMask
+    ? [135, ...concerns.flatMap(() => [96, 96, 120]), 108]
+    : [135, 96, 96, 120, 108];
+  const total = durations.reduce((a, b) => a + b, 0);
+  return { durationInFrames: total };
+};
+
+const calcSkinHealthTrendDuration = ({ props }) => {
+  const concerns = props.concerns && props.concerns.length > 0 ? props.concerns : ['redness'];
+  const durations = [
+      180,
+      ...concerns.flatMap(() => [360, 150]),
+      120
+  ];
+  const total = durations.reduce((a, b) => a + b, 0);
+  return { durationInFrames: total };
+};
+
 export const RemotionRoot = () => {
   return (
     <>
@@ -47,12 +69,16 @@ export const RemotionRoot = () => {
         id="BeforeAfterVideo"
         component={BeforeAfterVideo}
         durationInFrames={555}
+        calculateMetadata={calcBeforeAfterDuration}
         fps={30}
         width={1080}
         height={1920}
         defaultProps={{
           product_name: "O2 Peptide Firm Perfect Cream",
           brand_name: "Element Eight",
+          brand_name_visible: true,
+          category_name: "",
+          product_category: "",
           creator_name: "",
           concerns: ["Redness"],
           product_image_url: "",
@@ -63,6 +89,7 @@ export const RemotionRoot = () => {
           after_image_url: "https://d34auvch2x824m.cloudfront.net/images/9524bd6457934307ac4007decb3a0e27.84ce1c80c28e43f3940ffb9f72a8812b.jpg",
           before_mask_url: null,
           after_mask_url: null,
+          total_weeks: 7,
           before_date: "Apr 16, 2026",
           after_date: "Jun 10, 2026",
           before_metrics: { redness: 49 },
@@ -74,6 +101,7 @@ export const RemotionRoot = () => {
         id="SkinHealthTrendVideo"
         component={SkinHealthTrendVideo}
         durationInFrames={810}
+        calculateMetadata={calcSkinHealthTrendDuration}
         fps={30}
         width={1080}
         height={1920}
